@@ -1,0 +1,4 @@
+{"timestamp": "2025-11-08T09:32:57.415628", "agent": "builder_agent", "tool": "Read", "success": true, "execution_time_ms": 107.4676513671875, "score": 1.0, "quality_level": "excellent", "error": null, "metadata": {}}
+{"timestamp": "2025-11-08T09:33:03.417763", "agent": "builder_agent", "tool": "Bash", "success": true, "execution_time_ms": 6000.849723815918, "score": 0.8879898033142091, "quality_level": "good", "error": null, "metadata": {}}
+{"timestamp": "2025-11-08T09:33:03.419345", "agent": "builder_agent", "tool": "Write", "success": false, "execution_time_ms": 1.007080078125, "score": 0.2, "quality_level": "failure", "error": "Simulated tool failure", "metadata": {}}
+{"timestamp": "2025-11-08T09:33:03.495831", "agent": "qa_agent", "tool": "Read", "success": true, "execution_time_ms": 66.33186340332031, "score": 1.0, "quality_level": "excellent", "error": null, "metadata": {}}

@@ -1,0 +1,195 @@
+# Genesis Skyvern Integration - SECURE CONFIGURATION
+# ============================================
+# Uses Docker secrets instead of environment variables
+# NO API KEYS EXPOSED IN CONTAINER ENVIRONMENT
+#
+# Security Level: PRODUCTION (Quinn-approved)
+# Created: November 8, 2025
+# Last Updated: November 8, 2025
+
+version: '3.8'
+
+services:
+  skyvern-backend:
+    image: skyvern/skyvern:latest
+    container_name: genesis-skyvern
+    ports:
+      - "8000:8000"
+
+    # SECURE: Use secrets instead of environment variables
+    secrets:
+      - skyvern_api_key
+      - openai_api_key
+      - anthropic_api_key
+
+    # Only non-sensitive config in environment
+    environment:
+      - ENVIRONMENT=production
+      - LOG_LEVEL=INFO
+      - POSTGRES_HOST=skyvern-postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=skyvern
+      - POSTGRES_USER=skyvern
+      # Password via secret file reference
+      - POSTGRES_PASSWORD_FILE=/run/secrets/skyvern_db_password
+      # API keys via secret file references
+      - SKYVERN_API_KEY_FILE=/run/secrets/skyvern_api_key
+      - OPENAI_API_KEY_FILE=/run/secrets/openai_api_key
+      - ANTHROPIC_API_KEY_FILE=/run/secrets/anthropic_api_key
+
+    volumes:
+      - ./skyvern_tasks:/app/tasks:ro  # Read-only for security
+      - ./skyvern_workflows:/app/workflows:ro
+      - ./skyvern_data:/app/data
+      - skyvern_logs:/app/logs
+
+    # Health check validation
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+    restart: unless-stopped
+
+    # Security hardening
+    security_opt:
+      - no-new-privileges:true
+
+    # Resource limits (prevent DoS)
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+
+    networks:
+      - genesis-internal
+
+    depends_on:
+      skyvern-postgres:
+        condition: service_healthy
+
+  skyvern-postgres:
+    image: postgres:15-alpine
+    container_name: genesis-skyvern-db
+
+    # SECURE: Password via secret
+    secrets:
+      - skyvern_db_password
+
+    environment:
+      - POSTGRES_USER=skyvern
+      - POSTGRES_DB=skyvern
+      - POSTGRES_PASSWORD_FILE=/run/secrets/skyvern_db_password
+      # Security hardening
+      - POSTGRES_HOST_AUTH_METHOD=scram-sha-256
+      - POSTGRES_INITDB_ARGS=--auth-host=scram-sha-256
+
+    volumes:
+      - skyvern_db:/var/lib/postgresql/data
+      - ./scripts/postgres_init.sh:/docker-entrypoint-initdb.d/init.sh:ro
+
+    # Health check
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U skyvern"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    restart: unless-stopped
+
+    # Security hardening
+    security_opt:
+      - no-new-privileges:true
+
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+        reservations:
+          cpus: '0.25'
+          memory: 512M
+
+    networks:
+      - genesis-internal
+
+    # NOT exposed to host (internal only)
+    # ports:
+    #   - "5432:5432"  # SECURITY: Keep database internal
+
+# Docker secrets (external files, NOT in environment)
+secrets:
+  skyvern_api_key:
+    file: ./secrets/skyvern_api_key.txt
+  openai_api_key:
+    file: ./secrets/openai_api_key.txt
+  anthropic_api_key:
+    file: ./secrets/anthropic_api_key.txt
+  skyvern_db_password:
+    file: ./secrets/skyvern_db_password.txt
+
+volumes:
+  skyvern_db:
+    driver: local
+  skyvern_logs:
+    driver: local
+
+networks:
+  genesis-internal:
+    driver: bridge
+    internal: false  # Allow external API calls
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+
+# ============================================
+# SECURITY FEATURES
+# ============================================
+#
+# 1. NO API KEYS IN ENVIRONMENT
+#    - All secrets loaded from files
+#    - Files mounted at /run/secrets/ (tmpfs, memory-only)
+#
+# 2. READ-ONLY VOLUMES WHERE POSSIBLE
+#    - Task/workflow definitions are read-only
+#    - Only data directory is writable
+#
+# 3. NO NEW PRIVILEGES
+#    - Containers cannot escalate privileges
+#    - Prevents container escape attacks
+#
+# 4. RESOURCE LIMITS
+#    - CPU/memory capped to prevent DoS
+#    - Health checks auto-restart failed containers
+#
+# 5. INTERNAL NETWORK
+#    - Database not exposed to host
+#    - Only Skyvern API (8000) exposed
+#
+# 6. HEALTH CHECKS
+#    - Auto-restart unhealthy containers
+#    - Validates service availability
+#
+# 7. POSTGRES SECURITY
+#    - SCRAM-SHA-256 password encryption
+#    - Alpine base (smaller attack surface)
+#    - No default trust authentication
+#
+# ============================================
+# KEY ROTATION PROCEDURE
+# ============================================
+#
+# To rotate API keys:
+# 1. Update secret files in ./secrets/
+# 2. Run: docker-compose -f docker-compose.skyvern.yml restart skyvern-backend
+# 3. Health check validates new keys
+# 4. Zero downtime rotation
+#
+# See secrets/README.md for full instructions

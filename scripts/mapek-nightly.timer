@@ -1,0 +1,16 @@
+[Unit]
+Description=Genesis MAPE-K Nightly Optimization Timer
+Requires=mapek-nightly.service
+
+[Timer]
+# Run daily at 2 AM
+OnCalendar=*-*-* 02:00:00
+# Run job at 3 AM if system missed 2 AM
+OnBootSec=3h
+# Randomize start time by 5 minutes to avoid thundering herd
+RandomizedDelaySec=5min
+# Persist timer state across reboots
+Persistent=true
+
+[Install]
+WantedBy=timers.target

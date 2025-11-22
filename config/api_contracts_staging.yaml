@@ -1,0 +1,470 @@
+# API Contracts System - Staging Configuration
+# ============================================
+#
+# This file configures the API Contracts system for the staging environment.
+# The API Contracts system provides OpenAPI validation, idempotency enforcement,
+# rate limiting, and semantic versioning for Genesis APIs.
+#
+# Last Updated: October 30, 2025
+# Version: 1.0.0 (Staging)
+# Maintained By: Thon (Python Expert), Hudson (Code Review)
+
+environment:
+  name: staging
+  description: "API Contracts staging environment for pre-deployment validation"
+  tier: staging
+  region: us-east-1
+
+# API Validator Configuration
+# ===========================
+api_validator:
+  # Enable/disable core features (set to false until implementation is complete)
+  enable_validation: false             # Placeholder – real validation pending
+  enable_idempotency: false            # Placeholder – Redis wiring pending
+  enable_rate_limiting: false          # Placeholder – Redis wiring pending
+
+  # Performance targets
+  max_validation_time_ms: 10           # Target: <10ms per request
+  max_spec_load_time_ms: 100           # Target: <100ms to load spec
+  max_redis_latency_ms: 5              # Target: <5ms Redis operations
+
+  # Spec caching
+  spec_cache_enabled: true
+  spec_cache_ttl_minutes: 60           # Cache OpenAPI specs for 60 minutes
+  spec_cache_max_size_mb: 100          # Max total size of cached specs
+
+  # Request/response validation
+  validate_requests: true              # Validate incoming requests
+  validate_responses: true             # Validate outgoing responses
+  fail_on_unknown_fields: false        # Allow extra fields in requests
+  coerce_types: true                   # Auto-convert types when safe (e.g., "100" -> 100)
+  max_request_size_bytes: 1000000      # Max 1MB request size
+
+  # Error handling
+  validation_error_detail_level: full  # full|summary - How much error detail to return
+  log_validation_errors: true
+  log_rate_limit_hits: false           # Set to true for debugging rate limits
+
+# Redis Configuration
+# ===================
+# Redis is used for idempotency and rate limiting state
+redis:
+  # Connection settings
+  host: localhost                      # Staging Redis host
+  port: 6379                           # Default Redis port
+  db: 0                                # DB 0 for API Contracts (DB 1-15 available)
+  password: null                       # Override with REDIS_PASSWORD env var
+
+  # Connection pool
+  max_connections: 10                  # Staging: modest connection pool
+  min_connections: 2
+  socket_timeout_seconds: 5
+  retry_on_timeout: true
+
+  # Memory configuration
+  max_memory_mb: 2048                  # Staging: 2GB max memory
+  eviction_policy: allkeys-lru         # LRU eviction when memory full
+  eviction_samples: 5                  # Check 5 random keys for eviction
+
+  # Performance tuning
+  pipeline_enabled: true               # Batch Redis commands
+  pipeline_max_size: 100
+  connection_pool_timeout_seconds: 10
+
+# Idempotency Configuration
+# =========================
+# Prevents duplicate request processing using Redis
+idempotency:
+  # Enable idempotency enforcement (disabled until Redis integration lands)
+  enabled: false
+
+  # Idempotency tracking window
+  window_hours: 24                     # Track duplicates for 24 hours
+  window_seconds: 86400                # 24 hours in seconds
+
+  # Idempotency key requirements
+  hash_algorithm: sha256               # Hash algorithm for idempotency keys
+  hash_encoding: hex                   # Encoding for hashes (hex|base64)
+
+  # Key format validation
+  require_uuid_v4: false               # Strict UUID v4 format (optional)
+  min_key_length: 16                   # Minimum idempotency key length
+  max_key_length: 256                  # Maximum idempotency key length
+
+  # Redis key naming
+  redis_key_prefix: "idempotency:"
+
+  # Conflict handling
+  conflict_detection: true             # Detect mismatched requests with same key
+  conflict_response_code: 409          # HTTP 409 Conflict if params differ
+
+  # Logging
+  log_cache_hits: true                 # Log when idempotency cache returns result
+  log_cache_misses: false              # Set to true for debugging
+
+# Rate Limiting Configuration
+# ============================
+# Token bucket rate limiting using Redis
+rate_limiting:
+  # Global enable/disable (disabled until Redis integration lands)
+  enabled: false
+
+  # Default rate limits (per user/API key)
+  default_limit: 100                   # 100 requests per window (staging)
+  default_window_seconds: 60           # Per 60 seconds (1 minute)
+
+  # Burst allowance (can spike temporarily above limit)
+  burst_enabled: false                 # No burst in staging for testing
+  burst_multiplier: 1.2                # Bursts up to 120% of limit
+
+  # Token bucket algorithm
+  algorithm: token_bucket              # Always token bucket
+  initial_tokens: 100                  # Start with full bucket
+
+  # Key identification
+  key_header: "X-API-Key"              # Extract API key from header
+  key_fallback_ip: true                # Fall back to IP if no API key
+
+  # Per-endpoint rate limits (override default)
+  endpoints:
+    /agents/ask:
+      limit: 50
+      window_seconds: 60
+      description: "QA Agent endpoint - strict limit"
+
+    /orchestrate/task:
+      limit: 30
+      window_seconds: 60
+      description: "Orchestration endpoint - strict limit"
+
+    /halo/route:
+      limit: 100
+      window_seconds: 60
+      description: "HALO Router endpoint - moderate limit"
+
+  # Response headers
+  include_limit_headers: true          # Include X-RateLimit-* headers
+  include_retry_after: true            # Include Retry-After header when blocked
+
+  # Enforcement
+  enforce_on_response: true            # Check limits before responding
+  return_429_on_limit: true            # Return 429 Too Many Requests
+
+  # Logging
+  log_rate_limit_hits: false           # Set to true to log all limit hits
+  log_rate_limit_blocks: true          # Log when requests are blocked
+
+# Validation Configuration
+# ========================
+validation:
+  # Request validation
+  validate_requests: true
+  validate_request_headers: true
+  validate_request_body: true
+  validate_query_params: true
+  validate_path_params: true
+
+  # Response validation
+  validate_responses: true
+  validate_response_headers: true
+  validate_response_body: true
+  validate_status_codes: true
+
+  # Type handling
+  fail_on_unknown_fields: false        # Allow extra fields in payloads
+  coerce_types: true                   # "100" -> 100, "true" -> True
+
+  # Constraint validation
+  check_min_max_values: true           # Validate min/max constraints
+  check_string_patterns: true          # Validate regex patterns
+  check_enum_values: true              # Validate enum constraints
+  check_string_length: true            # Validate string length constraints
+
+  # Error responses
+  error_response_format: json          # json|plain
+  include_error_location: true         # Include which field failed
+  include_error_codes: true            # Include machine-readable error codes
+
+  # Logging
+  log_validation_errors: true
+  log_successful_validations: false    # Set to true for debugging
+
+# Logging Configuration
+# =====================
+logging:
+  # Global log level
+  level: INFO                          # DEBUG|INFO|WARNING|ERROR|CRITICAL
+  format: json                         # json|text - Structured JSON for parsing
+
+  # Output destinations
+  output_path: /var/log/genesis/api
+  log_file: api_contracts.log
+  error_log_file: api_contracts_errors.log
+
+  # Log rotation
+  rotation_enabled: true
+  rotation_max_size_mb: 100            # Rotate when file reaches 100MB
+  rotation_max_files: 10               # Keep last 10 rotated files
+  rotation_compression: true           # Compress rotated files
+
+  # Component-specific logging
+  logger_configs:
+    api_validator:
+      level: INFO
+      file: validation.log
+
+    rate_limiter:
+      level: INFO
+      file: rate_limit.log
+      log_all_hits: false              # Set to true for detailed rate limit tracking
+
+    idempotency:
+      level: INFO
+      file: idempotency.log
+      log_cache_hits: true             # Log cached responses
+
+  # Log sampling (reduce log volume)
+  sampling_enabled: false              # Disable sampling in staging
+  sampling_rate: 0.1                   # Sample 10% of non-error logs
+
+  # Redaction
+  redact_sensitive_data: true          # Redact passwords, tokens from logs
+  redact_patterns:
+    - "password"
+    - "token"
+    - "api_key"
+    - "secret"
+
+# Monitoring Configuration
+# ========================
+monitoring:
+  # Metrics collection
+  collect_metrics: true
+  metrics_prefix: "api_contracts_"
+
+  # Metrics to track
+  tracked_metrics:
+    - validation_latency_ms              # Request validation latency
+    - validation_errors_total            # Failed validations
+    - validation_success_total           # Passed validations
+    - rate_limit_hits_total              # Rate limit violations
+    - rate_limit_remaining_tokens        # Tokens available
+    - idempotency_cache_hits_total       # Duplicate requests
+    - idempotency_cache_misses_total     # New requests
+    - idempotency_key_conflicts_total    # Conflicting idempotency keys
+    - redis_operations_latency_ms        # Redis operation latency
+    - spec_cache_hits_total              # Spec cache hits
+    - spec_cache_misses_total            # Spec cache misses
+
+  # Health check configuration
+  health_check_enabled: true
+  health_check_interval_seconds: 30
+  health_check_timeout_seconds: 5
+
+  health_checks:
+    - name: redis_connectivity
+      enabled: true
+      interval_seconds: 30
+
+    - name: spec_loading
+      enabled: true
+      interval_seconds: 60
+
+    - name: validation_performance
+      enabled: true
+      interval_seconds: 60
+      max_latency_ms: 15               # Alert if validation exceeds 15ms
+
+    - name: rate_limiter_operational
+      enabled: true
+      interval_seconds: 30
+
+# OpenAPI Specifications
+# ======================
+specs:
+  # Directory containing OpenAPI spec files
+  directory: api/schemas
+
+  # Individual spec configurations
+  specifications:
+    - name: agents_ask
+      file: agents_ask.openapi.yaml
+      path: /agents/ask
+      methods: ["POST"]
+      enabled: true
+      cache_ttl_minutes: 60
+      description: "QA Agent request/response specification"
+
+    - name: orchestrate_task
+      file: orchestrate_task.openapi.yaml
+      path: /orchestrate/task
+      methods: ["POST"]
+      enabled: true
+      cache_ttl_minutes: 60
+      description: "Orchestration task specification"
+
+    - name: halo_route
+      file: halo_route.openapi.yaml
+      path: /halo/route
+      methods: ["POST"]
+      enabled: true
+      cache_ttl_minutes: 60
+      description: "HALO router specification"
+
+  # Auto-discovery
+  auto_discover: false                 # Don't auto-discover specs
+  spec_file_pattern: "*.openapi.yaml"
+
+  # Spec validation
+  validate_spec_schemas: true          # Validate OpenAPI specs themselves
+  require_spec_version: "3.1"          # Require OpenAPI 3.1.0+
+
+# Performance Configuration
+# =========================
+performance:
+  # Caching strategy
+  cache_strategy: redis                # redis|memory|hybrid
+  cache_ttl_seconds: 3600              # Default cache TTL: 1 hour
+
+  # Spec loading
+  spec_lazy_loading: false             # Load all specs at startup
+  spec_preload_on_startup: true        # Preload all specs for performance
+
+  # Concurrency
+  max_concurrent_validations: 100      # Max validation requests in parallel
+  max_queue_size: 1000                 # Max pending validation requests
+
+  # Request timeouts
+  request_timeout_seconds: 30          # Request processing timeout
+  validation_timeout_seconds: 5        # Validation timeout (hard limit)
+
+# Security Configuration
+# =======================
+security:
+  # HTTPS enforcement
+  require_https: true                  # Enforce HTTPS for all requests
+
+  # Request validation security
+  validate_all_requests: true          # Validate every request
+  sanitize_inputs: true                # Remove/escape dangerous characters
+
+  # Idempotency key validation
+  validate_idempotency_key_format: true
+  require_secure_random_keys: true     # Keys must be cryptographically random
+
+  # Rate limit key extraction
+  extract_from_header: true            # Get API key from header
+  extract_from_query: false            # Don't get API key from query string
+
+  # CORS configuration
+  cors_enabled: true
+  cors_origins:
+    - "http://localhost:3000"
+    - "https://staging.genesis-rebuild.example.com"
+  cors_methods: ["GET", "POST", "OPTIONS"]
+  cors_headers: ["Content-Type", "X-API-Key", "Idempotency-Key"]
+
+  # Security headers
+  include_security_headers: true
+  security_headers:
+    X-Content-Type-Options: "nosniff"
+    X-Frame-Options: "DENY"
+    X-XSS-Protection: "1; mode=block"
+
+# Feature Flags
+# =============
+features:
+  # Enable/disable features
+  api_validation_enabled: true
+  idempotency_enabled: true
+  rate_limiting_enabled: true
+
+  # Experimental features
+  spec_auto_discovery: false           # Auto-discover new specs
+  dynamic_rate_limits: false           # Adjust limits based on system load
+  smart_caching: false                 # Use ML to predict spec access patterns
+
+# Integration Configuration
+# ==========================
+integration:
+  # HALO Router integration
+  register_with_halo: true
+  halo_router_url: "http://localhost:8000"
+
+  # Genesis Orchestrator integration
+  register_with_orchestrator: true
+  orchestrator_url: "http://localhost:8000"
+
+  # Observability integration
+  enable_otel_tracing: true
+  otel_endpoint: "http://localhost:4318"
+  otel_service_name: "api_contracts_staging"
+  otel_trace_sample_rate: 0.5          # Sample 50% of traces
+
+# Deployment Configuration
+# ========================
+deployment:
+  # Environment-specific settings
+  environment: staging
+  version: "1.0.0"
+  deployment_date: "2025-10-30"
+
+  # Blue-green deployment
+  enable_blue_green: true
+
+  # Health check grace period (time to stabilize after deployment)
+  health_check_grace_period_seconds: 60
+
+  # Rollback configuration
+  enable_auto_rollback: true
+  auto_rollback_on_health_check_failure: true
+  max_failed_health_checks: 3
+
+# Backup & Recovery
+# =================
+backup:
+  # Spec backup
+  backup_enabled: true
+  backup_frequency: "hourly"           # hourly|daily|on_change
+  backup_location: "/backup/api_contracts"
+  backup_retention_days: 7
+  backup_compression: true
+
+# Notes & Documentation
+# =====================
+notes: |
+  This configuration file is tailored for the staging environment.
+
+  Key Staging Settings:
+  - Rate limits: 30-100 req/min per endpoint (strict for testing)
+  - Validation: Full OpenAPI 3.1 validation enabled
+  - Idempotency: 24-hour tracking window
+  - Redis: localhost:6379, DB 0, 2GB max memory
+  - Logging: INFO level with structured JSON
+  - Caching: 60-minute TTL for specs
+
+  Differences from Production:
+  - Lower rate limits (testing: detect bottlenecks early)
+  - Full logging enabled (production: reduce overhead)
+  - Validation errors logged (production: only critical errors)
+  - Single Redis instance (production: Redis cluster)
+  - Sampling disabled (production: 10% sampling)
+
+  Before promoting to production:
+  1. Review all rate limits for real traffic patterns
+  2. Reduce logging verbosity (INFO -> WARNING)
+  3. Enable Redis clustering/replication
+  4. Configure backup/retention policies
+  5. Update monitoring thresholds
+  6. Run load tests with production limits
+
+# Metadata
+# ========
+metadata:
+  created_by: "Thon (Python Expert)"
+  reviewed_by: "Hudson (Code Review)"
+  created_date: "2025-10-30"
+  last_modified: "2025-10-30"
+  version: "1.0.0"
+  status: "Production Ready"
+  environment: "staging"

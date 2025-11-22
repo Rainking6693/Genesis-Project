@@ -1,0 +1,64 @@
+Title: Context Engineering: Sessions & Memory
+
+URL Source: https://www.kaggle.com/whitepaper-context-engineering-sessions-and-memory
+
+Markdown Content:
+Context Engineering: Sessions & Memory | Kaggle
+
+===============
+
+menu
+
+[Skip to content](https://www.kaggle.com/whitepaper-context-engineering-sessions-and-memory#site-content)
+
+[![Image 1: Kaggle](https://www.kaggle.com/static/images/site-logo.svg)](https://www.kaggle.com/)
+
+Create
+
+search​
+
+*   [explore Home](https://www.kaggle.com/) 
+*   [emoji_events Competitions](https://www.kaggle.com/competitions) 
+*   [table_chart Datasets](https://www.kaggle.com/datasets) 
+*   [tenancy Models](https://www.kaggle.com/models) 
+*   [leaderboard Benchmarks](https://www.kaggle.com/benchmarks) 
+*   [smart_toy Game Arena](https://www.kaggle.com/game-arena) 
+*   [code Code](https://www.kaggle.com/code) 
+*   [comment Discussions](https://www.kaggle.com/discussions) 
+*   [school Learn](https://www.kaggle.com/learn) 
+
+*   [expand_more More](https://www.kaggle.com/whitepaper-context-engineering-sessions-and-memory#) 
+
+auto_awesome_motion
+
+View Active Events
+
+menu
+
+[Skip to content](https://www.kaggle.com/whitepaper-context-engineering-sessions-and-memory#site-content)
+
+[![Image 2: Kaggle](https://www.kaggle.com/static/images/site-logo.svg)](https://www.kaggle.com/)
+
+search​
+
+[Sign In](https://www.kaggle.com/account/login?phase=startSignInTab&returnUrl=%2Fwhitepaper-context-engineering-sessions-and-memory)
+
+[Register](https://www.kaggle.com/account/login?phase=startRegisterTab&returnUrl=%2Fwhitepaper-context-engineering-sessions-and-memory)
+
+Kaggle uses cookies from Google to deliver and enhance the quality of its services and to analyze traffic.
+
+[Learn more](https://www.kaggle.com/cookies)
+
+OK, Got it.
+
+Context Engineering: Sessions & Memory
+======================================
+
+Authors: Kimberly Milam and Antonio Gulli 
+
+Introduction
+
+This whitepaper explores the critical role of Sessions and Memory in building stateful, intelligent LLM agents to empower developers to create more powerful, personalized, and persistent AI experiences. To enable Large Language Models (LLMs) to remember, learn, and personalize interactions, developers must dynamically assemble and manage information within their context window—a process known as Context Engineering.
+
+Read the whitepaper below
+

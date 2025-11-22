@@ -1,0 +1,64 @@
+# SaaSHub Submission Task
+# Submits SaaS product to SaaSHub directory
+# Expected parameters: product_name, website, description, category, pricing_model, features
+
+task:
+  name: "Submit to SaaSHub"
+  url: "https://www.saashub.com/submit-software"
+
+  prompt: |
+    Submit a SaaS product to SaaSHub directory.
+
+    Product Details:
+    - Product name: {{product_name}}
+    - Website: {{website}}
+    - Description: {{description}}
+    - Category: {{category}}
+    - Pricing model: {{pricing_model}} (e.g., Freemium, Subscription, One-time)
+    - Key features: {{features}} (comma-separated)
+
+    Submission Steps:
+    1. Fill in product name
+    2. Enter website URL
+    3. Write product description
+    4. Select category from dropdown
+    5. Choose pricing model
+    6. Add key features (may be multiple input fields or tags)
+    7. Verify all information
+    8. Click submit
+    9. Wait for confirmation or review message
+
+    STOP if:
+    - Email verification is required before submission
+    - Payment/premium listing upgrade is required
+    - Captcha appears (report "captcha required")
+
+  data_extraction:
+    submission_id:
+      type: "text"
+      selector: "submission reference or listing ID"
+      description: "Unique identifier for this submission"
+    
+    review_status:
+      type: "text"
+      selector: "review status message"
+      description: "Whether submission is pending, approved, or needs changes"
+    
+    listing_url:
+      type: "url"
+      selector: "product listing URL (if live immediately)"
+      description: "Direct link to product page on SaaSHub"
+
+  error_codes:
+    - "email verification required"
+    - "captcha required"
+    - "payment required"
+    - "product already listed"
+    - "category not found"
+
+  validation:
+    - check: "submission confirmation or review status visible"
+      retry_on_fail: false
+
+  timeout_seconds: 100
+  max_retries: 2

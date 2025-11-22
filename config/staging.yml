@@ -1,0 +1,531 @@
+# Genesis Rebuild - Staging Environment Configuration
+# Production-parity staging environment for pre-deployment validation
+# Last Updated: October 18, 2025
+
+environment:
+  name: staging
+  description: "Production-parity environment for deployment validation"
+  region: us-east-1
+
+# Infrastructure Configuration
+infrastructure:
+  # VPS configuration (Hetzner CPX41)
+  compute:
+    provider: hetzner
+    instance_type: CPX41
+    vcpus: 8
+    memory_gb: 16
+    disk_gb: 240
+    network_bandwidth: "20Gbps"
+
+  # Container orchestration
+  containers:
+    runtime: docker
+    version: "24.0+"
+    compose_version: "2.20+"
+    network_mode: bridge
+    restart_policy: unless-stopped
+
+  # Database configuration
+  databases:
+    mongodb:
+      version: "7.0"
+      port: 27017
+      data_path: /var/lib/genesis/mongodb
+      max_connections: 500
+      replica_set: false  # Single node for staging
+
+    redis:
+      version: "7.2"
+      port: 6379
+      data_path: /var/lib/genesis/redis
+      max_memory: 2gb
+      eviction_policy: allkeys-lru
+
+# Application Configuration
+application:
+  # Python environment
+  python:
+    version: "3.12"
+    virtual_env_path: /opt/genesis/venv
+
+  # Genesis orchestrator
+  orchestrator:
+    name: genesis-orchestrator
+    workers: 4
+    max_concurrent_tasks: 100
+    timeout_seconds: 300
+    enable_hot_reload: false
+
+  # Agent configuration
+  agents:
+    max_agents: 50  # Limit for staging
+    health_check_interval_seconds: 30
+    restart_on_failure: true
+    max_restart_attempts: 3
+
+  # API server
+  api:
+    host: 0.0.0.0
+    port: 8000
+    cors_origins:
+      - "http://localhost:3000"
+      - "https://staging.genesis.example.com"
+    rate_limit_per_minute: 100
+    enable_swagger_ui: true
+
+# LLM Configuration
+llm:
+  # Primary orchestration model
+  primary:
+    provider: openai
+    model: gpt-4o
+    temperature: 0.3
+    max_tokens: 4096
+    timeout_seconds: 60
+    max_retries: 3
+    backoff_factor: 2
+
+  # Code generation model
+  code_generation:
+    provider: anthropic
+    model: claude-sonnet-4
+    temperature: 0.2
+    max_tokens: 8192
+    timeout_seconds: 90
+
+  # Cost limits (USD)
+  cost_limits:
+    daily_max: 50.0
+    hourly_max: 10.0
+    alert_threshold: 40.0
+    auto_disable_at_max: true
+
+# Security Configuration
+security:
+  # Input validation
+  input_validation:
+    max_request_length: 5000
+    max_recursion_depth: 5
+    max_total_tasks: 1000
+    enable_sanitization: true
+
+  # Agent authentication
+  agent_auth:
+    algorithm: HMAC-SHA256
+    token_expiry_seconds: 3600
+    enable_registry: true
+    max_failed_attempts: 5
+
+  # Prompt injection protection
+  prompt_security:
+    enable_shields: true
+    dangerous_patterns:
+      - "ignore previous instructions"
+      - "system prompt"
+      - "reveal your instructions"
+      - "disregard all"
+      - "new instructions"
+      - "override"
+      - "administrator mode"
+      - "bypass security"
+      - "sudo mode"
+      - "role: system"
+      - "<|im_start|>"
+    max_pattern_matches: 2
+
+  # Rate limiting
+  rate_limiting:
+    enable: true
+    per_ip_per_minute: 100
+    per_agent_per_minute: 200
+    burst_allowance: 20
+
+# Observability Configuration
+observability:
+  # Logging
+  logging:
+    level: INFO
+    format: json
+    output_path: /var/log/genesis
+    rotation:
+      max_size_mb: 100
+      max_files: 10
+      compress: true
+
+  # OpenTelemetry tracing
+  tracing:
+    enable: true
+    sampling_rate: 0.5  # 50% sampling in staging
+    exporter: otlp
+    endpoint: http://localhost:4318
+    service_name: genesis-staging
+    allowed_span_types:
+      - orchestration
+      - htdag
+      - halo
+      - aop
+
+  # Metrics
+  metrics:
+    enable: true
+    interval_seconds: 15
+    collectors:
+      - system_metrics
+      - application_metrics
+      - llm_metrics
+      - agent_metrics
+
+    # Key metrics to track
+    tracked_metrics:
+      - task_execution_time
+      - task_success_rate
+      - task_failure_rate
+      - agent_response_time
+      - llm_token_usage
+      - llm_cost_per_request
+      - error_rate
+      - throughput_requests_per_second
+      - active_agents_count
+      - queue_depth
+    default_labels:
+      environment: staging
+      service: genesis-staging
+
+  # Health checks
+  health_checks:
+    enable: true
+    endpoint: /health
+    checks:
+      - database_connectivity
+      - redis_connectivity
+      - llm_api_availability
+      - disk_space_available
+      - memory_usage
+    interval_seconds: 30
+    timeout_seconds: 5
+
+# Performance Configuration
+performance:
+  # Caching
+  cache:
+    enable: true
+    ttl_seconds: 3600
+    max_size_mb: 1024
+    strategy: lru
+
+  # Concurrency
+  concurrency:
+    max_concurrent_llm_requests: 10
+    max_concurrent_tasks: 50
+    max_queue_size: 1000
+
+  # Optimization
+  optimization:
+    enable_daao: true  # Dynamic agent allocation (48% cost reduction)
+    enable_tumix: true  # LLM-based termination (56% cost reduction)
+    enable_halo_caching: true  # 51% routing speedup
+    enable_batch_processing: true
+
+# Error Handling
+error_handling:
+  # Circuit breaker
+  circuit_breaker:
+    enable: true
+    failure_threshold: 5
+    timeout_seconds: 60
+    half_open_timeout_seconds: 30
+
+  # Retry configuration
+  retry:
+    max_attempts: 3
+    backoff_strategy: exponential
+    initial_delay_ms: 1000
+    max_delay_ms: 60000
+    backoff_multiplier: 2
+
+  # Graceful degradation
+  degradation:
+    enable: true
+    levels:
+      - name: llm_to_heuristic
+        trigger: llm_api_failure
+        fallback: heuristic_decomposition
+      - name: full_to_minimal
+        trigger: system_overload
+        fallback: minimal_functionality
+
+  # Error notifications
+  notifications:
+    enable: true
+    channels:
+      - console
+      - log_file
+    critical_error_alert: true
+
+# Testing Configuration
+testing:
+  # Smoke test configuration
+  smoke_tests:
+    enable: true
+    run_on_deploy: true
+    timeout_seconds: 300
+    required_pass_rate: 0.95
+
+    tests:
+      - name: health_check
+        endpoint: /health
+        expected_status: 200
+
+      - name: database_connection
+        type: mongodb
+        expected: connected
+
+      - name: redis_connection
+        type: redis
+        expected: connected
+
+      - name: llm_api_connectivity
+        provider: openai
+        expected: available
+
+      - name: basic_task_decomposition
+        task: "Build a simple calculator"
+        expected: task_dag_created
+
+      - name: agent_routing
+        task: "Write Python function"
+        expected: agent_assigned
+
+      - name: task_execution_e2e
+        task: "Echo test message"
+        expected: success
+
+      - name: error_handling
+        task: "intentional_error"
+        expected: graceful_failure
+
+      - name: metrics_collection
+        type: system_metrics
+        expected: metrics_collected
+
+      - name: security_validation
+        type: prompt_injection
+        expected: blocked
+
+  # Load testing (optional for staging)
+  load_tests:
+    enable: false
+    concurrent_users: 10
+    duration_seconds: 300
+    ramp_up_seconds: 60
+
+# Deployment Configuration
+deployment:
+  # Version information
+  version:
+    format: semantic
+    auto_increment: true
+    tag_prefix: v
+
+  # Blue-green deployment
+  strategy: blue_green
+
+  # Rollback configuration
+  rollback:
+    enable: true
+    auto_rollback_on_failure: true
+    health_check_grace_period_seconds: 60
+    max_failed_health_checks: 3
+
+  # Pre-deployment checks
+  pre_deploy_checks:
+    - name: tests_passing
+      required: true
+      threshold: 0.95
+
+    - name: security_scan
+      required: true
+      tools:
+        - bandit
+        - safety
+
+    - name: code_coverage
+      required: false
+      threshold: 0.67  # Current coverage level
+
+    - name: performance_baseline
+      required: true
+      max_regression: 0.10  # 10% slower acceptable
+
+  # Post-deployment validation
+  post_deploy_validation:
+    - name: smoke_tests
+      required: true
+      timeout_seconds: 300
+
+    - name: health_checks
+      required: true
+      duration_seconds: 120
+
+    - name: metrics_baseline
+      required: true
+      sample_period_seconds: 300
+
+    - name: error_rate_check
+      required: true
+      max_error_rate: 0.05  # 5% error rate acceptable
+
+# Monitoring & Alerts
+monitoring:
+  # Alert thresholds
+  alerts:
+    critical:
+      - metric: error_rate
+        threshold: 0.10
+        duration_seconds: 60
+
+      - metric: response_time_p99
+        threshold: 5000  # 5 seconds
+        duration_seconds: 120
+
+      - metric: memory_usage_percent
+        threshold: 90
+        duration_seconds: 300
+
+      - metric: disk_usage_percent
+        threshold: 85
+        duration_seconds: 600
+
+    warning:
+      - metric: task_failure_rate
+        threshold: 0.05
+        duration_seconds: 300
+
+      - metric: llm_cost_hourly
+        threshold: 8.0
+        duration_seconds: 3600
+
+      - metric: queue_depth
+        threshold: 500
+        duration_seconds: 180
+
+  # Monitoring dashboard
+  dashboard:
+    enable: true
+    refresh_interval_seconds: 30
+    metrics_retention_days: 30
+
+# Backup & Recovery
+backup:
+  enable: true
+
+  mongodb:
+    schedule: "0 2 * * *"  # Daily at 2 AM
+    retention_days: 7
+    destination: /backup/mongodb
+
+  redis:
+    schedule: "0 */6 * * *"  # Every 6 hours
+    retention_days: 3
+    destination: /backup/redis
+
+  application_state:
+    schedule: "0 * * * *"  # Hourly
+    retention_days: 7
+    destination: /backup/state
+
+# Feature Flags
+features:
+  # Phase 1 features (Production ready)
+  htdag_decomposition: true
+  halo_routing: true
+  aop_validation: true
+
+  # Phase 2 features (Production ready)
+  llm_integration: true
+  security_hardening: true
+  aatc_system: true
+  learned_reward_model: true
+
+  # Phase 3 features (Production ready)
+  error_handling: true
+  observability: true
+  performance_optimization: true
+
+  # Phase 4 features (Experimental in staging)
+  se_darwin_full: false  # Enable for SE-Darwin testing
+  inclusive_fitness_swarm: true
+  trajectory_pool: true
+
+  # Layer 6 features (Future)
+  shared_memory: false
+  collective_intelligence: false
+
+# Compliance & Governance
+compliance:
+  # Data retention
+  data_retention:
+    logs_days: 30
+    metrics_days: 90
+    traces_days: 30
+
+  # Privacy
+  privacy:
+    enable_pii_detection: true
+    mask_sensitive_data: true
+    gdpr_compliant: true
+
+  # Audit
+  audit:
+    enable: true
+    log_all_requests: true
+    retention_days: 90
+
+# Staging-specific overrides
+staging_overrides:
+  # Use lower limits than production
+  max_agents: 50
+  max_concurrent_tasks: 100
+
+  # More verbose logging
+  log_level: INFO
+  enable_debug_endpoints: true
+
+  # Higher sampling for observability
+  tracing_sampling_rate: 0.5
+
+  # Stricter validation
+  enable_all_validations: true
+
+  # Cost protection
+  daily_cost_limit: 50.0
+
+  # Performance testing
+  enable_load_testing: true
+  enable_stress_testing: false
+
+# Notes
+notes: |
+  This staging environment is configured for production-parity validation.
+
+  Key differences from production:
+  1. Lower resource limits (50 agents vs 1000+ in production)
+  2. Higher observability sampling (50% vs 10% in production)
+  3. Stricter validation and testing
+  4. Lower cost limits for safety
+
+  Before promoting to production:
+  - All smoke tests must pass (95%+ pass rate)
+  - 48-hour monitoring period with no critical errors
+  - Performance baseline within 10% of target
+  - Security scan clean (no high/critical vulnerabilities)
+  - Cost profile validated (within budget)
+
+  For emergency rollback:
+  - Deploy script includes automatic rollback on health check failure
+  - Manual rollback: ./scripts/rollback_staging.sh
+  - Logs available: /var/log/genesis/
+
+  Contact: genesis-team@example.com
+  Documentation: https://docs.genesis.example.com/staging

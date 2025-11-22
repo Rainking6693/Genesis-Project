@@ -1,0 +1,46 @@
+# HackerNews Show HN Submission Task
+# Automates "Show HN" post creation
+# Expected parameters: project_name, project_url, description
+
+task:
+  name: "Submit Show HN Post"
+  url: "https://news.ycombinator.com/submit"
+
+  prompt: |
+    Create a "Show HN" post on Hacker News.
+
+    Steps:
+    1. Fill in the title field: "Show HN: {{project_name}}"
+    2. Fill in the URL field: {{project_url}}
+    3. If there's a text/description field, add: {{description}}
+    4. Click submit button
+    5. Wait for confirmation
+
+    IMPORTANT: 
+    - If you see a login page, stop and report error: "login required"
+    - The title MUST start with "Show HN: "
+    - Do not submit if karma requirements are shown
+
+  data_extraction:
+    post_url:
+      type: "url"
+      selector: "URL of the created post"
+      description: "HackerNews item URL"
+    
+    post_id:
+      type: "text"
+      selector: "HN item ID from URL"
+      description: "Numeric ID of the post"
+
+  error_codes:
+    - "login required"
+    - "insufficient karma"
+    - "rate limited"
+    - "duplicate submission"
+
+  validation:
+    - check: "post URL contains 'news.ycombinator.com/item?id='"
+      retry_on_fail: false
+
+  timeout_seconds: 60
+  max_retries: 1

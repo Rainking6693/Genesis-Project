@@ -1,0 +1,570 @@
+Title: Teaching AI to See the World More Like Humans Do
+
+URL Source: https://deepmind.google/blog/teaching-ai-to-see-the-world-more-like-we-do/
+
+Markdown Content:
+Teaching AI to See the World More Like Humans Do - Google DeepMind 
+
+===============
+
+[Skip to main content](https://deepmind.google/blog/teaching-ai-to-see-the-world-more-like-we-do/#page-content)
+
+Build with our next generation AI systems
+-----------------------------------------
+
+[keyboard_arrow_right Explore models](https://deepmind.google/en/models/)
+
+Gemini
+
+Our most intelligent Al models
+
+[![Image 1](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__gemini.svg) 2.5 Pro](https://deepmind.google/en/models/gemini/pro/)[![Image 2](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__gemini.svg) 2.5 Flash](https://deepmind.google/en/models/gemini/flash/)[![Image 3](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__gemini_image.svg) 2.5 Flash Image](https://deepmind.google/en/models/gemini/image/)[![Image 4](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__gemini.svg) 2.5 Flash-Lite](https://deepmind.google/en/models/gemini/flash-lite/)
+
+[Learn more](https://deepmind.google/en/models/gemini/)
+
+Gemma
+
+Lightweight, state-of-the-art open models
+
+[![Image 5](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__gemma.svg) Gemma 3](https://deepmind.google/en/models/gemma/gemma-3/)[![Image 6](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__gemma.svg) Gemma 3n](https://deepmind.google/en/models/gemma/gemma-3n/)[![Image 7](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__embeddinggemm.svg) EmbeddingGemma](https://deepmind.google/en/models/gemma/embeddinggemma/)[![Image 8](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__t5gemma.svg) T5Gemma](https://deepmind.google/en/models/gemma/t5gemma/)
+
+[Learn more](https://deepmind.google/en/models/gemma/)
+
+Generative models
+
+Image, music and video generation models
+
+[![Image 9](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__imagen.svg) Imagen](https://deepmind.google/en/models/imagen/)[![Image 10](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__lyria.svg) Lyria](https://deepmind.google/en/models/lyria/)[![Image 11](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__veo.svg) Veo](https://deepmind.google/en/models/veo/)[![Image 12](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__synthid_K70iF4A.svg) SynthID](https://deepmind.google/en/models/synthid/)
+
+Gemini ecosystem
+
+Models and experiments built with Gemini
+
+[![Image 13](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__gemini_robotics.svg) Gemini Robotics](https://deepmind.google/en/models/gemini-robotics/)[![Image 14](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__gemini_diffusion.svg) Gemini Diffusion](https://deepmind.google/en/models/gemini-diffusion/)[![Image 15](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__project_astra.svg) Project Astra](https://deepmind.google/en/models/project-astra/)[![Image 16](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__project_mariner.svg) Project Mariner](https://deepmind.google/en/models/project-mariner/)
+
+Our latest AI breakthroughs and updates from the lab
+----------------------------------------------------
+
+[keyboard_arrow_right Explore research](https://deepmind.google/en/research/)
+
+Breakthroughs
+
+Explore some of the biggest innovations in AI, many of which underpin the modern AI industry.
+
+[![Image 17](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__genie.svg) Genie 3](https://deepmind.google/en/blog/genie-3-a-new-frontier-for-world-models/)[![Image 18](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__alphago.svg) AlphaGo](https://deepmind.google/en/research/alphago/)[![Image 19](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__alphazero.svg) AlphaZero](https://deepmind.google/en/research/alphazero-and-muzero/)
+
+[Learn more](https://deepmind.google/en/research/projects/)
+
+Publications
+
+Explore a selection of our recent research on some of the most complex and interesting challenges in AI.
+
+[Learn more](https://deepmind.google/en/research/publications/)
+
+Unlocking a new era of discovery with AI
+----------------------------------------
+
+[keyboard_arrow_right Explore science](https://deepmind.google/en/science/)
+
+AI for biology
+
+[![Image 20](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__alphafold.svg) AlphaFold](https://deepmind.google/en/science/alphafold/)[![Image 21](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__alphagenome.svg) AlphaGenome](https://deepmind.google/en/blog/alphagenome-ai-for-better-understanding-the-genome/)[![Image 22](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__alphamissense.svg) AlphaMissense](https://deepmind.google/en/blog/a-catalogue-of-genetic-mutations-to-help-pinpoint-the-cause-of-diseases/)[![Image 23](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__alphaproteo.svg) AlphaProteo](https://deepmind.google/en/blog/alphaproteo-generates-novel-proteins-for-biology-and-health-research/)
+
+AI for climate and sustainability
+
+[![Image 24](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__alphaearth.svg) AlphaEarth Foundations](https://deepmind.google/en/blog/alphaearth-foundations-helps-map-our-planet-in-unprecedented-detail/)[![Image 25](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__weathernext.svg) WeatherNext](https://deepmind.google/en/science/weathernext/)[![Image 26](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__weather-lab.svg) Weather Lab](https://deepmind.google.com/science/weatherlab/?utm_source=deepmind.google&utm_medium=referral&utm_campaign=gdm&utm_content=)
+
+AI for mathematics and computer science
+
+[![Image 27](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__alphaevolve.svg) AlphaEvolve](https://deepmind.google/en/blog/alphaevolve-a-gemini-powered-coding-agent-for-designing-advanced-algorithms/)[![Image 28](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__alphaproof.svg) AlphaProof](https://deepmind.google/en/blog/ai-solves-imo-problems-at-silver-medal-level/)[![Image 29](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__alphageometry.svg) AlphaGeometry](https://deepmind.google/en/blog/ai-solves-imo-problems-at-silver-medal-level/)
+
+AI for physics and chemistry
+
+[![Image 30](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__gnome.svg) GNoME](https://deepmind.google/en/blog/millions-of-new-materials-discovered-with-deep-learning/)[![Image 31](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__fusion.svg) Fusion](https://deepmind.google/en/blog/accelerating-fusion-science-through-learned-plasma-control/)[![Image 32](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__alphaqubit.svg) AlphaQubit](https://blog.google/technology/google-deepmind/alphaqubit-quantum-error-correction/?utm_source=deepmind.google&utm_medium=referral&utm_campaign=gdm&utm_content=)
+
+Our mission is to build AI responsibly to benefit humanity
+----------------------------------------------------------
+
+[keyboard_arrow_right About Google DeepMind](https://deepmind.google/en/about/)
+
+Responsibility
+
+Ensuring AI safety through proactive security, even against evolving threats
+
+[Learn more](https://deepmind.google/en/responsibility-and-safety/)
+
+News
+
+Discover our latest AI breakthroughs, projects, and updates
+
+[Learn more](https://deepmind.google/en/blog/)
+
+Careers
+
+We’re looking for people who want to make a real, positive impact on the world
+
+[Learn more](https://deepmind.google/en/careers/)
+
+Education
+
+We work to make AI more accessible to the next generation
+
+[Learn more](https://deepmind.google/en/education/)
+
+ Models 
+
+chevron_right chevron_left
+
+ Research 
+
+chevron_right chevron_left
+
+ Science 
+
+chevron_right chevron_left
+
+ About 
+
+chevron_right chevron_left
+
+Build with our next generation AI systems
+-----------------------------------------
+
+[keyboard_arrow_right Explore models](https://deepmind.google/en/models/)
+
+Gemini
+
+Our most intelligent Al models
+
+[![Image 33](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__gemini.svg) 2.5 Pro](https://deepmind.google/en/models/gemini/pro/)[![Image 34](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__gemini.svg) 2.5 Flash](https://deepmind.google/en/models/gemini/flash/)[![Image 35](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__gemini_image.svg) 2.5 Flash Image](https://deepmind.google/en/models/gemini/image/)[![Image 36](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__gemini.svg) 2.5 Flash-Lite](https://deepmind.google/en/models/gemini/flash-lite/)
+
+[Learn more](https://deepmind.google/en/models/gemini/)
+
+Gemma
+
+Lightweight, state-of-the-art open models
+
+[![Image 37](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__gemma.svg) Gemma 3](https://deepmind.google/en/models/gemma/gemma-3/)[![Image 38](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__gemma.svg) Gemma 3n](https://deepmind.google/en/models/gemma/gemma-3n/)[![Image 39](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__embeddinggemm.svg) EmbeddingGemma](https://deepmind.google/en/models/gemma/embeddinggemma/)[![Image 40](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__t5gemma.svg) T5Gemma](https://deepmind.google/en/models/gemma/t5gemma/)
+
+[Learn more](https://deepmind.google/en/models/gemma/)
+
+Generative models
+
+Image, music and video generation models
+
+[![Image 41](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__imagen.svg) Imagen](https://deepmind.google/en/models/imagen/)[![Image 42](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__lyria.svg) Lyria](https://deepmind.google/en/models/lyria/)[![Image 43](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__veo.svg) Veo](https://deepmind.google/en/models/veo/)[![Image 44](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__synthid_K70iF4A.svg) SynthID](https://deepmind.google/en/models/synthid/)
+
+Gemini ecosystem
+
+Models and experiments built with Gemini
+
+[![Image 45](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__gemini_robotics.svg) Gemini Robotics](https://deepmind.google/en/models/gemini-robotics/)[![Image 46](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__gemini_diffusion.svg) Gemini Diffusion](https://deepmind.google/en/models/gemini-diffusion/)[![Image 47](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__project_astra.svg) Project Astra](https://deepmind.google/en/models/project-astra/)[![Image 48](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__project_mariner.svg) Project Mariner](https://deepmind.google/en/models/project-mariner/)
+
+Our latest AI breakthroughs and updates from the lab
+----------------------------------------------------
+
+[keyboard_arrow_right Explore research](https://deepmind.google/en/research/)
+
+Breakthroughs
+
+Explore some of the biggest innovations in AI, many of which underpin the modern AI industry.
+
+[![Image 49](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__genie.svg) Genie 3](https://deepmind.google/en/blog/genie-3-a-new-frontier-for-world-models/)[![Image 50](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__alphago.svg) AlphaGo](https://deepmind.google/en/research/alphago/)[![Image 51](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__alphazero.svg) AlphaZero](https://deepmind.google/en/research/alphazero-and-muzero/)
+
+[Learn more](https://deepmind.google/en/research/projects/)
+
+Publications
+
+Explore a selection of our recent research on some of the most complex and interesting challenges in AI.
+
+[Learn more](https://deepmind.google/en/research/publications/)
+
+Unlocking a new era of discovery with AI
+----------------------------------------
+
+[keyboard_arrow_right Explore science](https://deepmind.google/en/science/)
+
+AI for biology
+
+[![Image 52](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__alphafold.svg) AlphaFold](https://deepmind.google/en/science/alphafold/)[![Image 53](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__alphagenome.svg) AlphaGenome](https://deepmind.google/en/blog/alphagenome-ai-for-better-understanding-the-genome/)[![Image 54](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__alphamissense.svg) AlphaMissense](https://deepmind.google/en/blog/a-catalogue-of-genetic-mutations-to-help-pinpoint-the-cause-of-diseases/)[![Image 55](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__alphaproteo.svg) AlphaProteo](https://deepmind.google/en/blog/alphaproteo-generates-novel-proteins-for-biology-and-health-research/)
+
+AI for climate and sustainability
+
+[![Image 56](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__alphaearth.svg) AlphaEarth Foundations](https://deepmind.google/en/blog/alphaearth-foundations-helps-map-our-planet-in-unprecedented-detail/)[![Image 57](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__weathernext.svg) WeatherNext](https://deepmind.google/en/science/weathernext/)[![Image 58](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__weather-lab.svg) Weather Lab](https://deepmind.google.com/science/weatherlab/?utm_source=deepmind.google&utm_medium=referral&utm_campaign=gdm&utm_content=)
+
+AI for mathematics and computer science
+
+[![Image 59](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__alphaevolve.svg) AlphaEvolve](https://deepmind.google/en/blog/alphaevolve-a-gemini-powered-coding-agent-for-designing-advanced-algorithms/)[![Image 60](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__alphaproof.svg) AlphaProof](https://deepmind.google/en/blog/ai-solves-imo-problems-at-silver-medal-level/)[![Image 61](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__alphageometry.svg) AlphaGeometry](https://deepmind.google/en/blog/ai-solves-imo-problems-at-silver-medal-level/)
+
+AI for physics and chemistry
+
+[![Image 62](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__gnome.svg) GNoME](https://deepmind.google/en/blog/millions-of-new-materials-discovered-with-deep-learning/)[![Image 63](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__fusion.svg) Fusion](https://deepmind.google/en/blog/accelerating-fusion-science-through-learned-plasma-control/)[![Image 64](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__alphaqubit.svg) AlphaQubit](https://blog.google/technology/google-deepmind/alphaqubit-quantum-error-correction/?utm_source=deepmind.google&utm_medium=referral&utm_campaign=gdm&utm_content=)
+
+Our mission is to build AI responsibly to benefit humanity
+----------------------------------------------------------
+
+[keyboard_arrow_right About Google DeepMind](https://deepmind.google/en/about/)
+
+Responsibility
+
+Ensuring AI safety through proactive security, even against evolving threats
+
+[Learn more](https://deepmind.google/en/responsibility-and-safety/)
+
+News
+
+Discover our latest AI breakthroughs, projects, and updates
+
+[Learn more](https://deepmind.google/en/blog/)
+
+Careers
+
+We’re looking for people who want to make a real, positive impact on the world
+
+[Learn more](https://deepmind.google/en/careers/)
+
+Education
+
+We work to make AI more accessible to the next generation
+
+[Learn more](https://deepmind.google/en/education/)
+
+ Models 
+
+keyboard_arrow_down keyboard_arrow_up
+
+Build with our next generation AI systems
+-----------------------------------------
+
+[keyboard_arrow_right Explore models](https://deepmind.google/en/models/)
+
+Gemini
+
+Our most intelligent Al models
+
+[![Image 65](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__gemini.svg) 2.5 Pro](https://deepmind.google/en/models/gemini/pro/)[![Image 66](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__gemini.svg) 2.5 Flash](https://deepmind.google/en/models/gemini/flash/)[![Image 67](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__gemini_image.svg) 2.5 Flash Image](https://deepmind.google/en/models/gemini/image/)[![Image 68](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__gemini.svg) 2.5 Flash-Lite](https://deepmind.google/en/models/gemini/flash-lite/)
+
+[Learn more](https://deepmind.google/en/models/gemini/)
+
+Gemma
+
+Lightweight, state-of-the-art open models
+
+[![Image 69](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__gemma.svg) Gemma 3](https://deepmind.google/en/models/gemma/gemma-3/)[![Image 70](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__gemma.svg) Gemma 3n](https://deepmind.google/en/models/gemma/gemma-3n/)[![Image 71](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__embeddinggemm.svg) EmbeddingGemma](https://deepmind.google/en/models/gemma/embeddinggemma/)[![Image 72](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__t5gemma.svg) T5Gemma](https://deepmind.google/en/models/gemma/t5gemma/)
+
+[Learn more](https://deepmind.google/en/models/gemma/)
+
+Generative models
+
+Image, music and video generation models
+
+[![Image 73](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__imagen.svg) Imagen](https://deepmind.google/en/models/imagen/)[![Image 74](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__lyria.svg) Lyria](https://deepmind.google/en/models/lyria/)[![Image 75](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__veo.svg) Veo](https://deepmind.google/en/models/veo/)[![Image 76](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__synthid_K70iF4A.svg) SynthID](https://deepmind.google/en/models/synthid/)
+
+Gemini ecosystem
+
+Models and experiments built with Gemini
+
+[![Image 77](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__gemini_robotics.svg) Gemini Robotics](https://deepmind.google/en/models/gemini-robotics/)[![Image 78](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__gemini_diffusion.svg) Gemini Diffusion](https://deepmind.google/en/models/gemini-diffusion/)[![Image 79](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__project_astra.svg) Project Astra](https://deepmind.google/en/models/project-astra/)[![Image 80](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__project_mariner.svg) Project Mariner](https://deepmind.google/en/models/project-mariner/)
+
+ Research 
+
+keyboard_arrow_down keyboard_arrow_up
+
+Our latest AI breakthroughs and updates from the lab
+----------------------------------------------------
+
+[keyboard_arrow_right Explore research](https://deepmind.google/en/research/)
+
+Breakthroughs
+
+Explore some of the biggest innovations in AI, many of which underpin the modern AI industry.
+
+[![Image 81](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__genie.svg) Genie 3](https://deepmind.google/en/blog/genie-3-a-new-frontier-for-world-models/)[![Image 82](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__alphago.svg) AlphaGo](https://deepmind.google/en/research/alphago/)[![Image 83](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__alphazero.svg) AlphaZero](https://deepmind.google/en/research/alphazero-and-muzero/)
+
+[Learn more](https://deepmind.google/en/research/projects/)
+
+Publications
+
+Explore a selection of our recent research on some of the most complex and interesting challenges in AI.
+
+[Learn more](https://deepmind.google/en/research/publications/)
+
+ Science 
+
+keyboard_arrow_down keyboard_arrow_up
+
+Unlocking a new era of discovery with AI
+----------------------------------------
+
+[keyboard_arrow_right Explore science](https://deepmind.google/en/science/)
+
+AI for biology
+
+[![Image 84](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__alphafold.svg) AlphaFold](https://deepmind.google/en/science/alphafold/)[![Image 85](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__alphagenome.svg) AlphaGenome](https://deepmind.google/en/blog/alphagenome-ai-for-better-understanding-the-genome/)[![Image 86](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__alphamissense.svg) AlphaMissense](https://deepmind.google/en/blog/a-catalogue-of-genetic-mutations-to-help-pinpoint-the-cause-of-diseases/)[![Image 87](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__alphaproteo.svg) AlphaProteo](https://deepmind.google/en/blog/alphaproteo-generates-novel-proteins-for-biology-and-health-research/)
+
+AI for climate and sustainability
+
+[![Image 88](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__alphaearth.svg) AlphaEarth Foundations](https://deepmind.google/en/blog/alphaearth-foundations-helps-map-our-planet-in-unprecedented-detail/)[![Image 89](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__weathernext.svg) WeatherNext](https://deepmind.google/en/science/weathernext/)[![Image 90](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__weather-lab.svg) Weather Lab](https://deepmind.google.com/science/weatherlab/?utm_source=deepmind.google&utm_medium=referral&utm_campaign=gdm&utm_content=)
+
+AI for mathematics and computer science
+
+[![Image 91](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__alphaevolve.svg) AlphaEvolve](https://deepmind.google/en/blog/alphaevolve-a-gemini-powered-coding-agent-for-designing-advanced-algorithms/)[![Image 92](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__alphaproof.svg) AlphaProof](https://deepmind.google/en/blog/ai-solves-imo-problems-at-silver-medal-level/)[![Image 93](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__alphageometry.svg) AlphaGeometry](https://deepmind.google/en/blog/ai-solves-imo-problems-at-silver-medal-level/)
+
+AI for physics and chemistry
+
+[![Image 94](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__gnome.svg) GNoME](https://deepmind.google/en/blog/millions-of-new-materials-discovered-with-deep-learning/)[![Image 95](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__fusion.svg) Fusion](https://deepmind.google/en/blog/accelerating-fusion-science-through-learned-plasma-control/)[![Image 96](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__alphaqubit.svg) AlphaQubit](https://blog.google/technology/google-deepmind/alphaqubit-quantum-error-correction/?utm_source=deepmind.google&utm_medium=referral&utm_campaign=gdm&utm_content=)
+
+ About 
+
+keyboard_arrow_down keyboard_arrow_up
+
+Our mission is to build AI responsibly to benefit humanity
+----------------------------------------------------------
+
+[keyboard_arrow_right About Google DeepMind](https://deepmind.google/en/about/)
+
+Responsibility
+
+Ensuring AI safety through proactive security, even against evolving threats
+
+[Learn more](https://deepmind.google/en/responsibility-and-safety/)
+
+News
+
+Discover our latest AI breakthroughs, projects, and updates
+
+[Learn more](https://deepmind.google/en/blog/)
+
+Careers
+
+We’re looking for people who want to make a real, positive impact on the world
+
+[Learn more](https://deepmind.google/en/careers/)
+
+Education
+
+We work to make AI more accessible to the next generation
+
+[Learn more](https://deepmind.google/en/education/)
+
+[Build with Gemini code](https://aistudio.google.com/prompts/new_chat?utm_source=deepmind.google&utm_medium=referral&utm_campaign=gdm&utm_content=)[Chat with Gemini spark](https://gemini.google.com/?utm_source=deepmind.google&utm_medium=referral&utm_campaign=gdm&utm_content=)
+
+menu close
+
+[Google DeepMind DeepMind](https://deepmind.google/)
+
+keyboard_arrow_down keyboard_arrow_up
+
+[Google AI Learn about all our AI](https://ai.google/?utm_source=deepmind.google&utm_medium=referral&utm_campaign=gdm&utm_content=)[Google DeepMind Explore the frontier of AI](https://deepmind.google/?utm_source=deepmind.google&utm_medium=referral&utm_campaign=gdm&utm_content=)[Google Labs Try our AI experiments](https://labs.google/?utm_source=deepmind.google&utm_medium=referral&utm_campaign=gdm&utm_content=)[Google Research Explore our research](https://research.google/?utm_source=deepmind.google&utm_medium=referral&utm_campaign=gdm&utm_content=)
+
+[Gemini app Chat with Gemini](https://gemini.google.com/?utm_source=deepmind.google&utm_medium=referral&utm_campaign=gdm&utm_content=)[Google AI Studio Build with our next-gen AI models](https://aistudio.google.com/prompts/new_chat?utm_source=deepmind.google&utm_medium=referral&utm_campaign=gdm&utm_content=)
+
+[Models](https://deepmind.google/en/models/)[Research](https://deepmind.google/en/research/)[Science](https://deepmind.google/en/science/)[About](https://deepmind.google/en/about/)
+
+[code Build with Gemini](https://aistudio.google.com/prompts/new_chat?utm_source=deepmind.google&utm_medium=referral&utm_campaign=gdm&utm_content=)[spark Chat with Gemini](https://gemini.google.com/?utm_source=deepmind.google&utm_medium=referral&utm_campaign=gdm&utm_content=)
+
+ November 11, 2025  Research 
+
+Teaching AI to see the world more like we do
+============================================
+
+Andrew Lampinen, Klaus Greff
+
+- [x] 
+
+ios_share
+
+Share
+
+ 
+
+[](https://twitter.com/intent/tweet?url=https://deepmind.google/blog/teaching-ai-to-see-the-world-more-like-we-do/&text=Teaching%20AI%20to%20see%20the%20world%20more%20like%20we%20do)[](https://www.facebook.com/sharer/sharer.php?u=https://deepmind.google/blog/teaching-ai-to-see-the-world-more-like-we-do/)[](https://www.linkedin.com/sharing/share-offsite/?url=https://deepmind.google/blog/teaching-ai-to-see-the-world-more-like-we-do/)[](mailto:?subject=Teaching%20AI%20to%20see%20the%20world%20more%20like%20we%20do&body=https://deepmind.google/blog/teaching-ai-to-see-the-world-more-like-we-do/)Copied
+
+![Image 97: A conceptual diagram illustrating AI and human alignment. Nine images (e.g., a giraffe, a car, and a tent) are organised near colourful dot clusters, with lines grouping related concepts, such as a giraffe with a sea turtle and a car with an airplane.](https://lh3.googleusercontent.com/DF2DXEzpBX41WBwIEVpXLO4O1_qo_C5C_vDz7iP2VXmB1ksIJypcwPiKkRVdoFVzlX35LeCIxmUXIwwpDi1gkuQ6mrGi_sOVqaYoHfJWdutzofZacQ=w1440-h810-n-nu)
+
+ Your browser does not support the audio element. 
+
+Listen to article 10 minutes
+
+remove
+
+add
+
+Listen to article 10 minutes
+
+Listen to article 10 minutes
+
+Listen to article 10 minutes
+
+New research shows that reorganizing a model’s visual representations can make it more helpful, robust and reliable
+
+“Visual” artificial intelligence (AI) is everywhere. We use it to sort our photos, identify unknown flowers and steer our cars. But these powerful systems do not always “see” the world as we do, and they sometimes behave in surprising ways. For example, an AI system that can identify hundreds of car manufacturers and models might still fail to capture the commonalities between a car and an airplane, _i.e._ both are large vehicles made primarily of metal.
+
+To better understand these differences, today we’re publishing a [new paper in Nature](https://www.nature.com/articles/s41586-025-09631-6) analyzing the important ways AI systems organize the visual world differently from humans. We present a method for better aligning these systems with human knowledge, and show that addressing these discrepancies improves their robustness and ability to generalize.
+
+This work is a step towards building more intuitive and trustworthy AI systems.
+
+Why AI struggles with the “odd one out”
+---------------------------------------
+
+When you see a cat, your brain creates a mental representation that captures everything about the cat, from basic concepts like its color and furriness to high-level concepts like its "cat-ness." AI vision models also produce representations, by mapping images to points in a high-dimensional space where similar items (like two sheep) are placed close together, and different ones (a sheep and a cake) are far apart.
+
+To understand the differences in how human and model representations are organized, we used the classic "odd-one-out" task from cognitive science, asking both humans and models to pick which of three given images does not fit in with the others. This test reveals which two items they "see" as most similar.
+
+Sometimes, everyone agrees. Given a tapir, a sheep, and a birthday cake, both humans and models reliably pick the cake as the odd one out. Other times, the right answer is unclear, and people and models disagree.
+
+Interestingly, we also found many cases where humans strongly agree on an answer, but the AI models get it wrong. For the third example below, most people agree the starfish is the odd one out. But most vision models focus more on superficial features like background color and texture, and choose the cat instead.
+
+![Image 98: AGIAlignment-blog-figure-1@x3](https://lh3.googleusercontent.com/qYpkuEX0oANy3iSQVsowLqlNrgEOxhbtcTwe23fKWQyqURoZruzejU_gUvbZDInicRi7VbvbjX5yh3pXclLyEOD38QCAgrH2qm1jMKND16EteM-J6dM=w1440)
+
+Three examples of the "odd one out" task. Three images of subjects in the natural world are shown in three rows. The first row shows an easy task where humans and models align. The second row shows an example where humans and AI models disagree. The third row shows an example where humans tend to agree, but models make a different choice.
+
+This example illustrates a systematic misalignment between humans and AI, which we observed across many different vision models, from image classifiers to unsupervised models.
+
+The overall problem can be seen in a two-dimensional projection (PCA) of an AI’s internal map.
+
+Below, on the left, we show a vision model's internal map which appears unstructured, with representations for different categories like animals, food, and furniture all mixed together. The structure on the right is the improved representation map after we applied our alignment method where categories are clearly organized.
+
+![Image 99: AGIAlignment-blog-figure-2@x3](https://lh3.googleusercontent.com/JeGjvW3BHrbEoNFaag8o4EEgOqesvS5NKVuqjc5cVpz6FTSRKbUFpPR2AiW5wjZcRFRCKcbO8JWCTWUO-S031cGWcBJ7HuygrsHDJ7kSthZuFH92zw=w1440)
+
+Two maps showing a vision model’s representations of many different categories of objects. Before alignment (left) there is no visible organization. After alignment (right) the representations are meaningfully organized by category.
+
+A multi-step alignment method
+-----------------------------
+
+Cognitive scientists have collected the [THINGS](https://things-initiative.org/) dataset containing millions of human odd-one-out judgements, which we could have used to help solve the visual alignment problem. Unfortunately, this dataset only uses a few thousand images — not enough information to directly fine tune powerful vision models, which immediately overfit on this small set of images and forget many of their prior skills.
+
+To address this, we proposed a three-step method:
+
+1.   We started with a powerful pretrained vision model (SigLIP-SO400M) and carefully trained a small adapter on top of it, using the THINGS dataset. By freezing the main model and carefully regularizing the adapter training, we created a teacher model that doesn’t forget its prior training.
+2.   This teacher model then acts as a stand-in for human-like judgments, which we used to generate a massive new dataset, called [AligNet](https://github.com/google-deepmind/alignet?tab=readme-ov-file#alignet-dataset), of millions of human-like odd-one-out decisions using a million different images — far more than we could collect from real people.
+3.   Finally, we used this new dataset to fine tune other AI models (the "students"). Because of the diversity of our dataset, overfitting is no longer an issue and the students can be trained fully and can more deeply restructure their internal maps.
+
+As shown in the diagram below, the student’s representations change from an unstructured jumble to a clearly-structured organization where high-level concepts such as animals (blue) and food items (green) are separated from other types of objects.
+
+![Image 100: AGIAlignment-blog-large-figure-3@x3](https://lh3.googleusercontent.com/vrR1IgBevAiwEmZOT5I-myaPoKaW7sSwTmkPRpaovn0h64lLfn7SchZJ4sGyxIn7DRplbGf7wqFcVXr_9hDKmfV9z0zWhC025qHbFoJVjP9aOORMpw=w1440)
+
+Diagram of our three-step model-alignment method.
+
+Human knowledge is organized according to different levels of similarity. When we align models with human knowledge, the model’s representations change according to these levels of similarity. This reorganization follows the hierarchical structure of human knowledge known from cognitive science.
+
+During alignment, we see that representations move apart or together in proportion to their ”conceptual distance” in the human-category hierarchy. For example, two dogs (same subordinate category) will move closer together (decrease in distance), while an owl and a truck (different superordinate categories) will move further apart (increase in distance).
+
+![Image 101: AGIAlignment-blog-figure-4@x3](https://lh3.googleusercontent.com/Pc9gCB67xt6YI0xKqWuxsaKotVNfI_QfvUXxSVW17sFFcUDYJWV0-rzFAuhcPemINu3G3KKUkvNVLJaUlPUoQpCoX7sw6r0AEvFYmuK59PRym2Tq=w1440)
+
+A line graph shows the change in relative distances between human and AI representations. The representations of very similar categories tend to get closer together, while representations of less similar pairs of objects tend to move further apart.
+
+We can conclude that our method organizes the representational map of the AI student according to human conceptual hierarchies, without being explicitly supervised to do so.
+
+Testing our aligned models
+--------------------------
+
+We tested our aligned models on many cognitive science tasks — including tasks like multi-arrangement, arranging many images by their similarity — and a new odd-one-out dataset, called [Levels](https://doi.gin.g-node.org/10.12751/g-node.hg4tdz/), that we collected. In every case, our aligned models showed dramatically improved human-alignment, agreeing substantially more often with human judgments across a range of visual tasks.
+
+Our models even learned a form of ‘human-like’ uncertainty. In testing, model-decision-uncertainty strongly correlated with how long it took humans to make a choice – a common proxy measure for uncertainty.
+
+We also found that making models more human-aligned also makes them better vision models overall. Our aligned models performed much better at various challenging tasks, such as learning a new category from a single image (“few-shot learning”), or making reliable decisions, even when the type of images being tested changed (the “distribution shift”).
+
+![Image 102: AGIAlignment-blog-figure-5@x3](https://lh3.googleusercontent.com/eMeN4DJO666gbEwY_UDB1TvMMKUEhB83RuzZpx85PtUc02vYxRfr1ShVzHPIiGVNr5qZJp0PfDyOkm5PfKQMrPFp3JCb2pmDFt3Lytgf9G4nhVKEeg=w1440-h810-n-nu)
+
+![Image 103: AGIAlignment-blog-figure-6@x3](https://lh3.googleusercontent.com/UvkD3RRITqF906Y5QqwVHxResI3wu5YNKGsprbeVfMxg6lTHOmwZU8Bh10eJpjAUQBpZ3mVWWKR9-dsGDdcYwaqPK8YoxqtNTVmC7i-HrqizK2Mp=w1440-h810-n-nu)
+
+Two bar graphs showing that our aligned models (dark blue) outperform the original ones (light gray) at cognitive science tasks involving odd-one-out and multi-arrangement (top) and AI tasks involving few-shot learning and distribution shift (bottom).
+
+Toward more human-aligned, reliable models
+------------------------------------------
+
+Many existing vision models fail to capture the higher-level structure of human knowledge. This research presents a possible method for addressing this issue, and shows that models can be aligned better with human judgments and perform more reliably on various standard AI tasks.
+
+While more alignment work remains to be done, our work illustrates a step towards more robust and reliable AI systems.
+
+Learn more about our work
+
+[Read our paper](https://www.nature.com/articles/s41586-025-09631-6)[Build on the open-source implementation](https://github.com/google-deepmind/alignet)[Evaluate models on the Levels dataset](https://doi.gin.g-node.org/10.12751/g-node.hg4tdz/)
+
+Acknowledgements
+----------------
+
+We’d like to thank the paper’s lead author Lukas Muttenthaler, and our collaborators Frieda Born, Bernhard Spitzer, Simon Kornblith, Michael C. Mozer, Klaus-Robert Müller and Thomas Unterthiner.
+
+Related posts
+-------------
+
+### Gemini Robotics: 1.5 brings AI agents into the physical world
+
+September 2025
+
+Google DeepMind
+
+[keyboard_arrow_right Learn more](https://deepmind.google/blog/gemini-robotics-15-brings-ai-agents-into-the-physical-world/?utm_source=ai.google&utm_medium=referral)
+
+![Image 104](https://lh3.googleusercontent.com/2kXVbJtc42vRNS-aG57aQQMvWMGYWzj07KqDQXTtRqS_vawz9S4wFWJWZyrCx1B74QxLOfda3g_IuZ1nvAknqsz5wNLr3PN709fbbs-1=w1440-h1440-n-nu)
+
+### Image editing in Gemini just got a major upgrade
+
+August 2025 Models
+
+[keyboard_arrow_right Learn more](https://blog.google/products/gemini/updated-image-editing-model/)
+
+![Image 105](https://lh3.googleusercontent.com/l1cInxwBoWexFJdgYi5dimSoDxmvzzuGmXIN69SYvAbjDlPWBimLPTnJ1vGCiN1sKKWnRBAwkXyOxvterP0-tRjcxSJGntXCF1g_mWbqGw=w1440-h1440-n-nu)
+
+ Follow us 
+
+[](https://x.com/googledeepmind)
+
+[](https://www.instagram.com/googledeepmind)
+
+[](https://www.youtube.com/@googledeepmind)
+
+[](https://www.linkedin.com/company/googledeepmind/)
+
+[](https://github.com/google-deepmind)
+
+Sign up for updates on our latest innovations
+
+I accept Google's Terms and Conditions and acknowledge that my information will be used in accordance with [Google's Privacy Policy](https://policies.google.com/privacy).
+
+send
+
+Sign up
+
+Build AI responsibly to benefit humanity
+
+Models
+
+Build with our next generation AI systems
+
+[spark Gemini](https://deepmind.google/models/gemini/)[![Image 106: footer__gemma](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/images/footer__gemma.max-24x24.svg)![Image 107: footer__gemma](https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/images/footer__gemma.max-24x24.svg) Gemma](https://deepmind.google/models/gemma/)[photo_spark Imagen](https://deepmind.google/models/imagen/)[audio_magic_eraser Lyria](https://deepmind.google/models/lyria/)[video_spark Veo](https://deepmind.google/models/veo/)
+
+[Learn more](https://deepmind.google/models/)
+
+Start building
+
+Get started building with cutting-edge AI models and tools
+
+[Google AI Studio](https://aistudio.google.com/prompts/new_chat?utm_source=deepmind.google&utm_medium=referral&utm_campaign=gdm&utm_content=)[Developer docs](https://ai.google.dev/gemini-api/docs?utm_source=deepmind.google&utm_medium=referral&utm_campaign=gdm&utm_content=)[Gemini API](https://ai.google.dev/gemini-api/docs?utm_source=deepmind.google&utm_medium=referral&utm_campaign=gdm&utm_content=)
+
+Science
+
+Unlocking a new era of discovery with AI
+
+[genetics AlphaFold](https://deepmind.google/science/alphafold/)[genetics AlphaGenome](https://deepmind.google/blog/alphagenome-ai-for-better-understanding-the-genome/)[cyclone WeatherNext](https://deepmind.google/science/weathernext/)
+
+[Learn more](https://deepmind.google/science/)
+
+Learn more
+
+[About](https://deepmind.google/about/)[News](https://deepmind.google/blog/)[Careers](https://deepmind.google/careers/)[Responsibility & Safety](https://deepmind.google/responsibility-and-safety/)[The Podcast](https://deepmind.google/the-podcast/)
+
+[](https://www.google.com/?utm_source=ai.google&utm_medium=referral "Google")
+
+[About Google](https://about.google/)
+
+[Google products](https://about.google/products/)
+
+[Privacy](https://policies.google.com/privacy)
+
+[Terms](https://policies.google.com/terms)
+
+ Cookies management controls
+

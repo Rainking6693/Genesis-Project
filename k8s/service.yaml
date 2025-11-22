@@ -1,0 +1,518 @@
+# Kubernetes Service Configuration for Genesis
+# ============================================
+# Service definitions for network access to deployments
+# Includes: LoadBalancer, ClusterIP, and Ingress configurations
+# Created: November 8, 2025
+# Updated: November 8, 2025
+
+# ============================================
+# SERVICE: A2A Service (LoadBalancer - External)
+# ============================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: genesis-a2a-service
+  namespace: genesis-production
+  labels:
+    app: genesis-a2a-service
+    tier: frontend
+  annotations:
+    # GKE specific annotations
+    cloud.google.com/neg: '{"ingress": true}'
+    # AWS ELB annotations (for EKS)
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+    # Azure annotations (for AKS)
+    service.beta.kubernetes.io/azure-load-balancer-internal: "false"
+spec:
+  type: LoadBalancer
+  selector:
+    app: genesis-a2a-service
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8000
+    protocol: TCP
+  - name: https
+    port: 443
+    targetPort: 8000
+    protocol: TCP
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 10800
+
+---
+# ============================================
+# SERVICE: Skyvern (LoadBalancer - External)
+# ============================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: genesis-skyvern
+  namespace: genesis-production
+  labels:
+    app: genesis-skyvern
+    tier: backend
+spec:
+  type: LoadBalancer
+  selector:
+    app: genesis-skyvern
+  ports:
+  - name: http
+    port: 8001
+    targetPort: 8000
+    protocol: TCP
+  sessionAffinity: ClientIP
+
+---
+# ============================================
+# SERVICE: DeepSeek OCR (LoadBalancer - External)
+# ============================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: genesis-deepseek-ocr
+  namespace: genesis-production
+  labels:
+    app: genesis-deepseek-ocr
+    tier: backend
+spec:
+  type: LoadBalancer
+  selector:
+    app: genesis-deepseek-ocr
+  ports:
+  - name: http
+    port: 8002
+    targetPort: 8001
+    protocol: TCP
+
+---
+# ============================================
+# SERVICE: MongoDB (ClusterIP - Internal)
+# ============================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: genesis-mongodb
+  namespace: genesis-production
+  labels:
+    app: genesis-mongodb
+    tier: database
+spec:
+  type: ClusterIP
+  selector:
+    app: genesis-mongodb
+  ports:
+  - name: mongodb
+    port: 27017
+    targetPort: 27017
+    protocol: TCP
+  clusterIP: None # Headless service for direct pod access
+
+---
+# ============================================
+# SERVICE: Redis (ClusterIP - Internal)
+# ============================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: genesis-redis
+  namespace: genesis-production
+  labels:
+    app: genesis-redis
+    tier: cache
+spec:
+  type: ClusterIP
+  selector:
+    app: genesis-redis
+  ports:
+  - name: redis
+    port: 6379
+    targetPort: 6379
+    protocol: TCP
+
+---
+# ============================================
+# SERVICE: PostgreSQL (ClusterIP - Internal)
+# ============================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: genesis-skyvern-postgres
+  namespace: genesis-production
+  labels:
+    app: genesis-skyvern-postgres
+    tier: database
+spec:
+  type: ClusterIP
+  selector:
+    app: genesis-skyvern-postgres
+  ports:
+  - name: postgres
+    port: 5432
+    targetPort: 5432
+    protocol: TCP
+
+---
+# ============================================
+# INGRESS: HTTPS with TLS (Recommended)
+# ============================================
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: genesis-ingress
+  namespace: genesis-production
+  annotations:
+    # Use nginx ingress controller
+    kubernetes.io/ingress.class: nginx
+    # Enable HTTPS redirect
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    # Enable CORS
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+    # Rate limiting
+    nginx.ingress.kubernetes.io/limit-rps: "100"
+    # Cert-manager for automatic SSL
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    # Client body size (for file uploads)
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+    # Timeouts
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+spec:
+  tls:
+  - hosts:
+    - api.genesis.ai
+    - skyvern.genesis.ai
+    - ocr.genesis.ai
+    secretName: genesis-tls-cert
+  rules:
+  - host: api.genesis.ai
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: genesis-a2a-service
+            port:
+              number: 80
+  - host: skyvern.genesis.ai
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: genesis-skyvern
+            port:
+              number: 8001
+  - host: ocr.genesis.ai
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: genesis-deepseek-ocr
+            port:
+              number: 8002
+
+---
+# ============================================
+# HORIZONTAL POD AUTOSCALER: A2A Service
+# ============================================
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: genesis-a2a-service-hpa
+  namespace: genesis-production
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: genesis-a2a-service
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 30
+
+---
+# ============================================
+# HORIZONTAL POD AUTOSCALER: Skyvern
+# ============================================
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: genesis-skyvern-hpa
+  namespace: genesis-production
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: genesis-skyvern
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 75
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+
+---
+# ============================================
+# NETWORK POLICY: Database Access Control
+# ============================================
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: genesis-db-network-policy
+  namespace: genesis-production
+spec:
+  podSelector:
+    matchLabels:
+      tier: database
+  policyTypes:
+  - Ingress
+  ingress:
+  # Only allow connections from backend services
+  - from:
+    - podSelector:
+        matchLabels:
+          tier: backend
+    - podSelector:
+        matchLabels:
+          tier: frontend
+    ports:
+    - protocol: TCP
+      port: 27017 # MongoDB
+    - protocol: TCP
+      port: 5432  # PostgreSQL
+
+---
+# ============================================
+# NETWORK POLICY: Redis Access Control
+# ============================================
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: genesis-cache-network-policy
+  namespace: genesis-production
+spec:
+  podSelector:
+    matchLabels:
+      tier: cache
+  policyTypes:
+  - Ingress
+  ingress:
+  # Only allow connections from application services
+  - from:
+    - podSelector:
+        matchLabels:
+          tier: backend
+    - podSelector:
+        matchLabels:
+          tier: frontend
+    ports:
+    - protocol: TCP
+      port: 6379 # Redis
+
+---
+# ============================================
+# POD DISRUPTION BUDGET: A2A Service
+# ============================================
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: genesis-a2a-service-pdb
+  namespace: genesis-production
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: genesis-a2a-service
+
+---
+# ============================================
+# POD DISRUPTION BUDGET: MongoDB
+# ============================================
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: genesis-mongodb-pdb
+  namespace: genesis-production
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: genesis-mongodb
+
+---
+# ============================================
+# DEPLOYMENT INSTRUCTIONS
+# ============================================
+#
+# Prerequisites:
+# 1. Kubernetes cluster (GKE, EKS, AKS, or local minikube)
+# 2. kubectl CLI installed and configured
+# 3. Docker images built and pushed to registry
+#
+# Build and push Docker images:
+#   docker build -t gcr.io/genesis-project/a2a-service:latest .
+#   docker push gcr.io/genesis-project/a2a-service:latest
+#
+# Create namespace:
+#   kubectl create namespace genesis-production
+#
+# Create secrets (BEFORE deploying):
+#   kubectl create secret generic genesis-secrets \
+#     --from-literal=OPENAI_API_KEY=sk-... \
+#     --from-literal=ANTHROPIC_API_KEY=sk-ant-... \
+#     --from-literal=GOOGLE_API_KEY=... \
+#     --from-literal=MONGODB_URI=mongodb://genesis:password@genesis-mongodb:27017/genesis \
+#     --from-literal=REDIS_URL=redis://:password@genesis-redis:6379 \
+#     --from-literal=REDIS_PASSWORD=your-redis-password \
+#     --from-literal=MONGODB_PASSWORD=your-mongodb-password \
+#     --from-literal=POSTGRES_PASSWORD=your-postgres-password \
+#     --from-literal=SKYVERN_API_KEY=your-skyvern-key \
+#     --from-literal=SLACK_WEBHOOK_URL=https://hooks.slack.com/... \
+#     -n genesis-production
+#
+# Deploy:
+#   kubectl apply -f k8s/deployment.yaml
+#   kubectl apply -f k8s/service.yaml
+#
+# Verify deployment:
+#   kubectl get all -n genesis-production
+#   kubectl get pods -n genesis-production
+#   kubectl get services -n genesis-production
+#
+# Check logs:
+#   kubectl logs -f deployment/genesis-a2a-service -n genesis-production
+#
+# Port forward for local testing:
+#   kubectl port-forward svc/genesis-a2a-service 8000:80 -n genesis-production
+#
+# Access via LoadBalancer IP:
+#   kubectl get svc genesis-a2a-service -n genesis-production
+#   # Wait for EXTERNAL-IP to be assigned
+#   curl http://<EXTERNAL-IP>/health
+#
+# Enable autoscaling:
+#   kubectl autoscale deployment genesis-a2a-service --cpu-percent=70 --min=2 --max=10 -n genesis-production
+#
+# Update deployment (rolling update):
+#   kubectl set image deployment/genesis-a2a-service a2a-service=genesis/a2a-service:v2 -n genesis-production
+#
+# Rollback deployment:
+#   kubectl rollout undo deployment/genesis-a2a-service -n genesis-production
+#
+# Scale manually:
+#   kubectl scale deployment genesis-a2a-service --replicas=5 -n genesis-production
+#
+# Delete all resources:
+#   kubectl delete namespace genesis-production
+#
+# ============================================
+# SSL/TLS SETUP (with cert-manager)
+# ============================================
+#
+# Install cert-manager:
+#   kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.0/cert-manager.yaml
+#
+# Create ClusterIssuer for Let's Encrypt:
+#   kubectl apply -f k8s/cluster-issuer.yaml
+#
+# Cert-manager will automatically issue SSL certificates for Ingress
+#
+# ============================================
+# MONITORING SETUP (Prometheus + Grafana)
+# ============================================
+#
+# Install Prometheus Operator:
+#   kubectl apply -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/bundle.yaml
+#
+# Install Grafana:
+#   kubectl apply -f k8s/monitoring/grafana.yaml
+#
+# Access Grafana:
+#   kubectl port-forward svc/grafana 3000:3000 -n monitoring
+#   # Open http://localhost:3000
+#
+# ============================================
+# CLOUD-SPECIFIC NOTES
+# ============================================
+#
+# Google Cloud (GKE):
+# - Use Google Container Registry: gcr.io/project-id/image:tag
+# - LoadBalancer automatically provisions Google Cloud Load Balancer
+# - Use GKE Autopilot for serverless Kubernetes
+# - Enable GKE Workload Identity for secure access to GCP services
+#
+# Amazon Web Services (EKS):
+# - Use Amazon ECR: account-id.dkr.ecr.region.amazonaws.com/image:tag
+# - LoadBalancer provisions AWS Network Load Balancer
+# - Use IAM roles for service accounts (IRSA)
+# - Enable AWS VPC CNI for pod networking
+#
+# Microsoft Azure (AKS):
+# - Use Azure Container Registry: registry.azurecr.io/image:tag
+# - LoadBalancer provisions Azure Load Balancer
+# - Use Azure AD Pod Identity for secure access
+# - Enable Azure CNI for pod networking
+#
+# ============================================
+# COST OPTIMIZATION
+# ============================================
+#
+# 1. Use smaller node types for non-production
+# 2. Enable cluster autoscaler
+# 3. Set resource requests/limits appropriately
+# 4. Use preemptible/spot instances where possible
+# 5. Enable vertical pod autoscaler
+# 6. Use namespace resource quotas
+#
+# Estimated monthly cost (GKE):
+# - 3 n1-standard-4 nodes: ~$300/month
+# - Load Balancer: ~$20/month
+# - Persistent disks (100GB): ~$20/month
+# Total: ~$340/month
+#
+# Estimated monthly cost (EKS):
+# - 3 t3.xlarge nodes: ~$300/month
+# - Network Load Balancer: ~$25/month
+# - EBS volumes (100GB): ~$15/month
+# Total: ~$340/month

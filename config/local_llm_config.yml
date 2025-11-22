@@ -1,0 +1,47 @@
+# Local LLM Configuration for Genesis Agents
+# Use Qwen2.5-7B-Instruct for all agent inference (text-only model, works with AutoModelForCausalLM)
+
+llm_backend:
+  provider: "local"
+  model_name: "Qwen/Qwen2.5-7B-Instruct"
+  model_path: "~/.cache/huggingface/hub/models--Qwen--Qwen2.5-7B-Instruct"
+  device: "auto"  # auto-detect GPU/CPU
+  
+  # Inference settings
+  max_new_tokens: 2048
+  temperature: 0.7
+  top_p: 0.9
+  do_sample: true
+  
+  # Performance optimization
+  load_in_4bit: false  # Set to true if GPU memory limited
+  load_in_8bit: false
+  torch_dtype: "auto"
+  
+  # Cost tracking (local = $0)
+  cost_per_1k_tokens: 0.0
+
+# Agent routing to local LLM
+agent_llm_mapping:
+  qa_agent: "Qwen/Qwen2.5-7B-Instruct"
+  support_agent: "Qwen/Qwen2.5-7B-Instruct"
+  legal_agent: "Qwen/Qwen2.5-7B-Instruct"
+  analyst_agent: "Qwen/Qwen2.5-7B-Instruct"
+  content_agent: "Qwen/Qwen2.5-7B-Instruct"
+  marketing_agent: "Qwen/Qwen2.5-7B-Instruct"
+  builder_agent: "Qwen/Qwen2.5-7B-Instruct"
+  deploy_agent: "Qwen/Qwen2.5-7B-Instruct"
+  monitor_agent: "Qwen/Qwen2.5-7B-Instruct"
+  coordinator_agent: "Qwen/Qwen2.5-7B-Instruct"
+  research_agent: "Qwen/Qwen2.5-7B-Instruct"
+  design_agent: "Qwen/Qwen2.5-7B-Instruct"
+  planning_agent: "Qwen/Qwen2.5-7B-Instruct"
+  security_agent: "Qwen/Qwen2.5-7B-Instruct"
+  optimization_agent: "Qwen/Qwen2.5-7B-Instruct"
+
+# Business generation settings
+business_generation:
+  enabled: true
+  max_concurrent_businesses: 3
+  use_local_llm: true
+  fallback_to_cloud: false  # NO cloud fallback (user has local models)

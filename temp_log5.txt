@@ -1,0 +1,74 @@
+[1m============================= test session starts =============================[0m
+platform win32 -- Python 3.12.10, pytest-8.4.2, pluggy-1.6.0 -- C:\Users\Ben\AppData\Local\Programs\Python\Python312\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\Ben\Desktop\Github\Claude-Clean-Code-Genesis
+configfile: pytest.ini
+plugins: anyio-4.11.0, langsmith-0.4.41, asyncio-1.2.0, cov-7.0.0, typeguard-4.4.4
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+[1mcollecting ... [0mcollected 1 item
+
+tests/browser_automation/test_hybrid_automation.py::test_fallback_on_voix_failure [31mFAILED[0m[31m [100%][0m[31m[1m
+WARNING: Failed to generate report: No data to report.
+
+[0m[31m[1m
+ERROR: Coverage failure: total of 0 is less than fail-under=85
+[0m
+
+================================== FAILURES ===================================
+[31m[1m________________________ test_fallback_on_voix_failure ________________________[0m
+[1m[31mtests\browser_automation\test_hybrid_automation.py[0m:154: in test_fallback_on_voix_failure
+    [0m[94massert[39;49;00m result.fallback_reason == [33m"[39;49;00m[33mVOIX execution failed[39;49;00m[33m"[39;49;00m[90m[39;49;00m
+[1m[31mE   AssertionError: assert 'VOIX invocation failed' == 'VOIX execution failed'[0m
+[1m[31mE     [0m
+[1m[31mE     [0m[91m- VOIX execution failed[39;49;00m[90m[39;49;00m[0m
+[1m[31mE     ?      ^^^ ^[90m[39;49;00m[0m
+[1m[31mE     [92m+ VOIX invocation failed[39;49;00m[90m[39;49;00m[0m
+[1m[31mE     ?      ^^^^ ^[90m[39;49;00m[0m
+---------------------------- Captured stderr setup ----------------------------
+2025-11-18 15:13:34 - infrastructure.browser_automation.voix_detector - INFO - [VoixDetector] Initialized
+2025-11-18 15:13:34 - infrastructure.browser_automation.voix_executor - INFO - [VoixExecutor] Initialized
+2025-11-18 15:13:34 - infrastructure.browser_automation.hybrid_automation - INFO - [HybridAutomation] Initialized (prefer_voix=True)
+----------------------------- Captured log setup ------------------------------
+[32mINFO    [0m infrastructure.browser_automation.voix_detector:voix_detector.py:154 [VoixDetector] Initialized
+[32mINFO    [0m infrastructure.browser_automation.voix_executor:voix_executor.py:76 [VoixExecutor] Initialized
+[32mINFO    [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:95 [HybridAutomation] Initialized (prefer_voix=True)
+---------------------------- Captured stderr call -----------------------------
+2025-11-18 15:13:34 - infrastructure.browser_automation.hybrid_automation - INFO - ============================================================
+2025-11-18 15:13:34 - infrastructure.browser_automation.hybrid_automation - INFO - [HybridAutomation] Executing task: Submit form
+2025-11-18 15:13:34 - infrastructure.browser_automation.hybrid_automation - INFO -   URL: https://example.com
+2025-11-18 15:13:34 - infrastructure.browser_automation.hybrid_automation - INFO -   Mode: voix
+2025-11-18 15:13:34 - infrastructure.browser_automation.hybrid_automation - INFO - ============================================================
+2025-11-18 15:13:34 - infrastructure.browser_automation.hybrid_automation - WARNING - [HybridAutomation] VOIX failed, falling back to Skyvern
+2025-11-18 15:13:34 - infrastructure.browser_automation.hybrid_automation - INFO - ============================================================
+2025-11-18 15:13:34 - infrastructure.browser_automation.hybrid_automation - INFO - [HybridAutomation] Task completed
+2025-11-18 15:13:34 - infrastructure.browser_automation.hybrid_automation - INFO -   Success: True
+2025-11-18 15:13:34 - infrastructure.browser_automation.hybrid_automation - INFO -   Mode: skyvern
+2025-11-18 15:13:34 - infrastructure.browser_automation.hybrid_automation - INFO -   Latency: 0ms
+2025-11-18 15:13:34 - infrastructure.browser_automation.hybrid_automation - INFO -   Fallback: VOIX invocation failed
+2025-11-18 15:13:34 - infrastructure.browser_automation.hybrid_automation - INFO - ============================================================
+------------------------------ Captured log call ------------------------------
+[32mINFO    [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:133 ============================================================
+[32mINFO    [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:134 [HybridAutomation] Executing task: Submit form
+[32mINFO    [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:135   URL: https://example.com
+[32mINFO    [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:136   Mode: voix
+[32mINFO    [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:137 ============================================================
+[33mWARNING [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:170 [HybridAutomation] VOIX failed, falling back to Skyvern
+[32mINFO    [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:202 ============================================================
+[32mINFO    [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:203 [HybridAutomation] Task completed
+[32mINFO    [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:204   Success: True
+[32mINFO    [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:205   Mode: skyvern
+[32mINFO    [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:206   Latency: 0ms
+[32mINFO    [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:208   Fallback: VOIX invocation failed
+[32mINFO    [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:209 ============================================================
+=============================== tests coverage ================================
+______________ coverage: platform win32, python 3.12.10-final-0 _______________
+
+[31m[1mFAIL Required test coverage of 85% not reached. Total coverage: 0.00%
+[0m[36m[1m=========================== short test summary info ===========================[0m
+[31mFAILED[0m tests/browser_automation/test_hybrid_automation.py::[1mtest_fallback_on_voix_failure[0m - AssertionError: assert 'VOIX invocation failed' == 'VOIX execution failed'
+  
+  [0m[91m- VOIX execution failed[39;49;00m[90m[39;49;00m
+  ?      ^^^ ^[90m[39;49;00m
+  [92m+ VOIX invocation failed[39;49;00m[90m[39;49;00m
+  ?      ^^^^ ^[90m[39;49;00m
+[31m============================== [31m[1m1 failed[0m[31m in 1.85s[0m[31m ==============================[0m

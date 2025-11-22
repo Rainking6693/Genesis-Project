@@ -1,0 +1,64 @@
+# BetaList Submission Task
+# Automates startup submission to BetaList
+# Expected parameters: startup_name, website, short_description, long_description, category, tags, logo_url, screenshot_urls
+
+task:
+  name: "Submit to BetaList"
+  url: "https://betalist.com/submit"
+
+  prompt: |
+    Submit a startup to BetaList directory.
+
+    Fill in the submission form with these details:
+
+    Basic Information:
+    - Startup name: {{startup_name}}
+    - Website URL: {{website}}
+    - Category: {{category}}
+
+    Descriptions:
+    - Short description (tagline): {{short_description}} (max 140 characters)
+    - Long description: {{long_description}}
+
+    Media:
+    - Logo URL: {{logo_url}}
+    - Screenshot URLs: {{screenshot_urls}} (comma-separated)
+
+    Tags/Topics:
+    - Tags: {{tags}} (comma-separated)
+
+    After filling all fields:
+    1. Review the form for accuracy
+    2. Click the submit button
+    3. Wait for confirmation or review message
+
+    If you see "startup already submitted", report this as an error.
+
+  data_extraction:
+    submission_status:
+      type: "text"
+      selector: "status message after submission"
+      description: "Success message or pending review status"
+    
+    review_eta:
+      type: "text"
+      selector: "estimated review time or approval date"
+      description: "When to expect review results"
+    
+    submission_id:
+      type: "text"
+      selector: "submission reference number"
+      description: "Unique ID for tracking this submission"
+
+  error_codes:
+    - "startup already submitted"
+    - "invalid email address"
+    - "logo URL not accessible"
+    - "description too short"
+
+  validation:
+    - check: "success or review message visible"
+      retry_on_fail: false
+
+  timeout_seconds: 90
+  max_retries: 2

@@ -1,0 +1,92 @@
+[1m============================= test session starts =============================[0m
+platform win32 -- Python 3.12.10, pytest-8.4.2, pluggy-1.6.0 -- C:\Users\Ben\AppData\Local\Programs\Python\Python312\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\Ben\Desktop\Github\Claude-Clean-Code-Genesis
+configfile: pytest.ini
+plugins: anyio-4.11.0, langsmith-0.4.41, asyncio-1.2.0, cov-7.0.0, typeguard-4.4.4
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+[1mcollecting ... [0mcollected 1 item
+
+tests/browser_automation/test_hybrid_integration.py::test_error_handling_voix_failure [31mFAILED[0m[31m [100%][0m[31m[1m
+WARNING: Failed to generate report: No data to report.
+
+[0m[31m[1m
+ERROR: Coverage failure: total of 0 is less than fail-under=85
+[0m
+
+================================== FAILURES ===================================
+[31m[1m______________________ test_error_handling_voix_failure _______________________[0m
+[1m[31mtests\browser_automation\test_hybrid_integration.py[0m:281: in test_error_handling_voix_failure
+    [0m[94massert[39;49;00m [33m"[39;49;00m[33mVOIX invocation failed[39;49;00m[33m"[39;49;00m [95min[39;49;00m result.fallback_reason[90m[39;49;00m
+[1m[31mE   AssertionError: assert 'VOIX invocation failed' in 'VOIX execution failed'[0m
+[1m[31mE    +  where 'VOIX execution failed' = AutomationResult(success=True, mode_used=<AutomationMode.SKYVERN: 'skyvern'>, data={'submission_id': '12345'}, error=None, latency_ms=3875.0, voix_tools_found=0, fallback_reason='VOIX execution failed').fallback_reason[0m
+---------------------------- Captured stderr setup ----------------------------
+2025-11-18 15:10:20 - infrastructure.browser_automation.voix_detector - INFO - [VoixDetector] Initialized
+2025-11-18 15:10:20 - infrastructure.browser_automation.voix_executor - INFO - [VoixExecutor] Initialized
+2025-11-18 15:10:20 - infrastructure.browser_automation.hybrid_automation - INFO - [HybridAutomation] Initialized (prefer_voix=True)
+----------------------------- Captured log setup ------------------------------
+[32mINFO    [0m infrastructure.browser_automation.voix_detector:voix_detector.py:154 [VoixDetector] Initialized
+[32mINFO    [0m infrastructure.browser_automation.voix_executor:voix_executor.py:76 [VoixExecutor] Initialized
+[32mINFO    [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:94 [HybridAutomation] Initialized (prefer_voix=True)
+---------------------------- Captured stderr call -----------------------------
+2025-11-18 15:10:20 - infrastructure.browser_automation.hybrid_automation - INFO - ============================================================
+2025-11-18 15:10:20 - infrastructure.browser_automation.hybrid_automation - INFO - [HybridAutomation] Executing task: Submit product
+2025-11-18 15:10:20 - infrastructure.browser_automation.hybrid_automation - INFO -   URL: https://error.example.com
+2025-11-18 15:10:20 - infrastructure.browser_automation.hybrid_automation - INFO -   Mode: auto
+2025-11-18 15:10:20 - infrastructure.browser_automation.hybrid_automation - INFO - ============================================================
+2025-11-18 15:10:20 - infrastructure.browser_automation.hybrid_automation - ERROR - [HybridAutomation] Error fetching https://error.example.com: Cannot connect to host error.example.com:443 ssl:default [getaddrinfo failed]
+2025-11-18 15:10:20 - infrastructure.browser_automation.hybrid_automation - INFO - [HybridAutomation] AUTO mode selected: VOIX
+2025-11-18 15:10:20 - infrastructure.browser_automation.hybrid_automation - INFO - [VOIX] Starting declarative execution
+2025-11-18 15:10:21 - infrastructure.browser_automation.hybrid_automation - ERROR - [HybridAutomation] Error fetching https://error.example.com: Cannot connect to host error.example.com:443 ssl:default [getaddrinfo failed]
+2025-11-18 15:10:21 - infrastructure.browser_automation.voix_detector - INFO - [VOIX] Discovered 0 contexts on https://error.example.com (filtered 0 expired)
+2025-11-18 15:10:21 - infrastructure.browser_automation.hybrid_automation - INFO - [VOIX] Found 1 tools, 0 contexts
+2025-11-18 15:10:21 - infrastructure.browser_automation.hybrid_automation - INFO - [VOIX] Tool 'submit_product' matches task 'Submit product' (keyword match)
+2025-11-18 15:10:21 - infrastructure.browser_automation.hybrid_automation - INFO - [VOIX] Selected tool: submit_product
+2025-11-18 15:10:21 - infrastructure.browser_automation.hybrid_automation - WARNING - [VOIX] Retryable error on attempt 1/3: HTTP 500 Internal Server Error. Retrying in 1.0s...
+2025-11-18 15:10:22 - infrastructure.browser_automation.hybrid_automation - WARNING - [VOIX] Retryable error on attempt 2/3: HTTP 500 Internal Server Error. Retrying in 2.0s...
+2025-11-18 15:10:24 - infrastructure.browser_automation.hybrid_automation - ERROR - [VOIX] All 3 attempts failed: HTTP 500 Internal Server Error
+2025-11-18 15:10:24 - infrastructure.browser_automation.skyvern_client - WARNING - No Skyvern API key configured. Set SKYVERN_API_KEY environment variable or pass api_key parameter.
+2025-11-18 15:10:24 - infrastructure.browser_automation.hybrid_automation - INFO - [HybridAutomation] Skyvern client loaded
+2025-11-18 15:10:24 - infrastructure.browser_automation.hybrid_automation - WARNING - [HybridAutomation] VOIX failed, falling back to Skyvern
+2025-11-18 15:10:24 - infrastructure.browser_automation.hybrid_automation - INFO - ============================================================
+2025-11-18 15:10:24 - infrastructure.browser_automation.hybrid_automation - INFO - [HybridAutomation] Task completed
+2025-11-18 15:10:24 - infrastructure.browser_automation.hybrid_automation - INFO -   Success: True
+2025-11-18 15:10:24 - infrastructure.browser_automation.hybrid_automation - INFO -   Mode: skyvern
+2025-11-18 15:10:24 - infrastructure.browser_automation.hybrid_automation - INFO -   Latency: 3875ms
+2025-11-18 15:10:24 - infrastructure.browser_automation.hybrid_automation - INFO -   Fallback: VOIX execution failed
+2025-11-18 15:10:24 - infrastructure.browser_automation.hybrid_automation - INFO - ============================================================
+------------------------------ Captured log call ------------------------------
+[32mINFO    [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:132 ============================================================
+[32mINFO    [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:133 [HybridAutomation] Executing task: Submit product
+[32mINFO    [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:134   URL: https://error.example.com
+[32mINFO    [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:135   Mode: auto
+[32mINFO    [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:136 ============================================================
+[1m[31mERROR   [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:413 [HybridAutomation] Error fetching https://error.example.com: Cannot connect to host error.example.com:443 ssl:default [getaddrinfo failed]
+[32mINFO    [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:154 [HybridAutomation] AUTO mode selected: VOIX
+[32mINFO    [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:230 [VOIX] Starting declarative execution
+[1m[31mERROR   [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:413 [HybridAutomation] Error fetching https://error.example.com: Cannot connect to host error.example.com:443 ssl:default [getaddrinfo failed]
+[32mINFO    [0m infrastructure.browser_automation.voix_detector:voix_detector.py:271 [VOIX] Discovered 0 contexts on https://error.example.com (filtered 0 expired)
+[32mINFO    [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:255 [VOIX] Found 1 tools, 0 contexts
+[32mINFO    [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:481 [VOIX] Tool 'submit_product' matches task 'Submit product' (keyword match)
+[32mINFO    [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:271 [VOIX] Selected tool: submit_product
+[33mWARNING [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:320 [VOIX] Retryable error on attempt 1/3: HTTP 500 Internal Server Error. Retrying in 1.0s...
+[33mWARNING [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:320 [VOIX] Retryable error on attempt 2/3: HTTP 500 Internal Server Error. Retrying in 2.0s...
+[1m[31mERROR   [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:332 [VOIX] All 3 attempts failed: HTTP 500 Internal Server Error
+[33mWARNING [0m infrastructure.browser_automation.skyvern_client:skyvern_client.py:75 No Skyvern API key configured. Set SKYVERN_API_KEY environment variable or pass api_key parameter.
+[32mINFO    [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:103 [HybridAutomation] Skyvern client loaded
+[33mWARNING [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:169 [HybridAutomation] VOIX failed, falling back to Skyvern
+[32mINFO    [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:195 ============================================================
+[32mINFO    [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:196 [HybridAutomation] Task completed
+[32mINFO    [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:197   Success: True
+[32mINFO    [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:198   Mode: skyvern
+[32mINFO    [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:199   Latency: 3875ms
+[32mINFO    [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:201   Fallback: VOIX execution failed
+[32mINFO    [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:202 ============================================================
+=============================== tests coverage ================================
+______________ coverage: platform win32, python 3.12.10-final-0 _______________
+
+[31m[1mFAIL Required test coverage of 85% not reached. Total coverage: 0.00%
+[0m[36m[1m=========================== short test summary info ===========================[0m
+[31mFAILED[0m tests/browser_automation/test_hybrid_integration.py::[1mtest_error_handling_voix_failure[0m - AssertionError: assert 'VOIX invocation failed' in 'VOIX execution failed'
+ +  where 'VOIX execution failed' = AutomationResult(success=True, mode_used=<AutomationMode.SKYVERN: 'skyvern'>, data={'submission_id': '12345'}, error=None, latency_ms=3875.0, voix_tools_found=0, fallback_reason='VOIX execution failed').fallback_reason
+[31m============================== [31m[1m1 failed[0m[31m in 6.53s[0m[31m ==============================[0m

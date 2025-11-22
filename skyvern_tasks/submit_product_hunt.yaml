@@ -1,0 +1,72 @@
+# Product Hunt Submission Task
+# Automates new product submission to Product Hunt
+# Expected parameters: product_name, tagline, description, website, category, topics
+
+task:
+  name: "Submit to Product Hunt"
+  url: "https://www.producthunt.com/posts/new"
+
+  prompt: |
+    You are submitting a new product to Product Hunt.
+
+    Follow these steps carefully:
+
+    Step 1: Fill in basic information
+    - Product name: {{product_name}}
+    - Tagline: {{tagline}} (must be under 60 characters)
+    - Description: {{description}}
+    - Website: {{website}}
+
+    Step 2: Upload media (if provided)
+    - Thumbnail: {{thumbnail_url}} (skip if not provided)
+    - Gallery images: {{gallery_images}} (skip if not provided)
+
+    Step 3: Set launch details
+    - Launch now (do not schedule for later)
+    - Category: {{category}}
+    - Topics: {{topics}}
+
+    Step 4: Review and submit
+    - Verify all fields are correctly filled
+    - Click "Post your product" or similar submit button
+    - Wait for confirmation page to load
+
+    IMPORTANT: If you encounter a login page or authentication requirement,
+    stop and report error: "login required"
+
+  data_extraction:
+    submission_url:
+      type: "url"
+      selector: "final page URL after submission"
+      description: "The URL of the submitted product page"
+    
+    confirmation_id:
+      type: "text"
+      selector: "submission ID or confirmation number"
+      description: "Unique identifier for this submission"
+    
+    launch_date:
+      type: "date"
+      selector: "launch date shown on confirmation"
+      description: "When the product will go live"
+
+  error_codes:
+    - "login required"
+    - "product already exists"
+    - "invalid tagline length"
+    - "rate limit exceeded"
+    - "category not found"
+
+  validation:
+    - check: "confirmation message visible"
+      retry_on_fail: false
+    - check: "submission URL contains 'producthunt.com'"
+      retry_on_fail: false
+
+  timeout_seconds: 120
+  max_retries: 2
+
+  checkpoints:
+    - after_basic_info
+    - after_media_upload
+    - before_submit

@@ -1,0 +1,229 @@
+# MongoDB Configuration for Genesis Memory Store
+#
+# This configuration file defines MongoDB connection settings and schema
+# for the persistent memory system.
+#
+# Environments:
+# - development: Local MongoDB for testing
+# - staging: MongoDB Atlas M0 (free tier)
+# - production: MongoDB Atlas M2+ (production cluster)
+
+development:
+  connection:
+    # Local MongoDB (default port 27017)
+    uri: "mongodb://localhost:27017/"
+    database: "genesis_memory_dev"
+
+    # Connection pooling
+    max_pool_size: 10
+    min_pool_size: 2
+    max_idle_time_ms: 60000  # 60 seconds
+
+    # Timeouts
+    connect_timeout_ms: 5000
+    server_selection_timeout_ms: 5000
+    socket_timeout_ms: 10000
+
+  collections:
+    # Consensus memory: Verified team procedures
+    consensus_memory:
+      name: "consensus_memory"
+      indexes:
+        - fields: ["namespace.0", "namespace.1", "key"]
+          unique: true
+        - fields: ["metadata.tags"]
+        - fields: ["metadata.last_accessed"]
+        - fields: ["metadata.created_at"]
+        - fields: ["metadata.compressed"]
+
+    # Persona libraries: Agent characteristics
+    persona_libraries:
+      name: "persona_libraries"
+      indexes:
+        - fields: ["namespace.0", "namespace.1", "key"]
+          unique: true
+        - fields: ["metadata.tags"]
+        - fields: ["value.agent_type"]
+
+    # Whiteboard methods: Shared working spaces
+    whiteboard_methods:
+      name: "whiteboard_methods"
+      indexes:
+        - fields: ["namespace.0", "namespace.1", "key"]
+          unique: true
+        - fields: ["metadata.tags"]
+        - fields: ["metadata.last_accessed"]
+
+  # Performance settings
+  performance:
+    enable_compression: false  # Enable in production
+    write_concern: "majority"
+    read_concern: "majority"
+    read_preference: "primaryPreferred"
+
+staging:
+  connection:
+    # MongoDB Atlas Free Tier (M0)
+    # Replace with actual connection string
+    uri: "${MONGODB_URI:-mongodb+srv://user:pass@cluster.mongodb.net/}"
+    database: "genesis_memory_staging"
+
+    max_pool_size: 20
+    min_pool_size: 5
+    max_idle_time_ms: 60000
+
+    connect_timeout_ms: 10000
+    server_selection_timeout_ms: 10000
+    socket_timeout_ms: 20000
+
+  collections:
+    consensus_memory:
+      name: "consensus_memory"
+      indexes:
+        - fields: ["namespace.0", "namespace.1", "key"]
+          unique: true
+        - fields: ["metadata.tags"]
+        - fields: ["metadata.last_accessed"]
+        - fields: ["metadata.created_at"]
+        - fields: ["metadata.compressed"]
+
+    persona_libraries:
+      name: "persona_libraries"
+      indexes:
+        - fields: ["namespace.0", "namespace.1", "key"]
+          unique: true
+        - fields: ["metadata.tags"]
+
+    whiteboard_methods:
+      name: "whiteboard_methods"
+      indexes:
+        - fields: ["namespace.0", "namespace.1", "key"]
+          unique: true
+        - fields: ["metadata.tags"]
+
+  performance:
+    enable_compression: true
+    write_concern: "majority"
+    read_concern: "majority"
+    read_preference: "primaryPreferred"
+
+production:
+  connection:
+    # MongoDB Atlas Production Cluster (M2+)
+    uri: "${MONGODB_URI}"
+    database: "genesis_memory"
+
+    max_pool_size: 50
+    min_pool_size: 10
+    max_idle_time_ms: 120000  # 2 minutes
+
+    connect_timeout_ms: 10000
+    server_selection_timeout_ms: 10000
+    socket_timeout_ms: 30000
+
+  collections:
+    consensus_memory:
+      name: "consensus_memory"
+      indexes:
+        - fields: ["namespace.0", "namespace.1", "key"]
+          unique: true
+        - fields: ["metadata.tags"]
+        - fields: ["metadata.last_accessed"]
+        - fields: ["metadata.created_at"]
+        - fields: ["metadata.compressed"]
+        - fields: ["metadata.access_count"]  # For cache eviction
+
+    persona_libraries:
+      name: "persona_libraries"
+      indexes:
+        - fields: ["namespace.0", "namespace.1", "key"]
+          unique: true
+        - fields: ["metadata.tags"]
+        - fields: ["value.agent_type"]
+
+    whiteboard_methods:
+      name: "whiteboard_methods"
+      indexes:
+        - fields: ["namespace.0", "namespace.1", "key"]
+          unique: true
+        - fields: ["metadata.tags"]
+        - fields: ["metadata.last_accessed"]
+
+  performance:
+    enable_compression: true  # Enable zlib compression
+    write_concern: "majority"
+    read_concern: "majority"
+    read_preference: "primaryPreferred"
+
+  # Production monitoring
+  monitoring:
+    enable_command_monitoring: true
+    enable_server_monitoring: true
+    heartbeat_frequency_ms: 10000
+
+# Schema validation (MongoDB JSON Schema)
+# Applied to all collections for data integrity
+schema_validation:
+  validator:
+    $jsonSchema:
+      bsonType: "object"
+      required: ["entry_id", "namespace", "key", "value", "metadata"]
+      properties:
+        entry_id:
+          bsonType: "string"
+          description: "Unique entry identifier (UUID)"
+        namespace:
+          bsonType: "array"
+          minItems: 2
+          maxItems: 2
+          items:
+            bsonType: "string"
+          description: "Namespace tuple (type, id)"
+        key:
+          bsonType: "string"
+          description: "Memory key"
+        value:
+          bsonType: "object"
+          description: "Memory value (any JSON object)"
+        metadata:
+          bsonType: "object"
+          required: ["created_at", "last_accessed", "access_count", "compressed"]
+          properties:
+            created_at:
+              bsonType: "string"
+              description: "ISO 8601 timestamp"
+            last_accessed:
+              bsonType: "string"
+              description: "ISO 8601 timestamp"
+            access_count:
+              bsonType: "int"
+              minimum: 0
+              description: "Number of times accessed"
+            compressed:
+              bsonType: "bool"
+              description: "Whether value is compressed (DeepSeek-OCR)"
+            compression_ratio:
+              bsonType: ["double", "null"]
+              description: "Compression ratio if compressed"
+            tags:
+              bsonType: "array"
+              items:
+                bsonType: "string"
+              description: "Tags for categorization"
+
+# TTL (Time-To-Live) settings for automatic cleanup
+# Useful for temporary memories or caching
+ttl_settings:
+  # Whiteboard memories expire after 7 days of no access
+  whiteboard_methods:
+    enable: true
+    expire_after_seconds: 604800  # 7 days
+    index_field: "metadata.last_accessed"
+
+  # Consensus memories never expire (verified procedures)
+  consensus_memory:
+    enable: false
+
+  # Persona libraries never expire (agent characteristics)
+  persona_libraries:
+    enable: false

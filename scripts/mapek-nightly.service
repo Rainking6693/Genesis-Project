@@ -1,0 +1,15 @@
+[Unit]
+Description=Genesis MAPE-K Nightly Optimization Job
+After=network.target
+Wants=mapek-nightly.timer
+
+[Service]
+Type=oneshot
+User=genesis
+WorkingDirectory=/home/genesis/genesis-rebuild
+ExecStart=/usr/bin/python3 /home/genesis/genesis-rebuild/scripts/mapek_nightly.py
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,71 @@
+[1m============================= test session starts =============================[0m
+platform win32 -- Python 3.12.10, pytest-8.4.2, pluggy-1.6.0 -- C:\Users\Ben\AppData\Local\Programs\Python\Python312\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\Ben\Desktop\Github\Claude-Clean-Code-Genesis
+configfile: pytest.ini
+plugins: anyio-4.11.0, langsmith-0.4.41, asyncio-1.2.0, cov-7.0.0, typeguard-4.4.4
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+[1mcollecting ... [0mcollected 1 item
+
+tests/browser_automation/test_hybrid_integration.py::test_mixed_site_partial_voix [31mFAILED[0m[31m [100%][0m[31m[1m
+WARNING: Failed to generate report: No data to report.
+
+[0m[31m[1m
+ERROR: Coverage failure: total of 0 is less than fail-under=85
+[0m
+
+================================== FAILURES ===================================
+[31m[1m________________________ test_mixed_site_partial_voix _________________________[0m
+[1m[31mtests\browser_automation\test_hybrid_integration.py[0m:163: in test_mixed_site_partial_voix
+    [0mresult = [94mawait[39;49;00m hybrid_automation.execute_task([90m[39;49;00m
+[1m[31minfrastructure\browser_automation\hybrid_automation.py[0m:162: in execute_task
+    [0mresult = [94mawait[39;49;00m [96mself[39;49;00m._execute_with_voix(url, task, data, bearer_token)[90m[39;49;00m
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31minfrastructure\browser_automation\hybrid_automation.py[0m:281: in _execute_with_voix
+    [0minvocation_result = [94mawait[39;49;00m [96mself[39;49;00m.voix_executor.invoke_tool([90m[39;49;00m
+[1m[31m..\..\..\AppData\Local\Programs\Python\Python312\Lib\unittest\mock.py[0m:2291: in _execute_mock_call
+    [0m[94mraise[39;49;00m effect[90m[39;49;00m
+[1m[31mE   Exception: Tool not found[0m
+---------------------------- Captured stderr setup ----------------------------
+2025-11-18 15:09:03 - infrastructure.browser_automation.voix_detector - INFO - [VoixDetector] Initialized
+2025-11-18 15:09:03 - infrastructure.browser_automation.voix_executor - INFO - [VoixExecutor] Initialized
+2025-11-18 15:09:03 - infrastructure.browser_automation.hybrid_automation - INFO - [HybridAutomation] Initialized (prefer_voix=True)
+----------------------------- Captured log setup ------------------------------
+[32mINFO    [0m infrastructure.browser_automation.voix_detector:voix_detector.py:154 [VoixDetector] Initialized
+[32mINFO    [0m infrastructure.browser_automation.voix_executor:voix_executor.py:76 [VoixExecutor] Initialized
+[32mINFO    [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:94 [HybridAutomation] Initialized (prefer_voix=True)
+---------------------------- Captured stderr call -----------------------------
+2025-11-18 15:09:03 - infrastructure.browser_automation.hybrid_automation - INFO - ============================================================
+2025-11-18 15:09:03 - infrastructure.browser_automation.hybrid_automation - INFO - [HybridAutomation] Executing task: Submit product to directory
+2025-11-18 15:09:03 - infrastructure.browser_automation.hybrid_automation - INFO -   URL: https://mixed.example.com
+2025-11-18 15:09:03 - infrastructure.browser_automation.hybrid_automation - INFO -   Mode: auto
+2025-11-18 15:09:03 - infrastructure.browser_automation.hybrid_automation - INFO - ============================================================
+2025-11-18 15:09:03 - infrastructure.browser_automation.hybrid_automation - ERROR - [HybridAutomation] Error fetching https://mixed.example.com: Cannot connect to host mixed.example.com:443 ssl:default [getaddrinfo failed]
+2025-11-18 15:09:03 - infrastructure.browser_automation.hybrid_automation - INFO - [HybridAutomation] AUTO mode selected: VOIX
+2025-11-18 15:09:03 - infrastructure.browser_automation.hybrid_automation - INFO - [VOIX] Starting declarative execution
+2025-11-18 15:09:03 - infrastructure.browser_automation.hybrid_automation - ERROR - [HybridAutomation] Error fetching https://mixed.example.com: Cannot connect to host mixed.example.com:443 ssl:default [getaddrinfo failed]
+2025-11-18 15:09:03 - infrastructure.browser_automation.voix_detector - INFO - [VOIX] Discovered 0 contexts on https://mixed.example.com (filtered 0 expired)
+2025-11-18 15:09:03 - infrastructure.browser_automation.hybrid_automation - INFO - [VOIX] Found 1 tools, 0 contexts
+2025-11-18 15:09:03 - infrastructure.browser_automation.hybrid_automation - INFO - [VOIX] Defaulting to first visible tool: 'get_status'
+2025-11-18 15:09:03 - infrastructure.browser_automation.hybrid_automation - INFO - [VOIX] Selected tool: get_status
+------------------------------ Captured log call ------------------------------
+[32mINFO    [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:132 ============================================================
+[32mINFO    [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:133 [HybridAutomation] Executing task: Submit product to directory
+[32mINFO    [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:134   URL: https://mixed.example.com
+[32mINFO    [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:135   Mode: auto
+[32mINFO    [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:136 ============================================================
+[31m[1mERROR   [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:402 [HybridAutomation] Error fetching https://mixed.example.com: Cannot connect to host mixed.example.com:443 ssl:default [getaddrinfo failed]
+[32mINFO    [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:154 [HybridAutomation] AUTO mode selected: VOIX
+[32mINFO    [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:230 [VOIX] Starting declarative execution
+[31m[1mERROR   [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:402 [HybridAutomation] Error fetching https://mixed.example.com: Cannot connect to host mixed.example.com:443 ssl:default [getaddrinfo failed]
+[32mINFO    [0m infrastructure.browser_automation.voix_detector:voix_detector.py:271 [VOIX] Discovered 0 contexts on https://mixed.example.com (filtered 0 expired)
+[32mINFO    [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:255 [VOIX] Found 1 tools, 0 contexts
+[32mINFO    [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:476 [VOIX] Defaulting to first visible tool: 'get_status'
+[32mINFO    [0m infrastructure.browser_automation.hybrid_automation:hybrid_automation.py:271 [VOIX] Selected tool: get_status
+=============================== tests coverage ================================
+______________ coverage: platform win32, python 3.12.10-final-0 _______________
+
+[31m[1mFAIL Required test coverage of 85% not reached. Total coverage: 0.00%
+[0m[36m[1m=========================== short test summary info ===========================[0m
+[31mFAILED[0m tests/browser_automation/test_hybrid_integration.py::[1mtest_mixed_site_partial_voix[0m - Exception: Tool not found
+[31m============================== [31m[1m1 failed[0m[31m in 3.14s[0m[31m ==============================[0m

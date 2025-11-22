@@ -1,0 +1,176 @@
+[Unit]
+# Llama 3.1 8B Local LLM Server (Secure systemd Service)
+#
+# Security Hardening:
+# - Process isolation (PrivateTmp, ProtectSystem, ProtectHome)
+# - Resource limits (MemoryMax=8G, CPUQuota=400%)
+# - Network restrictions (localhost-only binding)
+# - No privilege escalation (NoNewPrivileges)
+# - Device isolation (PrivateDevices)
+#
+# Deployment:
+# 1. sudo cp llama-3-1-8b-server.service /etc/systemd/system/
+# 2. sudo chmod 644 /etc/systemd/system/llama-3-1-8b-server.service
+# 3. sudo systemctl daemon-reload
+# 4. sudo systemctl start llama-3-1-8b-server
+# 5. sudo systemctl enable llama-3-1-8b-server
+#
+# Author: Sentinel (Security Agent)
+# Date: November 3, 2025
+
+Description=Llama 3.1 8B Local LLM Server (Secure)
+Documentation=https://github.com/ggerganov/llama.cpp
+After=network.target
+PartOf=genesis-local-llm.target
+
+[Service]
+# User/Group: Run as dedicated unprivileged user
+# Security: Prevents privilege escalation
+User=llama-inference
+Group=llama-inference
+
+# Service type: simple (foreground process)
+Type=simple
+
+# Working directory
+WorkingDirectory=/home/genesis/llama.cpp
+
+# Start command - llama-server binary
+ExecStart=/home/genesis/llama.cpp/llama-server \
+  --model models/Meta-Llama-3.1-8B-Instruct.Q4_K_M.gguf \
+  --port 8002 \
+  --host 127.0.0.1 \
+  --threads 8 \
+  --n-gpu-layers 40 \
+  --ctx-size 4096 \
+  --batch-size 256 \
+  --ubatch-size 256
+
+# Restart policy: Restart on failure with backoff
+Restart=on-failure
+RestartSec=5
+StartLimitInterval=300
+StartLimitBurst=5
+
+# ============================================================================
+# PROCESS ISOLATION & SECURITY
+# ============================================================================
+
+# Disable new privilege gains (prevents privilege escalation)
+# Security Impact: No process can gain privileges via SUID/SGID/capabilities
+NoNewPrivileges=true
+
+# Private /tmp directory per service
+# Security Impact: Service cannot access other processes' temp files
+PrivateTmp=true
+
+# Protect system directories (read-only)
+# Security Impact: Cannot modify system binaries, libraries, etc.
+ProtectSystem=strict
+
+# Hide home directories
+# Security Impact: Cannot access /root, /home, etc.
+ProtectHome=true
+
+# Isolate device access
+# Security Impact: Cannot access /dev (except essential)
+PrivateDevices=true
+
+# Protect kernel tunables
+# Security Impact: Cannot modify /proc/sys, /sys parameters
+ProtectKernelTunables=true
+
+# Protect control groups
+# Security Impact: Cannot escape cgroup limits
+ProtectControlGroups=true
+
+# Lock memory (prevent swapping to disk)
+# Security Impact: Reduces potential information leaks
+LockPersonality=true
+
+# Restrict address families (IPv4 & IPv6 only)
+# Security Impact: No Unix domain sockets, netlink, etc.
+RestrictAddressFamilies=AF_INET AF_INET6
+
+# Restrict CPU features
+# Security Impact: Prevents exploitation of CPU-specific vulnerabilities
+RestrictNamespaces=true
+
+# Prevent real-time scheduling
+# Security Impact: Cannot monopolize CPU with SCHED_RR/FIFO
+RestrictRealtime=true
+
+# ============================================================================
+# RESOURCE LIMITS (DoS PREVENTION)
+# ============================================================================
+
+# Memory limit: 8GB max
+# Security Impact: Prevents out-of-memory DoS
+MemoryMax=8G
+
+# Memory accounting enabled
+MemoryAccounting=true
+
+# CPU quota: 400% (4 CPU cores max)
+# Security Impact: Prevents CPU exhaustion DoS
+CPUQuota=400%
+
+# CPU accounting enabled
+CPUAccounting=true
+
+# Number of open file descriptors: 65536
+# Security Impact: Prevents resource exhaustion via file handles
+LimitNOFILE=65536
+
+# Number of processes: 512
+# Security Impact: Prevents fork bomb DoS
+LimitNPROC=512
+
+# Address space limit: 16GB
+# Security Impact: Prevents memory exhaustion
+LimitAS=16G
+
+# Core dump size limit: 0 (disabled)
+# Security Impact: Prevents sensitive data leaks in core dumps
+LimitCORE=0
+
+# ============================================================================
+# LOGGING & MONITORING
+# ============================================================================
+
+# Send output to journal
+StandardOutput=journal
+StandardError=journal
+
+# Log identifier
+SyslogIdentifier=llama-3-1-8b-server
+
+# ============================================================================
+# SECURITY - READONLY PATHS & EXCEPTIONS
+# ============================================================================
+
+# Read-only directories (everything except exceptions)
+ReadWritePaths=/home/genesis/llama.cpp
+
+# ============================================================================
+# NETWORK SECURITY
+# ============================================================================
+
+# Don't allow internet connectivity (bind to localhost only)
+# Security Impact: Service cannot make external network connections
+IPAddressDeny=any
+IPAddressAllow=localhost
+
+# ============================================================================
+# ENVIRONMENT VARIABLES
+# ============================================================================
+
+# Load .env file for API keys and config
+EnvironmentFile=/home/genesis/genesis-rebuild/.env
+
+# Set additional security environment variables
+Environment="OTEL_ENABLED=true"
+Environment="OTEL_EXPORTER_OTLP_ENDPOINT=http://127.0.0.1:4317"
+
+[Install]
+WantedBy=multi-user.target

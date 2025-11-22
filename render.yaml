@@ -1,0 +1,44 @@
+services:
+  # Genesis Backend (A2A FastAPI Service)
+  - type: web
+    name: genesis-backend
+    env: python
+    region: oregon
+    plan: free
+    buildCommand: pip install --upgrade pip setuptools wheel && pip install -r requirements_production.txt
+    startCommand: python a2a_fastapi.py
+    healthCheckPath: /health
+    healthCheckGracePeriod: 300
+    envVars:
+      - key: GENESIS_ENV
+        value: production
+      - key: A2A_HOST
+        value: 0.0.0.0
+      - key: PORT
+        value: 8000
+      - key: A2A_PORT
+        value: 8000
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      # Add these in Render dashboard (secrets):
+      # REDIS_URL, OPENROUTER_API_KEY, SERPER_API_KEY, JINA_API_KEY, 
+      # GOOGLE_AI_STUDIO_KEY, GITHUB_TOKEN, A2A_API_KEY, etc.
+
+  # Genesis Frontend Dashboard
+  - type: web
+    name: genesis-frontend
+    env: python
+    region: oregon
+    plan: free
+    rootDir: dashboard
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+    startCommand: python app.py
+    healthCheckPath: /
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: FLASK_DEBUG
+        value: "0"
+      # Will be set after backend deploys
+      - key: NEXT_PUBLIC_API_URL
+        value: https://genesis-backend.onrender.com

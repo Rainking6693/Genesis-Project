@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="30">
+    <title>Genesis Local Testing Monitor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .auto-refresh {
+            float: right;
+            background: #4CAF50;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .status {
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+
+        .status.running {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .status.stopped {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .status.pending {
+            background: #fff3cd;
+            color: #856404;
+            border-left: 4px solid #ffc107;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin: 8px 0;
+        }
+
+        .metric-label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .metric-value {
+            color: #667eea;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .log-viewer {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            max-height: 300px;
+            overflow-y: auto;
+            line-height: 1.5;
+        }
+
+        .log-line {
+            margin: 5px 0;
+        }
+
+        .log-error {
+            color: #f48771;
+        }
+
+        .log-warning {
+            color: #dcdcaa;
+        }
+
+        .log-info {
+            color: #4ec9b0;
+        }
+
+        .command-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+
+        .btn {
+            background: #667eea;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            margin: 5px;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .checklist {
+            list-style: none;
+        }
+
+        .checklist li {
+            padding: 10px;
+            margin: 8px 0;
+            background: #f8f9fa;
+            border-radius: 8px;
+            position: relative;
+            padding-left: 40px;
+        }
+
+        .checklist li:before {
+            content: '☐';
+            position: absolute;
+            left: 12px;
+            font-size: 1.5em;
+            color: #999;
+        }
+
+        .checklist li.done:before {
+            content: '✓';
+            color: #28a745;
+        }
+
+        .timestamp {
+            color: #999;
+            font-size: 0.9em;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <span class="auto-refresh">⟳ Auto-refresh: 30s</span>
+            <h1>🚀 Genesis Local Testing Monitor</h1>
+            <p>Windows Local Testing - 24-48 Hour Validation</p>
+            <p style="margin-top: 10px;"><strong>Date:</strong> <span id="current-date"></span></p>
+        </div>
+
+        <div class="grid">
+            <!-- System Status -->
+            <div class="card">
+                <h2>📊 System Status</h2>
+                <div class="status pending">
+                    <strong>Mode:</strong> Local Windows Testing
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Python Version</span>
+                    <span class="metric-value">3.12.4</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Project Root</span>
+                    <span class="metric-value">CLAUDE CLEAN CODE</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Environment</span>
+                    <span class="metric-value">.env ✓</span>
+                </div>
+            </div>
+
+            <!-- Running Services -->
+            <div class="card">
+                <h2>⚙️ Running Services</h2>
+                <div class="status pending">
+                    <strong>ES Training:</strong> Not Yet Run
+                </div>
+                <div class="status pending">
+                    <strong>Autonomous Loop:</strong> To Verify
+                </div>
+                <div class="status pending">
+                    <strong>Monitoring:</strong> To Start
+                </div>
+                <div class="status running" style="margin-top: 15px;">
+                    <strong>This Dashboard:</strong> Active
+                </div>
+            </div>
+
+            <!-- Test Progress -->
+            <div class="card">
+                <h2>✅ Test Progress</h2>
+                <ul class="checklist">
+                    <li>ES Training (dry-run)</li>
+                    <li>Single Business Generation</li>
+                    <li>Monitoring Dashboard</li>
+                    <li>Log Files Verification</li>
+                    <li>Directory Structure Check</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Quick Commands -->
+        <div class="card">
+            <h2>🖥️ Quick Commands</h2>
+            <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+                <div>
+                    <h3 style="color: #667eea; margin-bottom: 10px;">Night 1 - ES Training Test</h3>
+                    <div class="command-box">
+                        cd "C:\Users\Ben\OneDrive\Desktop\Ben Projects\Genesis Clean Deploy NEW\CLAUDE CLEAN CODE"
+                        <br>
+                        python scripts/nightly_es_training.py --iterations 1 --population 4 --dry-run
+                    </div>
+                    <p style="color: #666; font-size: 0.9em; margin-top: 10px;">
+                        Expected: ~60 seconds, creates log file, NO adapter updates
+                    </p>
+                </div>
+
+                <div>
+                    <h3 style="color: #667eea; margin-bottom: 10px;">Night 1 - Business Generation</h3>
+                    <div class="command-box">
+                        cd "C:\Users\Ben\OneDrive\Desktop\Ben Projects\Genesis Clean Deploy NEW\CLAUDE CLEAN CODE"
+                        <br>
+                        python scripts/autonomous_fully_integrated.py --count 1 --min-score 70.0
+                    </div>
+                    <p style="color: #666; font-size: 0.9em; margin-top: 10px;">
+                        Expected: ~5-10 minutes, creates business in businesses/ directory
+                    </p>
+                </div>
+
+                <div>
+                    <h3 style="color: #667eea; margin-bottom: 10px;">Night 1 - Start Monitoring</h3>
+                    <div class="command-box">
+                        cd "C:\Users\Ben\OneDrive\Desktop\Ben Projects\Genesis Clean Deploy NEW\CLAUDE CLEAN CODE"
+                        <br>
+                        python scripts/start_monitoring.py
+                    </div>
+                    <p style="color: #666; font-size: 0.9em; margin-top: 10px;">
+                        Expected: Opens dashboard on http://localhost:8501
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- File Locations -->
+        <div class="card">
+            <h2>📁 Key File Locations</h2>
+            <div class="log-viewer">
+<div class="log-line log-info"># Logs Directory</div>
+<div class="log-line">logs/nightly-es-training.log      # ES training output</div>
+<div class="log-line">logs/genesis_agent.log            # Autonomous loop logs</div>
+<div class="log-line">logs/infrastructure.log           # Infrastructure component logs</div>
+<div class="log-line"></div>
+<div class="log-line log-info"># Metrics</div>
+<div class="log-line">metrics/es_training_metrics.json # ES performance metrics</div>
+<div class="log-line"></div>
+<div class="log-line log-info"># Models</div>
+<div class="log-line">models/lora_adapters/current/adapter.safetensors</div>
+<div class="log-line">models/lora_adapters/archive/     # Archived adapters</div>
+<div class="log-line"></div>
+<div class="log-line log-info"># Generated Businesses</div>
+<div class="log-line">businesses/fully_integrated/[type]/[name]/</div>
+            </div>
+        </div>
+
+        <!-- Night 1 Checklist -->
+        <div class="grid">
+            <div class="card">
+                <h2>🌙 Night 1 Goals (Tonight)</h2>
+                <ul class="checklist">
+                    <li>Manual ES Training Test (dry-run)</li>
+                    <li>Single Business Generation Test</li>
+                    <li>Monitoring Dashboard Test</li>
+                    <li>All Logs Created and Readable</li>
+                    <li>No Crash Errors Overnight</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2>🌙 Night 2 Goals (Tomorrow)</h2>
+                <ul class="checklist">
+                    <li>Production ES Training (NO dry-run)</li>
+                    <li>Multi-Business Generation (3+)</li>
+                    <li>Overnight Monitoring (12+ hours)</li>
+                    <li>TrajectoryPool Learning Validated</li>
+                    <li>Performance Baselines Established</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Error Detection Guide -->
+        <div class="card">
+            <h2>🚨 Error Detection Guide</h2>
+            <div class="grid" style="grid-template-columns: repeat(3, 1fr);">
+                <div>
+                    <h3 style="color: #dc3545; margin-bottom: 10px;">🔴 Red Flags (STOP)</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="padding: 5px 0;">❌ Python crashes</li>
+                        <li style="padding: 5px 0;">❌ ModuleNotFoundError</li>
+                        <li style="padding: 5px 0;">❌ File permission errors</li>
+                        <li style="padding: 5px 0;">❌ Database connection failures</li>
+                        <li style="padding: 5px 0;">❌ API key errors</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 style="color: #ffc107; margin-bottom: 10px;">🟡 Yellow Flags (NOTE)</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="padding: 5px 0;">⚠️ Slow performance</li>
+                        <li style="padding: 5px 0;">⚠️ Lower quality scores</li>
+                        <li style="padding: 5px 0;">⚠️ Missing optional features</li>
+                        <li style="padding: 5px 0;">⚠️ Warning messages</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 style="color: #28a745; margin-bottom: 10px;">🟢 Green Signals (GOOD)</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="padding: 5px 0;">✅ "TRAINING COMPLETE"</li>
+                        <li style="padding: 5px 0;">✅ "Business #N Complete"</li>
+                        <li style="padding: 5px 0;">✅ Files created correctly</li>
+                        <li style="padding: 5px 0;">✅ Metrics updated</li>
+                        <li style="padding: 5px 0;">✅ No exceptions</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Next Steps -->
+        <div class="card">
+            <h2>🎯 Next Steps</h2>
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
+                <h3 style="color: #667eea; margin-bottom: 15px;">After Successful Testing</h3>
+                <ol style="line-height: 2;">
+                    <li><strong>Enable Windows Task Scheduler:</strong> Run setup_es_scheduler.ps1 as Administrator</li>
+                    <li><strong>Document Findings:</strong> Update LOCAL_TESTING_STATUS.md with results</li>
+                    <li><strong>Prepare PythonAnywhere Migration:</strong> Note Windows-specific issues</li>
+                    <li><strong>Record Baselines:</strong> Save typical runtime durations</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="timestamp">
+            <p>Last Updated: <span id="current-time"></span></p>
+            <p style="margin-top: 5px; font-size: 0.8em;">Page auto-refreshes every 30 seconds</p>
+        </div>
+    </div>
+
+    <script>
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('current-date').textContent = now.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            document.getElementById('current-time').textContent = now.toLocaleTimeString('en-US');
+        }
+
+        updateTime();
+        setInterval(updateTime, 1000);
+    </script>
+</body>
+</html>

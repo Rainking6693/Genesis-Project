@@ -1,0 +1,55 @@
+# MicroLaunch Submission Task
+# Submits product to MicroLaunch directory
+# Expected parameters: product_name, tagline, description, website, category, maker_twitter
+
+task:
+  name: "Submit to MicroLaunch"
+  url: "https://microlaunch.net/submit"
+
+  prompt: |
+    Submit a product to MicroLaunch directory.
+
+    Product Information:
+    - Product name: {{product_name}}
+    - Tagline: {{tagline}}
+    - Description: {{description}}
+    - Website: {{website}}
+    - Category: {{category}}
+    - Maker Twitter: {{maker_twitter}} (optional)
+
+    Steps:
+    1. Navigate to submission form
+    2. Fill in all product details
+    3. Select appropriate category from dropdown
+    4. Add maker/founder Twitter handle if provided
+    5. Verify all information is correct
+    6. Submit the form
+    7. Wait for confirmation
+
+    Error Handling:
+    - If product already exists: report "duplicate submission"
+    - If payment is required: report "payment required"
+
+  data_extraction:
+    submission_url:
+      type: "url"
+      selector: "product page URL or submission confirmation URL"
+      description: "Where the product is listed"
+    
+    listing_status:
+      type: "text"
+      selector: "status (e.g., pending review, live, queued)"
+      description: "Current status of the submission"
+
+  error_codes:
+    - "duplicate submission"
+    - "payment required"
+    - "invalid category"
+    - "website not accessible"
+
+  validation:
+    - check: "confirmation message or product page loads"
+      retry_on_fail: false
+
+  timeout_seconds: 75
+  max_retries: 2

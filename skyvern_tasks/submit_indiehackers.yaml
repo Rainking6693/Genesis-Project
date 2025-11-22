@@ -1,0 +1,55 @@
+# IndieHackers Milestone Submission Task
+# Creates a milestone post on IndieHackers
+# Expected parameters: title, milestone_type, description, metrics, link
+
+task:
+  name: "Submit IndieHackers Milestone"
+  url: "https://www.indiehackers.com/post/new"
+
+  prompt: |
+    Create a milestone post on IndieHackers.
+
+    Post Details:
+    - Title: {{title}}
+    - Milestone type: {{milestone_type}} (e.g., "Launched", "First Customer", "Revenue Milestone")
+    - Description: {{description}}
+    - Metrics (if applicable): {{metrics}}
+    - Link: {{link}}
+
+    Steps:
+    1. Select "Milestone" as post type (if option exists)
+    2. Fill in title
+    3. Fill in description/story
+    4. Add any metrics or numbers if there's a specific field
+    5. Add link to your product/project
+    6. Select relevant tags/categories
+    7. Submit the post
+
+    STOP CONDITIONS:
+    - If login is required
+    - If account verification is needed
+    - If rate limiting is encountered
+
+  data_extraction:
+    post_url:
+      type: "url"
+      selector: "URL of created milestone post"
+      description: "IndieHackers post URL"
+    
+    post_id:
+      type: "text"
+      selector: "post ID from URL"
+      description: "Unique post identifier"
+
+  error_codes:
+    - "login required"
+    - "account verification needed"
+    - "rate limited"
+    - "spam detected"
+
+  validation:
+    - check: "post URL contains 'indiehackers.com'"
+      retry_on_fail: false
+
+  timeout_seconds: 90
+  max_retries: 2

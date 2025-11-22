@@ -1,0 +1,140 @@
+version: '3.8'
+
+services:
+  es-evaluation:
+    image: python:3.12-slim
+    container_name: genesis-es-eval-sandbox
+
+    # SECURITY: Isolated network (no external access)
+    networks:
+      - es-eval-internal
+
+    # SECURITY: Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+
+    # SECURITY: Read-only root filesystem
+    read_only: true
+
+    # SECURITY: No privileged access
+    privileged: false
+    security_opt:
+      - no-new-privileges:true
+
+    # SECURITY: Drop all capabilities
+    cap_drop:
+      - ALL
+
+    # Writable volumes (only where needed)
+    volumes:
+      - ./infrastructure/evolution_strategies:/app/evolution_strategies:ro
+      - ./tests/fixtures:/app/fixtures:ro
+      - es-eval-tmp:/tmp
+      - es-eval-logs:/app/logs
+      - es-eval-models:/app/models
+
+    working_dir: /app
+
+    # SECURITY: Run as non-root user
+    user: "1000:1000"
+
+    environment:
+      - ES_EVAL_MODE=ISOLATED
+      - ES_EVAL_MOCK=true
+      - NO_EXTERNAL_API=true
+      - LOG_LEVEL=INFO
+      - PYTHONUNBUFFERED=1
+
+    # Install dependencies and run evaluation
+    command: >
+      sh -c "
+        pip install --no-cache-dir numpy torch==2.1.0 --index-url https://download.pytorch.org/whl/cpu &&
+        python evolution_strategies/eval_sandbox.py
+      "
+
+    # SECURITY: Logging to separate file
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=es-evaluation,security=isolated"
+
+    # SECURITY: Health check (with timeout)
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # Mock API server (simulates LLM responses)
+  es-mock-api:
+    image: python:3.12-slim
+    container_name: genesis-es-mock-api
+
+    networks:
+      - es-eval-internal
+
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+    read_only: true
+    privileged: false
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+    volumes:
+      - ./tests/fixtures:/app/fixtures:ro
+      - mock-api-tmp:/tmp
+
+    working_dir: /app
+    user: "1000:1000"
+
+    environment:
+      - MOCK_API_PORT=8080
+      - MOCK_RESPONSE_DELAY_MS=100
+
+    command: >
+      sh -c "
+        pip install --no-cache-dir fastapi uvicorn &&
+        python fixtures/mock_llm_server.py
+      "
+
+    ports:
+      - "127.0.0.1:18080:8080"  # Bind to localhost only
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+networks:
+  es-eval-internal:
+    driver: bridge
+    internal: true  # CRITICAL: No external internet access
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+
+volumes:
+  es-eval-tmp:
+    driver: local
+  es-eval-logs:
+    driver: local
+  es-eval-models:
+    driver: local
+  mock-api-tmp:
+    driver: local

@@ -1,0 +1,77 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info
+dist
+build
+.pytest_cache
+.coverage
+htmlcov
+
+# Environment
+.env
+.env.local
+.env.*.local
+*.env
+.venv
+venv/
+ENV/
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Documentation
+*.md
+docs/
+*.txt
+!requirements*.txt
+
+# Tests
+tests/
+test_*.py
+*_test.py
+
+# Logs
+*.log
+logs/
+
+# Data
+data/
+*.db
+*.sqlite
+*.sqlite3
+businesses/
+
+# Temporary
+tmp/
+temp/
+*.tmp
+
+# Railway
+.railway/
+
+# Node (if any)
+node_modules/
+npm-debug.log
+
+# Build artifacts
+*.pyc
+__pycache__/

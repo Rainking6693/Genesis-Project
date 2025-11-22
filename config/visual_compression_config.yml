@@ -1,0 +1,71 @@
+# Visual Memory Compression Configuration
+# Phase 5.2 - Week 2 Deliverable
+
+# Compression Configuration
+visual_compression:
+  # Compression threshold (minimum text length in characters to trigger compression)
+  compression_threshold: 1000
+
+  # Default compression mode (text/base/small/tiny)
+  # - text: No compression (full text stored)
+  # - base: 256 visual tokens (~71% compression) - RECOMMENDED
+  # - small: 100 visual tokens (~90% compression)
+  # - tiny: 64 visual tokens (~95% compression)
+  default_mode: base
+
+  # Compression quality settings
+  compression_quality: high  # low/medium/high
+
+  # Access pattern thresholds for intelligent compression decisions
+  access_frequency_threshold: 10  # Accesses per hour (compress if below this)
+  age_threshold_hours: 24         # Compress if not accessed in last 24 hours
+
+  # Cost optimization
+  target_compression_ratio: 15.0    # Target 15x compression
+  max_token_budget: 100000          # Max tokens per business namespace
+  cost_per_1k_tokens: 0.003         # $0.003 per 1K tokens (GPT-4o baseline)
+
+  # Image rendering settings
+  font_size: 12                     # Font size for text-to-image rendering (pixels)
+  image_width: 800                  # Image width (pixels)
+
+  # OCR settings
+  use_ocr_fallback: true            # Enable Tesseract OCR for decompression
+  ocr_engine: tesseract             # OCR engine: tesseract (only supported option)
+
+  # Performance settings
+  timeout_seconds: 30               # Operation timeout
+  retry_attempts: 3                 # Number of retry attempts on failure
+  batch_size: 10                    # Compress multiple memories in parallel
+
+  # Token budgets by compression mode (visual tokens)
+  mode_token_budgets:
+    text: 999999                    # No compression
+    base: 256                       # 71% reduction
+    small: 100                      # 90% reduction
+    tiny: 64                        # 95% reduction
+
+# Development environment
+development:
+  visual_compression:
+    compression_threshold: 500      # Lower threshold for testing
+    default_mode: base
+    use_ocr_fallback: true
+    timeout_seconds: 60
+
+# Staging environment
+staging:
+  visual_compression:
+    compression_threshold: 1000
+    default_mode: base
+    use_ocr_fallback: true
+    timeout_seconds: 30
+
+# Production environment
+production:
+  visual_compression:
+    compression_threshold: 1000
+    default_mode: base
+    use_ocr_fallback: true         # Tesseract for reliability
+    timeout_seconds: 30
+    batch_size: 20                 # Higher batch size for production

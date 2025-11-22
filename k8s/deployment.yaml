@@ -1,0 +1,863 @@
+# Kubernetes Deployment Configuration for Genesis
+# ============================================
+# Multi-service deployment for Kubernetes/GKE/EKS/AKS
+# Includes: A2A Service, Autonomous Scheduler, Skyvern, DeepSeek OCR
+# Created: November 8, 2025
+# Updated: November 8, 2025
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: genesis-production
+  labels:
+    name: genesis-production
+    environment: production
+
+---
+# ============================================
+# CONFIGMAP: Environment Variables
+# ============================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: genesis-config
+  namespace: genesis-production
+data:
+  GENESIS_ENV: "production"
+  LOG_LEVEL: "INFO"
+  A2A_HOST: "0.0.0.0"
+  A2A_PORT: "8000"
+  OCR_SERVICE_PORT: "8001"
+  ENABLE_CACHE: "true"
+  SCHEDULER_MIN_INTERVAL: "300"
+  SCHEDULER_MAX_INTERVAL: "600"
+  MONGODB_HOST: "genesis-mongodb"
+  MONGODB_PORT: "27017"
+  REDIS_HOST: "genesis-redis"
+  REDIS_PORT: "6379"
+
+---
+# ============================================
+# SECRET: API Keys (create manually)
+# ============================================
+# kubectl create secret generic genesis-secrets \
+#   --from-literal=OPENAI_API_KEY=sk-... \
+#   --from-literal=ANTHROPIC_API_KEY=sk-ant-... \
+#   --from-literal=GOOGLE_API_KEY=... \
+#   --from-literal=MONGODB_URI=mongodb://... \
+#   --from-literal=REDIS_PASSWORD=... \
+#   -n genesis-production
+
+---
+# ============================================
+# DEPLOYMENT: A2A Service (Web API)
+# ============================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: genesis-a2a-service
+  namespace: genesis-production
+  labels:
+    app: genesis-a2a-service
+    tier: frontend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: genesis-a2a-service
+  template:
+    metadata:
+      labels:
+        app: genesis-a2a-service
+        tier: frontend
+    spec:
+      containers:
+      - name: a2a-service
+        image: genesis/a2a-service:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+          name: http
+          protocol: TCP
+        env:
+        - name: GENESIS_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: genesis-config
+              key: GENESIS_ENV
+        - name: A2A_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: genesis-config
+              key: A2A_HOST
+        - name: A2A_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: genesis-config
+              key: A2A_PORT
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: genesis-config
+              key: LOG_LEVEL
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: genesis-secrets
+              key: OPENAI_API_KEY
+        - name: ANTHROPIC_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: genesis-secrets
+              key: ANTHROPIC_API_KEY
+        - name: GOOGLE_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: genesis-secrets
+              key: GOOGLE_API_KEY
+        - name: MONGODB_URI
+          valueFrom:
+            secretKeyRef:
+              name: genesis-secrets
+              key: MONGODB_URI
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: genesis-secrets
+              key: REDIS_URL
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        volumeMounts:
+        - name: logs
+          mountPath: /app/logs
+      volumes:
+      - name: logs
+        emptyDir: {}
+      restartPolicy: Always
+
+---
+# ============================================
+# DEPLOYMENT: Autonomous Scheduler (Worker)
+# ============================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: genesis-autonomous-scheduler
+  namespace: genesis-production
+  labels:
+    app: genesis-autonomous-scheduler
+    tier: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: genesis-autonomous-scheduler
+  template:
+    metadata:
+      labels:
+        app: genesis-autonomous-scheduler
+        tier: backend
+    spec:
+      containers:
+      - name: scheduler
+        image: genesis/a2a-service:latest
+        imagePullPolicy: Always
+        command: ["python", "scripts/autonomous_scheduler.py", "--min-interval", "5", "--max-interval", "10"]
+        env:
+        - name: GENESIS_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: genesis-config
+              key: GENESIS_ENV
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: genesis-config
+              key: LOG_LEVEL
+        - name: SCHEDULER_MIN_INTERVAL
+          valueFrom:
+            configMapKeyRef:
+              name: genesis-config
+              key: SCHEDULER_MIN_INTERVAL
+        - name: SCHEDULER_MAX_INTERVAL
+          valueFrom:
+            configMapKeyRef:
+              name: genesis-config
+              key: SCHEDULER_MAX_INTERVAL
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: genesis-secrets
+              key: OPENAI_API_KEY
+        - name: ANTHROPIC_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: genesis-secrets
+              key: ANTHROPIC_API_KEY
+        - name: GOOGLE_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: genesis-secrets
+              key: GOOGLE_API_KEY
+        - name: MONGODB_URI
+          valueFrom:
+            secretKeyRef:
+              name: genesis-secrets
+              key: MONGODB_URI
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: genesis-secrets
+              key: REDIS_URL
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        volumeMounts:
+        - name: scheduler-data
+          mountPath: /var/genesis
+        - name: logs
+          mountPath: /app/logs
+      volumes:
+      - name: scheduler-data
+        persistentVolumeClaim:
+          claimName: scheduler-data-pvc
+      - name: logs
+        emptyDir: {}
+      restartPolicy: Always
+
+---
+# ============================================
+# DEPLOYMENT: Skyvern Browser Automation
+# ============================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: genesis-skyvern
+  namespace: genesis-production
+  labels:
+    app: genesis-skyvern
+    tier: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: genesis-skyvern
+  template:
+    metadata:
+      labels:
+        app: genesis-skyvern
+        tier: backend
+    spec:
+      containers:
+      - name: skyvern
+        image: skyvern/skyvern:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+          name: http
+          protocol: TCP
+        env:
+        - name: ENVIRONMENT
+          value: "production"
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: genesis-config
+              key: LOG_LEVEL
+        - name: SKYVERN_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: genesis-secrets
+              key: SKYVERN_API_KEY
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: genesis-secrets
+              key: OPENAI_API_KEY
+        - name: ANTHROPIC_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: genesis-secrets
+              key: ANTHROPIC_API_KEY
+        - name: POSTGRES_HOST
+          value: "genesis-skyvern-postgres"
+        - name: POSTGRES_PORT
+          value: "5432"
+        - name: POSTGRES_DB
+          value: "skyvern"
+        - name: POSTGRES_USER
+          value: "skyvern"
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: genesis-secrets
+              key: POSTGRES_PASSWORD
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 40
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 20
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        volumeMounts:
+        - name: skyvern-data
+          mountPath: /app/data
+      volumes:
+      - name: skyvern-data
+        persistentVolumeClaim:
+          claimName: skyvern-data-pvc
+      restartPolicy: Always
+
+---
+# ============================================
+# DEPLOYMENT: DeepSeek OCR Service
+# ============================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: genesis-deepseek-ocr
+  namespace: genesis-production
+  labels:
+    app: genesis-deepseek-ocr
+    tier: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: genesis-deepseek-ocr
+  template:
+    metadata:
+      labels:
+        app: genesis-deepseek-ocr
+        tier: backend
+    spec:
+      containers:
+      - name: ocr-service
+        image: genesis/deepseek-ocr:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8001
+          name: http
+          protocol: TCP
+        env:
+        - name: OCR_SERVICE_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: genesis-config
+              key: OCR_SERVICE_PORT
+        - name: ENABLE_CACHE
+          valueFrom:
+            configMapKeyRef:
+              name: genesis-config
+              key: ENABLE_CACHE
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: genesis-config
+              key: LOG_LEVEL
+        - name: CACHE_DIR
+          value: "/cache"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8001
+          initialDelaySeconds: 10
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8001
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        volumeMounts:
+        - name: ocr-cache
+          mountPath: /cache
+      volumes:
+      - name: ocr-cache
+        persistentVolumeClaim:
+          claimName: ocr-cache-pvc
+      restartPolicy: Always
+
+---
+# ============================================
+# DEPLOYMENT: MongoDB
+# ============================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: genesis-mongodb
+  namespace: genesis-production
+  labels:
+    app: genesis-mongodb
+    tier: database
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: genesis-mongodb
+  template:
+    metadata:
+      labels:
+        app: genesis-mongodb
+        tier: database
+    spec:
+      containers:
+      - name: mongodb
+        image: mongo:7
+        ports:
+        - containerPort: 27017
+          name: mongodb
+          protocol: TCP
+        env:
+        - name: MONGO_INITDB_DATABASE
+          value: "genesis"
+        - name: MONGO_INITDB_ROOT_USERNAME
+          value: "genesis"
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: genesis-secrets
+              key: MONGODB_PASSWORD
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        volumeMounts:
+        - name: mongodb-data
+          mountPath: /data/db
+      volumes:
+      - name: mongodb-data
+        persistentVolumeClaim:
+          claimName: mongodb-data-pvc
+      restartPolicy: Always
+
+---
+# ============================================
+# DEPLOYMENT: Redis
+# ============================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: genesis-redis
+  namespace: genesis-production
+  labels:
+    app: genesis-redis
+    tier: cache
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: genesis-redis
+  template:
+    metadata:
+      labels:
+        app: genesis-redis
+        tier: cache
+    spec:
+      containers:
+      - name: redis
+        image: redis:7-alpine
+        ports:
+        - containerPort: 6379
+          name: redis
+          protocol: TCP
+        command:
+        - redis-server
+        - --appendonly
+        - "yes"
+        - --requirepass
+        - $(REDIS_PASSWORD)
+        env:
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: genesis-secrets
+              key: REDIS_PASSWORD
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        volumeMounts:
+        - name: redis-data
+          mountPath: /data
+      volumes:
+      - name: redis-data
+        persistentVolumeClaim:
+          claimName: redis-data-pvc
+      restartPolicy: Always
+
+---
+# ============================================
+# DEPLOYMENT: PostgreSQL (for Skyvern)
+# ============================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: genesis-skyvern-postgres
+  namespace: genesis-production
+  labels:
+    app: genesis-skyvern-postgres
+    tier: database
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: genesis-skyvern-postgres
+  template:
+    metadata:
+      labels:
+        app: genesis-skyvern-postgres
+        tier: database
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15-alpine
+        ports:
+        - containerPort: 5432
+          name: postgres
+          protocol: TCP
+        env:
+        - name: POSTGRES_USER
+          value: "skyvern"
+        - name: POSTGRES_DB
+          value: "skyvern"
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: genesis-secrets
+              key: POSTGRES_PASSWORD
+        - name: POSTGRES_HOST_AUTH_METHOD
+          value: "scram-sha-256"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        volumeMounts:
+        - name: postgres-data
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: postgres-data
+        persistentVolumeClaim:
+          claimName: postgres-data-pvc
+      restartPolicy: Always
+
+---
+# ============================================
+# CRONJOB: ES Nightly Training
+# ============================================
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: genesis-es-nightly-training
+  namespace: genesis-production
+spec:
+  schedule: "0 2 * * *" # 2 AM UTC daily
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: es-training
+            image: genesis/a2a-service:latest
+            imagePullPolicy: Always
+            command:
+            - /bin/bash
+            - -c
+            - |
+              pip install --no-cache-dir numpy torch==2.1.0 --index-url https://download.pytorch.org/whl/cpu
+              python infrastructure/evolution_strategies/eval_sandbox.py
+            env:
+            - name: ES_EVAL_MODE
+              value: "PRODUCTION"
+            - name: ES_EVAL_MOCK
+              value: "false"
+            - name: LOG_LEVEL
+              value: "INFO"
+            - name: PYTHONUNBUFFERED
+              value: "1"
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: genesis-secrets
+                  key: OPENAI_API_KEY
+            - name: ANTHROPIC_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: genesis-secrets
+                  key: ANTHROPIC_API_KEY
+            - name: MONGODB_URI
+              valueFrom:
+                secretKeyRef:
+                  name: genesis-secrets
+                  key: MONGODB_URI
+            resources:
+              requests:
+                memory: "2Gi"
+                cpu: "1000m"
+              limits:
+                memory: "4Gi"
+                cpu: "2000m"
+            volumeMounts:
+            - name: es-models
+              mountPath: /app/models
+          volumes:
+          - name: es-models
+            persistentVolumeClaim:
+              claimName: es-models-pvc
+          restartPolicy: OnFailure
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+
+---
+# ============================================
+# CRONJOB: Database Cleanup
+# ============================================
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: genesis-db-cleanup
+  namespace: genesis-production
+spec:
+  schedule: "0 0 * * 0" # Weekly on Sunday at midnight UTC
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: db-cleanup
+            image: genesis/a2a-service:latest
+            imagePullPolicy: Always
+            command: ["python", "scripts/cleanup_old_businesses.py", "--days", "90"]
+            env:
+            - name: GENESIS_ENV
+              value: "production"
+            - name: LOG_LEVEL
+              value: "INFO"
+            - name: MONGODB_URI
+              valueFrom:
+                secretKeyRef:
+                  name: genesis-secrets
+                  key: MONGODB_URI
+            resources:
+              requests:
+                memory: "512Mi"
+                cpu: "250m"
+              limits:
+                memory: "2Gi"
+                cpu: "1000m"
+          restartPolicy: OnFailure
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+
+---
+# ============================================
+# CRONJOB: Health Monitoring
+# ============================================
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: genesis-health-monitor
+  namespace: genesis-production
+spec:
+  schedule: "*/15 * * * *" # Every 15 minutes
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: health-monitor
+            image: genesis/a2a-service:latest
+            imagePullPolicy: Always
+            command: ["python", "scripts/health_monitor.py"]
+            env:
+            - name: GENESIS_ENV
+              value: "production"
+            - name: LOG_LEVEL
+              value: "INFO"
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: genesis-secrets
+                  key: REDIS_URL
+            - name: MONGODB_URI
+              valueFrom:
+                secretKeyRef:
+                  name: genesis-secrets
+                  key: MONGODB_URI
+            - name: SLACK_WEBHOOK_URL
+              valueFrom:
+                secretKeyRef:
+                  name: genesis-secrets
+                  key: SLACK_WEBHOOK_URL
+            resources:
+              requests:
+                memory: "256Mi"
+                cpu: "100m"
+              limits:
+                memory: "1Gi"
+                cpu: "500m"
+          restartPolicy: OnFailure
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+
+---
+# ============================================
+# PERSISTENT VOLUME CLAIMS
+# ============================================
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongodb-data-pvc
+  namespace: genesis-production
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+  storageClassName: standard
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-data-pvc
+  namespace: genesis-production
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: standard
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-data-pvc
+  namespace: genesis-production
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: standard
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: scheduler-data-pvc
+  namespace: genesis-production
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+  storageClassName: standard
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: skyvern-data-pvc
+  namespace: genesis-production
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: standard
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ocr-cache-pvc
+  namespace: genesis-production
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: standard
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: es-models-pvc
+  namespace: genesis-production
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+  storageClassName: standard

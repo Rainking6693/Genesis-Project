@@ -1,0 +1,201 @@
+# Genesis Clean Code - Git Ignore Rules
+# ============================================
+# Security-focused .gitignore
+# Created: November 8, 2025
+# Owner: Quinn (Security Specialist)
+
+# ============================================
+# SECRETS & CREDENTIALS (CRITICAL - NEVER COMMIT)
+# ============================================
+
+# Secret files directory
+secrets/
+secrets/*.txt
+secrets/*.key
+secrets/*.pem
+secrets/*.p12
+secrets/*.pfx
+infra
+
+# Environment files with real keys
+.env
+.env.local
+.env.production
+.env.development
+.env.staging
+ production.env
+ production.env.example
+
+# Config directory environment files (CRITICAL)
+config/production.env
+config/*.env
+config/production_*.env
+!config/*.env.example
+
+# Allow template files (no real keys)
+!.env.example
+!.env.template
+
+# Service account keys
+*.json
+!package.json
+!package-lock.json
+!tsconfig.json
+*.p12
+*.pfx
+*.pem
+*.key
+
+# API keys, tokens, credentials
+*_key.txt
+*_secret.txt
+*_token.txt
+*_password.txt
+*_credentials.txt
+
+# ============================================
+# PYTHON
+# ============================================
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+virtualenv/
+
+# PyCharm
+.idea/
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pytest
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ============================================
+# DOCKER
+# ============================================
+
+# Docker volumes (may contain sensitive data)
+*_data/
+*_db/
+skyvern_data/
+skyvern_logs/
+
+# Docker override files
+docker-compose.override.yml
+docker-compose.*.override.yml
+
+# ============================================
+# LOGS & TEMPORARY FILES
+# ============================================
+
+# Log files
+*.log
+logs/
+*.log.*
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# ============================================
+# DATABASE
+# ============================================
+
+# SQLite databases
+*.db
+*.sqlite
+*.sqlite3
+
+# PostgreSQL dumps
+*.dump
+*.sql
+
+# ============================================
+# NODE.JS (if applicable)
+# ============================================
+
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ============================================
+# OPERATING SYSTEM
+# ============================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+
+# ============================================
+# ALLOW THESE IMPORTANT FILES
+# ============================================
+
+# Documentation (safe to commit)
+!README.md
+!DEPLOYMENT_GUIDE.md
+!secrets/README.md
+
+# Git ignore files themselves
+!.gitignore
+!secrets/.gitignore
+
+# Templates (no real values)
+!.env.example
+
+
+#Ignore cursor AI rules
+.cursor\rules\codacy.mdc
+
+# Businesses directory (exclude from git and builds)
+businesses/

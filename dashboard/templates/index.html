@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Genesis Monitoring Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1>🚀 Genesis Monitoring Dashboard</h1>
+                <div class="header-info">
+                    <span id="last-update">Last updated: --</span>
+                    <button id="refresh-btn" class="btn-refresh">🔄 Refresh</button>
+                    <button id="snapshot-btn" class="btn-snapshot">📸 Save Snapshot</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Executive Overview -->
+        <section class="section">
+            <h2>📊 Executive Overview</h2>
+            <div class="cards-grid">
+                <div class="card card-revenue">
+                    <div class="card-header">
+                        <span class="card-icon">💰</span>
+                        <span class="card-title">Monthly Revenue</span>
+                    </div>
+                    <div class="card-value" id="revenue-value">$0</div>
+                    <div class="card-change positive" id="revenue-change">+0%</div>
+                </div>
+
+                <div class="card card-costs">
+                    <div class="card-header">
+                        <span class="card-icon">💸</span>
+                        <span class="card-title">Monthly Costs</span>
+                    </div>
+                    <div class="card-value" id="costs-value">$0</div>
+                    <div class="card-change negative" id="costs-change">-88%</div>
+                </div>
+
+                <div class="card card-profit">
+                    <div class="card-header">
+                        <span class="card-icon">📈</span>
+                        <span class="card-title">Monthly Profit</span>
+                    </div>
+                    <div class="card-value" id="profit-value">$0</div>
+                    <div class="card-change" id="profit-change">--</div>
+                </div>
+
+                <div class="card card-businesses">
+                    <div class="card-header">
+                        <span class="card-icon">🏢</span>
+                        <span class="card-title">Active Businesses</span>
+                    </div>
+                    <div class="card-value" id="businesses-value">0</div>
+                    <div class="card-subtitle">Autonomous operations</div>
+                </div>
+
+                <div class="card card-tasks">
+                    <div class="card-header">
+                        <span class="card-icon">✅</span>
+                        <span class="card-title">Tasks Completed (30d)</span>
+                    </div>
+                    <div class="card-value" id="tasks-value">0</div>
+                    <div class="card-subtitle">Last 30 days</div>
+                </div>
+
+                <div class="card card-success">
+                    <div class="card-header">
+                        <span class="card-icon">🎯</span>
+                        <span class="card-title">Success Rate</span>
+                    </div>
+                    <div class="card-value" id="success-rate-value">0%</div>
+                    <div class="card-subtitle">System-wide</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Agent Performance -->
+        <section class="section">
+            <h2>🤖 Agent Performance (15 Agents)</h2>
+            <div class="chart-container">
+                <canvas id="agent-performance-chart"></canvas>
+            </div>
+            <div class="table-container">
+                <table id="agent-table">
+                    <thead>
+                        <tr>
+                            <th>Agent</th>
+                            <th>Success Rate</th>
+                            <th>Avg Latency</th>
+                            <th>Cost/Task</th>
+                            <th>Quality Score</th>
+                            <th>Tasks (7d)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="agent-table-body">
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Orchestration Metrics -->
+        <section class="section">
+            <h2>🎭 Orchestration Metrics</h2>
+            <div class="orchestration-grid">
+                <div class="orchestration-card">
+                    <h3>HTDAG (Task Decomposition)</h3>
+                    <div class="metric-row">
+                        <span>Total Decompositions (7d):</span>
+                        <span id="htdag-decompositions" class="metric-value">0</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Avg Depth:</span>
+                        <span id="htdag-depth" class="metric-value">0</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Avg Nodes:</span>
+                        <span id="htdag-nodes" class="metric-value">0</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Circular Dependencies:</span>
+                        <span id="htdag-circular" class="metric-value warning">0</span>
+                    </div>
+                </div>
+
+                <div class="orchestration-card">
+                    <h3>HALO (Agent Routing)</h3>
+                    <div class="metric-row">
+                        <span>Routing Decisions (7d):</span>
+                        <span id="halo-decisions" class="metric-value">0</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Avg Routing Time:</span>
+                        <span id="halo-time" class="metric-value">0 ms</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Load Balancing Events:</span>
+                        <span id="halo-balancing" class="metric-value">0</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Routing Failures:</span>
+                        <span id="halo-failures" class="metric-value warning">0</span>
+                    </div>
+                </div>
+
+                <div class="orchestration-card">
+                    <h3>AOP (Validation)</h3>
+                    <div class="metric-row">
+                        <span>Total Validations (7d):</span>
+                        <span id="aop-validations" class="metric-value">0</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Solvability Failures:</span>
+                        <span id="aop-solvability" class="metric-value warning">0</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Completeness Failures:</span>
+                        <span id="aop-completeness" class="metric-value warning">0</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Redundancy Detected:</span>
+                        <span id="aop-redundancy" class="metric-value">0</span>
+                    </div>
+                </div>
+
+                <div class="orchestration-card">
+                    <h3>Circuit Breaker</h3>
+                    <div class="metric-row">
+                        <span>Status:</span>
+                        <span id="breaker-status" class="metric-value status-closed">CLOSED</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Trips (24h):</span>
+                        <span id="breaker-trips" class="metric-value">0</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Failures:</span>
+                        <span id="breaker-failures" class="metric-value">0</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Evolution & Learning -->
+        <section class="section">
+            <h2>🧬 Evolution & Learning</h2>
+            <div class="evolution-grid">
+                <div class="evolution-card">
+                    <h3>SE-Darwin (Self-Improvement)</h3>
+                    <div class="metric-row">
+                        <span>Evolution Runs (7d):</span>
+                        <span id="darwin-runs" class="metric-value">0</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Improvements Generated:</span>
+                        <span id="darwin-improvements" class="metric-value">0</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Avg Quality Improvement:</span>
+                        <span id="darwin-quality" class="metric-value">0%</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Archive Size:</span>
+                        <span id="darwin-archive" class="metric-value">0</span>
+                    </div>
+                </div>
+
+                <div class="evolution-card">
+                    <h3>ATLAS (Online Learning)</h3>
+                    <div class="metric-row">
+                        <span>Learning Updates (7d):</span>
+                        <span id="atlas-updates" class="metric-value">0</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Knowledge Items:</span>
+                        <span id="atlas-knowledge" class="metric-value">0</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Learning Rate:</span>
+                        <span id="atlas-rate" class="metric-value">0.0</span>
+                    </div>
+                </div>
+
+                <div class="evolution-card">
+                    <h3>AgentGit (Version Control)</h3>
+                    <div class="metric-row">
+                        <span>Commits (7d):</span>
+                        <span id="agentgit-commits" class="metric-value">0</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Versions Tracked:</span>
+                        <span id="agentgit-versions" class="metric-value">0</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Rollbacks (7d):</span>
+                        <span id="agentgit-rollbacks" class="metric-value">0</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Safety & Governance -->
+        <section class="section">
+            <h2>🛡️ Safety & Governance</h2>
+            <div class="safety-grid">
+                <div class="safety-card">
+                    <h3>Policy Violations (7d)</h3>
+                    <div class="metric-row">
+                        <span>Total:</span>
+                        <span id="violations-total" class="metric-value">0</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Critical:</span>
+                        <span id="violations-critical" class="metric-value critical">0</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>High:</span>
+                        <span id="violations-high" class="metric-value high">0</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Medium:</span>
+                        <span id="violations-medium" class="metric-value medium">0</span>
+                    </div>
+                </div>
+
+                <div class="safety-card">
+                    <h3>Human Oversight</h3>
+                    <div class="metric-row">
+                        <span>Approvals Requested:</span>
+                        <span id="approvals-requested" class="metric-value">0</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Granted:</span>
+                        <span id="approvals-granted" class="metric-value success">0</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Denied:</span>
+                        <span id="approvals-denied" class="metric-value error">0</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Avg Response Time:</span>
+                        <span id="approvals-time" class="metric-value">0 min</span>
+                    </div>
+                </div>
+
+                <div class="safety-card">
+                    <h3>WaltzRL Safety</h3>
+                    <div class="metric-row">
+                        <span>Unsafe Detections:</span>
+                        <span id="waltz-unsafe" class="metric-value">0</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Feedback Loops:</span>
+                        <span id="waltz-feedback" class="metric-value">0</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Safety Score:</span>
+                        <span id="waltz-score" class="metric-value success">0.0</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Cost Optimization -->
+        <section class="section">
+            <h2>💰 Cost Optimization (Phase 6)</h2>
+            <div class="cost-grid">
+                <div class="cost-summary">
+                    <div class="cost-card">
+                        <h3>Monthly Cost Comparison</h3>
+                        <canvas id="cost-chart"></canvas>
+                    </div>
+                    <div class="cost-stats">
+                        <div class="cost-stat">
+                            <span class="cost-label">Baseline (Before):</span>
+                            <span class="cost-value" id="cost-baseline">$500</span>
+                        </div>
+                        <div class="cost-stat">
+                            <span class="cost-label">Current (After):</span>
+                            <span class="cost-value" id="cost-actual">$60</span>
+                        </div>
+                        <div class="cost-stat highlight">
+                            <span class="cost-label">Total Reduction:</span>
+                            <span class="cost-value" id="cost-reduction">88%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="llm-usage">
+                    <h3>LLM Usage Distribution</h3>
+                    <canvas id="llm-chart"></canvas>
+                </div>
+
+                <div class="optimizations">
+                    <h3>Active Optimizations</h3>
+                    <div class="optimization-list" id="optimization-list">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Genesis Multi-Agent System | Phase 6 Complete | Production Ready</p>
+            <p>Auto-refresh every 30 seconds | <a href="/api/metrics" target="_blank">API Docs</a></p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>

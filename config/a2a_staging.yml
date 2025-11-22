@@ -1,0 +1,52 @@
+# A2A Staging Configuration
+# Generated: 2025-10-25T19:58:24+00:00
+
+a2a:
+  # Security
+  https_required: true  # HTTPS enforced in staging
+  allow_http: false
+
+  # Authentication
+  oauth_enabled: true
+  api_key_required: true
+
+  # Rate limiting
+  rate_limit_enabled: true
+  rate_limit_requests: 100
+  rate_limit_window_seconds: 60
+
+  # Circuit breaker
+  circuit_breaker_enabled: true
+  circuit_breaker_threshold: 5
+  circuit_breaker_timeout_seconds: 60
+
+  # Monitoring
+  otel_enabled: true
+  metrics_enabled: true
+  tracing_enabled: true
+
+  # Agents (15 total)
+  agents:
+    - spec
+    - builder
+    - qa
+    - security
+    - deploy
+    - maintenance
+    - marketing
+    - support
+    - analyst
+    - billing
+    - seo
+    - email
+    - legal
+    - content
+    - onboarding
+
+# Deployment
+deployment:
+  environment: staging
+  version: 1.0.0
+  deployed_at: 2025-10-25T19:58:24+00:00
+  deployed_by: genesis
+  git_commit: dea7f651d

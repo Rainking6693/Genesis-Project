@@ -1,0 +1,389 @@
+# Railway.toml - Railway.app deployment configuration for Genesis
+# ============================================
+# Multi-service deployment with all Genesis components
+# Railway provides: auto-scaling, logging, metrics, secrets management, cron jobs
+# Created: November 8, 2025
+# Updated: November 8, 2025
+
+# ============================================
+# SERVICE 1: A2A WEB SERVICE (Primary)
+# ============================================
+[[services]]
+name = "genesis-a2a-service"
+source = "."
+
+[services.build]
+builder = "docker"
+dockerfilePath = "Dockerfile"
+
+[services.deploy]
+startCommand = "python a2a_fastapi.py"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+
+[services.healthcheck]
+path = "/health"
+interval = 30
+timeout = 10
+
+[services.env]
+# Environment type
+GENESIS_ENV = "production"
+A2A_HOST = "0.0.0.0"
+A2A_PORT = "8000"
+LOG_LEVEL = "INFO"
+
+# Auto-injected by Railway
+# - RAILWAY_ENVIRONMENT
+# - RAILWAY_SERVICE_NAME
+# - RAILWAY_PUBLIC_DOMAIN (for public URL)
+
+# Required secrets (set in Railway dashboard):
+# - OPENAI_API_KEY
+# - ANTHROPIC_API_KEY
+# - GOOGLE_API_KEY
+# - MONGODB_URI (from Railway MongoDB plugin)
+# - REDIS_URL (from Railway Redis plugin)
+
+[services.resources]
+# Resource allocation
+memory = "4Gi"
+cpu = "2"
+
+# ============================================
+# SERVICE 2: AUTONOMOUS SCHEDULER (Worker)
+# ============================================
+[[services]]
+name = "genesis-autonomous-scheduler"
+source = "."
+
+[services.build]
+builder = "nixpacks"
+buildCommand = "pip install -r requirements_production.txt"
+
+[services.deploy]
+startCommand = "python scripts/autonomous_scheduler.py --min-interval 5 --max-interval 10"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+
+# Health checks using heartbeat file
+# Railway workers don't support HTTP health checks
+# Monitor logs for: "📊 SCHEDULER STATISTICS" status messages
+
+[services.env]
+GENESIS_ENV = "production"
+LOG_LEVEL = "INFO"
+SCHEDULER_MIN_INTERVAL = "300"  # 5 minutes
+SCHEDULER_MAX_INTERVAL = "600"  # 10 minutes
+
+# Required secrets (set in Railway dashboard):
+# - OPENAI_API_KEY
+# - ANTHROPIC_API_KEY
+# - GOOGLE_API_KEY
+# - MONGODB_URI
+# - REDIS_URL
+
+[services.resources]
+memory = "4Gi"
+cpu = "2"
+
+# ============================================
+# SERVICE 3: SKYVERN BROWSER AUTOMATION
+# ============================================
+[[services]]
+name = "genesis-skyvern"
+source = "."
+
+[services.build]
+builder = "docker"
+dockerfilePath = "Dockerfile.skyvern"  # Custom Dockerfile for Skyvern
+
+[services.deploy]
+startCommand = "python -m skyvern.main"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 5
+
+[services.healthcheck]
+path = "/health"
+interval = 30
+timeout = 10
+
+[services.env]
+ENVIRONMENT = "production"
+LOG_LEVEL = "INFO"
+
+# Required secrets (set in Railway dashboard):
+# - SKYVERN_API_KEY
+# - OPENAI_API_KEY
+# - ANTHROPIC_API_KEY
+# - POSTGRES_URL (from Railway Postgres plugin)
+
+[services.resources]
+memory = "4Gi"
+cpu = "2"
+
+# ============================================
+# SERVICE 4: DEEPSEEK OCR SERVICE
+# ============================================
+[[services]]
+name = "genesis-deepseek-ocr"
+source = "."
+
+[services.build]
+builder = "docker"
+dockerfilePath = "infrastructure/docker/deepseek-ocr-cpu.Dockerfile"
+
+[services.deploy]
+startCommand = "python infrastructure/deepseek_ocr_service.py"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 5
+
+[services.healthcheck]
+path = "/health"
+interval = 30
+timeout = 10
+
+[services.env]
+OCR_SERVICE_PORT = "8001"
+CACHE_DIR = "/cache"
+ENABLE_CACHE = "true"
+LOG_LEVEL = "INFO"
+
+[services.resources]
+memory = "4Gi"
+cpu = "2"
+
+# ============================================
+# CRON JOB 1: ES NIGHTLY TRAINING
+# ============================================
+[[crons]]
+name = "genesis-es-nightly-training"
+schedule = "0 2 * * *"  # 2 AM UTC daily
+source = "."
+
+[crons.build]
+builder = "nixpacks"
+buildCommand = "pip install -r requirements_production.txt && pip install numpy torch==2.1.0 transformers>=4.36.0 peft>=0.7.0 safetensors bitsandbytes --index-url https://download.pytorch.org/whl/cpu"
+
+[crons.deploy]
+startCommand = "python scripts/nightly_es_training.py --iterations 5 --population 8 --sigma 0.01 --learning-rate 0.001"
+
+[crons.env]
+ES_EVAL_MODE = "ISOLATED"
+LOG_LEVEL = "INFO"
+PYTHONUNBUFFERED = "1"
+# Fixture directory for sandboxed evaluation
+FIXTURES_DIR = "/app/fixtures"
+
+# Required secrets (set in Railway dashboard):
+# - OPENAI_API_KEY (for model download/initialization, not actual API calls during eval)
+# - ANTHROPIC_API_KEY (for model download/initialization)
+# - MONGODB_URI (for storing training history)
+
+[crons.resources]
+memory = "8Gi"  # Increased for LoRA adapter training (7.9GB VRAM budget)
+cpu = "2"
+
+# ============================================
+# CRON JOB 2: DATABASE CLEANUP
+# ============================================
+[[crons]]
+name = "genesis-db-cleanup"
+schedule = "0 0 * * 0"  # Weekly on Sunday at midnight UTC
+source = "."
+
+[crons.build]
+builder = "nixpacks"
+buildCommand = "pip install -r requirements_production.txt"
+
+[crons.deploy]
+startCommand = "python scripts/cleanup_old_businesses.py --days 90"
+
+[crons.env]
+GENESIS_ENV = "production"
+LOG_LEVEL = "INFO"
+
+# Required secrets:
+# - MONGODB_URI
+
+[crons.resources]
+memory = "2Gi"
+cpu = "1"
+
+# ============================================
+# CRON JOB 3: HEALTH MONITORING
+# ============================================
+[[crons]]
+name = "genesis-health-monitor"
+schedule = "*/15 * * * *"  # Every 15 minutes
+source = "."
+
+[crons.build]
+builder = "nixpacks"
+buildCommand = "pip install -r requirements_production.txt"
+
+[crons.deploy]
+startCommand = "python scripts/health_monitor.py"
+
+[crons.env]
+GENESIS_ENV = "production"
+LOG_LEVEL = "INFO"
+
+# Required secrets:
+# - REDIS_URL
+# - MONGODB_URI
+# - SLACK_WEBHOOK_URL (for alerts)
+
+[crons.resources]
+memory = "1Gi"
+cpu = "0.5"
+
+# ============================================
+# NIXPACKS CONFIGURATION
+# ============================================
+[nixpacks]
+# Python runtime configuration
+python.version = "3.12"
+
+# System dependencies (if needed for specific services)
+# apt = ["build-essential", "libgomp1", "curl"]
+
+# ============================================
+# MONITORING CONFIGURATION
+# ============================================
+[monitor]
+# Railway provides built-in metrics:
+# - CPU usage
+# - Memory usage
+# - Process restarts
+# - Network traffic
+# - Log streaming
+
+# Service-specific monitoring:
+# A2A Service: HTTP endpoint health checks
+# Autonomous Scheduler: Heartbeat file monitoring
+# Skyvern: Task completion metrics
+# OCR Service: Image processing throughput
+
+# ============================================
+# DATABASE PLUGINS (Railway)
+# ============================================
+# Add these plugins via Railway dashboard:
+# 1. MongoDB (for shared memory storage)
+# 2. Redis (for caching and state management)
+# 3. PostgreSQL (for Skyvern only)
+
+# Railway auto-injects these environment variables:
+# - MONGODB_URI
+# - REDIS_URL
+# - DATABASE_URL (PostgreSQL for Skyvern)
+
+# ============================================
+# SECRETS MANAGEMENT
+# ============================================
+# Required secrets to set in Railway dashboard:
+#
+# LLM API Keys:
+# - OPENAI_API_KEY
+# - ANTHROPIC_API_KEY
+# - GOOGLE_API_KEY
+#
+# Service-specific:
+# - SKYVERN_API_KEY
+# - REDIS_PASSWORD (optional, if custom Redis)
+#
+# Alerting:
+# - SLACK_WEBHOOK_URL (for health monitoring alerts)
+# - PAGERDUTY_API_KEY (optional)
+#
+# Security:
+# - JWT_SECRET_KEY
+# - ENCRYPTION_KEY
+
+# ============================================
+# DEPLOYMENT INSTRUCTIONS
+# ============================================
+#
+# 1. Install Railway CLI:
+#    npm install -g @railway/cli
+#
+# 2. Login to Railway:
+#    railway login
+#
+# 3. Link to project:
+#    railway link
+#
+# 4. Add database plugins:
+#    railway add --plugin mongodb
+#    railway add --plugin redis
+#    railway add --plugin postgresql
+#
+# 5. Set environment variables:
+#    railway variables set OPENAI_API_KEY=sk-...
+#    railway variables set ANTHROPIC_API_KEY=sk-ant-...
+#    railway variables set GOOGLE_API_KEY=...
+#
+# 6. Deploy:
+#    railway up
+#
+# 7. View logs:
+#    railway logs [service-name]
+#
+# 8. Monitor services:
+#    railway status
+#
+# 9. Open web UI:
+#    railway open
+#
+# ============================================
+# SCALING CONFIGURATION
+# ============================================
+# Railway auto-scales based on:
+# - CPU usage (> 80% for 5 minutes)
+# - Memory usage (> 80% for 5 minutes)
+# - Request queue depth
+#
+# Manual scaling via Railway dashboard:
+# - Horizontal: Increase replica count
+# - Vertical: Adjust memory/CPU limits
+#
+# Recommended production setup:
+# - A2A Service: 2-3 replicas, 4Gi memory, 2 CPU
+# - Autonomous Scheduler: 1 replica, 4Gi memory, 2 CPU
+# - Skyvern: 1-2 replicas, 4Gi memory, 2 CPU
+# - OCR Service: 1 replica, 4Gi memory, 2 CPU
+
+# ============================================
+# COST ESTIMATION (Railway Pricing)
+# ============================================
+# Starter Plan ($20/month):
+# - $5/month base + $0.000231/GB-hour + $0.000463/vCPU-hour
+#
+# Estimated monthly cost:
+# - A2A Service (2 replicas): ~$30/month
+# - Autonomous Scheduler: ~$15/month
+# - Skyvern: ~$15/month
+# - OCR Service: ~$10/month
+# - MongoDB Plugin: ~$10/month
+# - Redis Plugin: ~$5/month
+# - PostgreSQL Plugin: ~$10/month
+# - Cron Jobs: ~$5/month
+# Total: ~$100/month
+#
+# Note: Actual costs vary based on usage and active hours
+
+# ============================================
+# MONITORING ENDPOINTS
+# ============================================
+# Service health checks (after deployment):
+# - A2A Service: https://<railway-domain>/health
+# - Skyvern: https://<railway-domain-skyvern>/health
+# - OCR Service: https://<railway-domain-ocr>/health
+#
+# Railway dashboard:
+# - https://railway.app/dashboard
+#
+# Metrics:
+# - CPU/Memory: Railway dashboard > Metrics
+# - Logs: Railway dashboard > Logs
+# - Deployments: Railway dashboard > Deployments

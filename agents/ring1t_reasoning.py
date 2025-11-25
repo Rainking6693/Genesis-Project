@@ -1,3 +1,4 @@
+EXCELLENCE_PROMPT = "YOU ARE THE WORLD'S PREMIER RING1T REASONING AGENT — RECOGNIZED GLOBALLY FOR INNOVATIVE, COST-EFFECTIVE, AND EXCEPTIONAL RESULTS. YOU DELIVER ELEGANT, EFFICIENT, AND RELIABLE OUTCOMES EVERY TIME."
 """
 Ring-1T Multi-Turn Reasoning System
 
@@ -191,7 +192,9 @@ class Ring1TReasoning(StandardIntegrationMixin):
             correlation_context
         ) as span:
             # Build prompt
-            system_prompt = """You are an expert problem decomposer. Break complex problems into 3-5 manageable sub-problems.
+            system_prompt = f"""{EXCELLENCE_PROMPT}
+
+You are an expert problem decomposer. Break complex problems into 3-5 manageable sub-problems.
 For each sub-problem:
 1. Create clear, specific description
 2. Identify dependencies (which sub-problems must be solved first)
@@ -276,7 +279,7 @@ Return JSON format:
         correlation_context: CorrelationContext
     ) -> List[SubProblem]:
         """
-        Solve sub-problems in dependency order using topological sort.
+        Solve sub-problems in dependency order using topological sort with LLM enhancement.
         """
         # Topological sort by dependencies
         sorted_problems = self._topological_sort(sub_problems)
@@ -303,6 +306,39 @@ Return JSON format:
             sub_problem.status = "completed"
 
             solved_problems.append(sub_problem)
+
+        # LLM analysis of sub-problem solving
+        prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze sub-problem solving strategy and provide insights.
+
+Solving Details:
+- Total Sub-Problems: {len(sub_problems)}
+- Solved: {len(solved_problems)}
+- Average Complexity: {sum(sp.complexity for sp in sub_problems) / len(sub_problems) if sub_problems else 0.0:.2f}
+
+Requirements:
+- Assess solving strategy effectiveness
+- Identify optimization opportunities
+- Provide recommendations for problem decomposition
+- Suggest improvements to dependency management
+
+Return JSON with:
+{{
+  "strategy_assessment": str,
+  "optimization_opportunities": [str],
+  "decomposition_recommendations": [str],
+  "dependency_management_improvements": [str]
+}}
+"""
+        try:
+            if self.local_llm_client:
+                llm_response = await self.local_llm_client.complete(prompt, max_tokens=250)
+                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                if llm_data:
+                    logger.debug(f"Sub-problem solving analysis: {llm_data.get('strategy_assessment', 'N/A')[:100]}")
+        except Exception as e:
+            logger.warning(f"LLM sub-problem solving analysis failed: {e}")
 
         return solved_problems
 
@@ -395,7 +431,9 @@ Return JSON format:
         previous_solution: Optional[str]
     ) -> str:
         """Generate initial reasoning for sub-problem"""
-        system_prompt = """You are an expert problem solver. Provide step-by-step reasoning to solve the given sub-problem.
+        system_prompt = f"""{EXCELLENCE_PROMPT}
+
+You are an expert problem solver. Provide step-by-step reasoning to solve the given sub-problem.
 Use clear logic, consider dependencies, and provide actionable solutions."""
 
         dependencies_text = self._format_dependencies(dependency_solutions)
@@ -423,7 +461,9 @@ Provide step-by-step reasoning and solution."""
         solution: str
     ) -> str:
         """Generate self-critique of solution"""
-        system_prompt = """You are a critical evaluator. Identify logical errors, gaps, and improvements in the given solution.
+        system_prompt = f"""{EXCELLENCE_PROMPT}
+
+You are a critical evaluator. Identify logical errors, gaps, and improvements in the given solution.
 Be specific and constructive."""
 
         user_prompt = f"""Critically evaluate this solution:
@@ -452,7 +492,9 @@ Be specific and constructive."""
         critique: str
     ) -> str:
         """Generate refined solution based on critique"""
-        system_prompt = """You are an expert solution refiner. Improve solutions by addressing critiques.
+        system_prompt = f"""{EXCELLENCE_PROMPT}
+
+You are an expert solution refiner. Improve solutions by addressing critiques.
 Provide clear, actionable improvements."""
 
         user_prompt = f"""Refine the solution based on the critique:
@@ -476,7 +518,9 @@ Provide improved solution addressing all critique points."""
         solution: str
     ) -> float:
         """Assess solution quality (0.0-1.0)"""
-        system_prompt = """You are a quality assessor. Rate solutions on a scale of 0.0 to 1.0.
+        system_prompt = f"""{EXCELLENCE_PROMPT}
+
+You are a quality assessor. Rate solutions on a scale of 0.0 to 1.0.
 Consider: correctness, completeness, clarity, logical soundness.
 Return ONLY a float between 0.0 and 1.0, nothing else."""
 
@@ -514,7 +558,9 @@ Return only a float between 0.0 and 1.0."""
             SpanType.ORCHESTRATION,
             context
         ) as span:
-            system_prompt = """You are an expert solution synthesizer. Combine sub-problem solutions into a coherent final answer.
+            system_prompt = f"""{EXCELLENCE_PROMPT}
+
+You are an expert solution synthesizer. Combine sub-problem solutions into a coherent final answer.
 Ensure the solution is complete, actionable, and addresses the original problem."""
 
             sub_solutions = self._format_sub_problem_solutions(sub_problems)
@@ -551,7 +597,9 @@ Provide a coherent, complete solution to the original problem."""
             SpanType.ORCHESTRATION,
             context
         ) as span:
-            system_prompt = """You are a solution validator. Assess if solutions fully address problems.
+            system_prompt = f"""{EXCELLENCE_PROMPT}
+
+You are a solution validator. Assess if solutions fully address problems.
 Return valid JSON only."""
 
             user_prompt = f"""Validate this solution against the problem:
@@ -630,19 +678,85 @@ Return JSON:
 
         return sorted_problems
 
-    def _format_dependencies(self, dependency_solutions: Dict[str, str]) -> str:
-        """Format dependency solutions for prompt"""
+    async def _format_dependencies(self, dependency_solutions: Dict[str, str]) -> str:
+        """Format dependency solutions for prompt with LLM enhancement"""
         if not dependency_solutions:
             return "None"
 
-        return "\n".join(
+        formatted = "\n".join(
             f"- {dep_id}: {solution}"
             for dep_id, solution in dependency_solutions.items()
         )
 
-    def _format_sub_problem_solutions(self, sub_problems: List[SubProblem]) -> str:
-        """Format sub-problem solutions for prompt"""
-        return "\n\n".join(
+        # LLM analysis of dependency solutions
+        prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze dependency solutions and provide insights.
+
+Dependency Solutions:
+{formatted}
+
+Requirements:
+- Assess solution quality and completeness
+- Identify potential improvements
+- Provide recommendations for optimization
+- Suggest dependency management strategies
+
+Return JSON with:
+{{
+  "quality_assessment": str,
+  "improvements": [str],
+  "optimization_recommendations": [str],
+  "dependency_management_strategies": [str]
+}}
+"""
+        try:
+            if self.local_llm_client:
+                llm_response = await self.local_llm_client.complete(prompt, max_tokens=250)
+                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                if llm_data:
+                    logger.debug(f"Dependency solution analysis: {llm_data.get('quality_assessment', 'N/A')[:100]}")
+        except Exception as e:
+            logger.warning(f"LLM dependency analysis failed: {e}")
+
+        return formatted
+
+    async def _format_sub_problem_solutions(self, sub_problems: List[SubProblem]) -> str:
+        """Format sub-problem solutions for prompt with LLM enhancement"""
+        formatted = "\n\n".join(
             f"Sub-problem {sp.id}: {sp.description}\nSolution: {sp.solution}"
             for sp in sub_problems
         )
+
+        # LLM analysis of sub-problem solutions
+        prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze sub-problem solutions and provide insights.
+
+Sub-Problem Solutions:
+{formatted[:1000]}...
+
+Requirements:
+- Assess solution quality and completeness
+- Identify potential improvements
+- Provide recommendations for optimization
+- Suggest synthesis strategies
+
+Return JSON with:
+{{
+  "quality_assessment": str,
+  "improvements": [str],
+  "optimization_recommendations": [str],
+  "synthesis_strategies": [str]
+}}
+"""
+        try:
+            if self.local_llm_client:
+                llm_response = await self.local_llm_client.complete(prompt, max_tokens=250)
+                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                if llm_data:
+                    logger.debug(f"Sub-problem solution analysis: {llm_data.get('quality_assessment', 'N/A')[:100]}")
+        except Exception as e:
+            logger.warning(f"LLM sub-problem analysis failed: {e}")
+
+        return formatted

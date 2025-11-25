@@ -318,6 +318,34 @@ class PolicyAwareHALORouter:
         }
 
     # Passthrough methods to underlying HALO router
+    async def route_tasks(
+        self,
+        dag_or_tasks,
+        available_agents: Optional[List[str]] = None,
+        agent_tokens: Optional[Dict[str, str]] = None,
+        optimization_constraints = None
+    ):
+        """
+        Passthrough to HALORouter.route_tasks()
+
+        Route tasks - delegates to underlying HALO router
+
+        Args:
+            dag_or_tasks: Either a TaskDAG or List[Task]
+            available_agents: Optional list of available agents
+            agent_tokens: Optional agent authentication tokens
+            optimization_constraints: Optional DAAO constraints
+
+        Returns:
+            RoutingPlan with assignments
+        """
+        return await self.halo_router.route_tasks(
+            dag_or_tasks,
+            available_agents=available_agents,
+            agent_tokens=agent_tokens,
+            optimization_constraints=optimization_constraints
+        )
+
     def execute_with_llm(
         self,
         agent_name: str,

@@ -1,3 +1,5 @@
+EXCELLENCE_PROMPT = "YOU ARE THE WORLD'S PREMIER SE DARWIN AGENT — RECOGNIZED GLOBALLY FOR INNOVATIVE, COST-EFFECTIVE, AND EXCEPTIONAL RESULTS. YOU DELIVER ELEGANT, EFFICIENT, AND RELIABLE OUTCOMES EVERY TIME."
+"
 """
 SE-Darwin Agent - Multi-Trajectory Evolution for Self-Improving Agents
 Layer 2 enhancement: Combines Darwin evolution with SE-Agent multi-trajectory optimization
@@ -215,23 +217,65 @@ class BenchmarkScenarioLoader:
 
         self.benchmark_dir = Path(benchmark_dir)
         self._scenarios_cache: Dict[str, List[Dict[str, Any]]] = {}
-        self._load_all_scenarios()
+        # Note: _load_all_scenarios is now async, will be called in initialize()
 
-    def _load_all_scenarios(self) -> None:
-        """Load all benchmark scenarios from JSON files into cache"""
+    async def _load_all_scenarios(self) -> None:
+        """Load all benchmark scenarios from JSON files into cache with LLM analysis"""
         if not self.benchmark_dir.exists():
             logger.warning(f"Benchmark directory not found: {self.benchmark_dir}")
             return
 
+        total_scenarios = 0
         for json_file in self.benchmark_dir.glob("*.json"):
             try:
                 with open(json_file, 'r') as f:
                     scenarios = json.load(f)
                     agent_name = json_file.stem.replace("_scenarios", "")
                     self._scenarios_cache[agent_name] = scenarios
+                    total_scenarios += len(scenarios)
                     logger.debug(f"Loaded {len(scenarios)} scenarios for {agent_name}")
             except Exception as e:
                 logger.error(f"Failed to load scenarios from {json_file}: {e}")
+        
+        # LLM analysis of scenario loading
+        if self.local_llm_client and total_scenarios > 0:
+            prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze scenario loading and provide optimization insights.
+
+Scenario Loading Details:
+- Total Scenarios: {total_scenarios}
+- Agents: {list(self._scenarios_cache.keys())}
+- Benchmark Directory: {self.benchmark_dir}
+
+Requirements:
+- Assess scenario coverage and completeness
+- Identify optimization opportunities
+- Provide recommendations for scenario management
+- Suggest improvements to scenario loading strategy
+
+Return JSON with:
+{{
+  "coverage_assessment": str,
+  "optimization_opportunities": [str],
+  "scenario_management_recommendations": [str],
+  "loading_strategy_improvements": [str]
+}}
+"""
+            try:
+                await self._analyze_scenario_loading_async(prompt, total_scenarios)
+            except Exception as e:
+                logger.warning(f"LLM scenario loading analysis failed: {e}")
+    
+    async def _analyze_scenario_loading_async(self, prompt: str, total_scenarios: int) -> None:
+        """Background LLM analysis for scenario loading"""
+        try:
+            llm_response = await self.local_llm_client.complete(prompt, max_tokens=250)
+            llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+            if llm_data:
+                logger.debug(f"Scenario loading analysis: {llm_data.get('coverage_assessment', 'N/A')[:100]}")
+        except Exception as e:
+            logger.warning(f"LLM scenario loading analysis failed: {e}")
 
     def get_scenarios_for_agent(self, agent_name: str) -> List[Dict[str, Any]]:
         """
@@ -657,7 +701,7 @@ class SEDarwinAgent(StandardIntegrationMixin):
         # Initialize MemoryOS MongoDB adapter for evolution pattern memory (NEW: 49% F1 improvement)
         # Enables: successful mutation memory, similar evolution trace retrieval, pattern learning
         self.memory: Optional[GenesisMemoryOSMongoDB] = None
-        self._init_memory()
+        # Note: _init_memory is now async, will be called in initialize()
 
         # Initialize OpenHands integration (NEW: +8-12% SWE-bench improvement)
         # Feature flag: USE_OPENHANDS=true to enable
@@ -716,8 +760,8 @@ class SEDarwinAgent(StandardIntegrationMixin):
             }
         )
 
-    def _init_memory(self):
-        """Initialize MemoryOS MongoDB backend for SE-Darwin evolution pattern memory."""
+    async def _init_memory(self):
+        """Initialize MemoryOS MongoDB backend for SE-Darwin evolution pattern memory with LLM analysis."""
         try:
             import os
             self.memory = create_genesis_memory_mongodb(
@@ -728,9 +772,50 @@ class SEDarwinAgent(StandardIntegrationMixin):
                 long_term_knowledge_capacity=500  # Successful mutation patterns, operator strategies
             )
             logger.info("[SEDarwinAgent] MemoryOS MongoDB initialized for evolution pattern tracking")
+            
+            # LLM analysis of memory initialization
+            if self.local_llm_client:
+                prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze memory initialization and provide optimization insights.
+
+Memory Configuration:
+- Short-term Capacity: 10
+- Mid-term Capacity: 1500
+- Long-term Capacity: 500
+- Database: genesis_memory_se_darwin
+
+Requirements:
+- Assess memory configuration appropriateness
+- Identify optimization opportunities
+- Provide recommendations for memory management
+- Suggest improvements to capacity allocation
+
+Return JSON with:
+{{
+  "configuration_assessment": str,
+  "optimization_opportunities": [str],
+  "memory_management_recommendations": [str],
+  "capacity_allocation_improvements": [str]
+}}
+"""
+                try:
+                    await self._analyze_memory_init_async(prompt)
+                except Exception as e:
+                    logger.warning(f"LLM memory init analysis failed: {e}")
         except Exception as e:
             logger.warning(f"[SEDarwinAgent] Failed to initialize MemoryOS: {e}. Memory features disabled.")
             self.memory = None
+    
+    async def _analyze_memory_init_async(self, prompt: str) -> None:
+        """Background LLM analysis for memory initialization"""
+        try:
+            llm_response = await self.local_llm_client.complete(prompt, max_tokens=250)
+            llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+            if llm_data:
+                logger.debug(f"Memory init analysis: {llm_data.get('configuration_assessment', 'N/A')[:100]}")
+        except Exception as e:
+            logger.warning(f"LLM memory init analysis failed: {e}")
 
     def _init_openhands(self):
         """
@@ -883,6 +968,12 @@ class SEDarwinAgent(StandardIntegrationMixin):
             self.challenger_agent = None
             self.reasoner_agent = None
             self.drgrpo_optimizer = None
+
+    async def initialize(self):
+        """Initialize SE-Darwin agent with async memory and scenario loading"""
+        await self._load_all_scenarios()
+        await self._init_memory()
+        logger.info("SE-Darwin Agent initialized with scenarios and memory")
 
     async def enable_self_correction(self, qa_agent: Any, max_attempts: int = 3):
         """
@@ -1128,6 +1219,41 @@ class SEDarwinAgent(StandardIntegrationMixin):
 
         logger.info(f"Evolution completed in {total_time:.2f}s, best score: {self.best_score:.3f}")
 
+        # LLM analysis of evolution solution
+        prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze evolution solution strategy and provide insights.
+
+Evolution Details:
+- Problem: {problem_description[:100]}
+- Best Score: {self.best_score:.3f}
+- Iterations: {len(self.iterations)}
+- Total Time: {total_time:.2f}s
+
+Requirements:
+- Assess evolution effectiveness
+- Identify optimization opportunities
+- Provide recommendations for evolution strategy
+- Suggest improvements to convergence
+
+Return JSON with:
+{{
+  "evolution_assessment": str,
+  "optimization_opportunities": [str],
+  "strategy_recommendations": [str],
+  "convergence_improvements": [str]
+}}
+"""
+        try:
+            if self.local_llm_client:
+                llm_response = await self.local_llm_client.complete(prompt, max_tokens=300)
+                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                if llm_data:
+                    result['llm_insights'] = llm_data
+                    logger.debug(f"Evolution solution analysis: {llm_data.get('evolution_assessment', 'N/A')[:100]}")
+        except Exception as e:
+            logger.warning(f"LLM evolution solution analysis failed: {e}")
+
         return result
 
     async def _generate_trajectories(
@@ -1269,6 +1395,39 @@ class SEDarwinAgent(StandardIntegrationMixin):
                 if trajectory_counter:
                     trajectory_counter.add(1, {"operator": "baseline"})
 
+        # LLM analysis of trajectory generation
+        prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze trajectory generation strategy and provide insights.
+
+Generation Details:
+- Problem: {problem_description[:100]}
+- Generation: {generation}
+- Trajectories Generated: {len(trajectories)}
+
+Requirements:
+- Assess generation strategy effectiveness
+- Identify optimization opportunities
+- Provide recommendations for trajectory diversity
+- Suggest improvements to operator selection
+
+Return JSON with:
+{{
+  "generation_assessment": str,
+  "optimization_opportunities": [str],
+  "diversity_recommendations": [str],
+  "operator_selection_improvements": [str]
+}}
+"""
+        try:
+            if self.local_llm_client:
+                llm_response = await self.local_llm_client.complete(prompt, max_tokens=250)
+                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                if llm_data:
+                    logger.debug(f"Trajectory generation analysis: {llm_data.get('generation_assessment', 'N/A')[:100]}")
+        except Exception as e:
+            logger.warning(f"LLM trajectory generation analysis failed: {e}")
+
         return trajectories
 
     def _create_baseline_trajectory(
@@ -1331,7 +1490,7 @@ class SEDarwinAgent(StandardIntegrationMixin):
 
         try:
             # Estimate task difficulty
-            difficulty = self._estimate_task_difficulty(problem_description)
+            difficulty = await self._estimate_task_difficulty(problem_description)
 
             # Step 1: Generate frontier task variations
             frontier_tasks = await self.challenger_agent.generate_frontier_task(
@@ -1366,24 +1525,91 @@ class SEDarwinAgent(StandardIntegrationMixin):
         except Exception as e:
             logger.warning(f"SPICE trajectory generation failed: {e}")
 
+        # LLM analysis of SPICE trajectory generation
+        prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze SPICE trajectory generation and provide insights.
+
+SPICE Details:
+- Problem: {problem_description[:100]}
+- Trajectories Generated: {len(trajectories)}
+
+Requirements:
+- Assess SPICE effectiveness
+- Identify optimization opportunities
+- Provide recommendations for frontier task generation
+- Suggest improvements to self-play strategy
+
+Return JSON with:
+{{
+  "spice_assessment": str,
+  "optimization_opportunities": [str],
+  "frontier_task_recommendations": [str],
+  "self_play_improvements": [str]
+}}
+"""
+        try:
+            if self.local_llm_client:
+                llm_response = await self.local_llm_client.complete(prompt, max_tokens=250)
+                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                if llm_data:
+                    logger.debug(f"SPICE generation analysis: {llm_data.get('spice_assessment', 'N/A')[:100]}")
+        except Exception as e:
+            logger.warning(f"LLM SPICE generation analysis failed: {e}")
+
         return trajectories
 
-    def _estimate_task_difficulty(self, task: str) -> float:
+    async def _estimate_task_difficulty(self, task: str) -> float:
         """
-        Estimate task difficulty (0.0-1.0) based on complexity heuristics.
+        Estimate task difficulty (0.0-1.0) based on complexity heuristics with LLM enhancement
 
         Simple heuristics: word count, keywords
         """
         word_count = len(task.split())
 
         if word_count < 20:
-            return 0.3  # Basic task
+            difficulty = 0.3  # Basic task
         elif word_count < 50:
-            return 0.6  # Medium complexity
+            difficulty = 0.6  # Medium complexity
         elif word_count < 100:
-            return 0.8  # Hard
+            difficulty = 0.8  # Hard
         else:
-            return 0.95  # Expert level
+            difficulty = 0.95  # Expert level
+        
+        # LLM analysis of task difficulty
+        prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze task difficulty estimation and provide insights.
+
+Task Details:
+- Task: {task[:200]}
+- Word Count: {word_count}
+- Estimated Difficulty: {difficulty}
+
+Requirements:
+- Assess difficulty estimation accuracy
+- Identify complexity factors
+- Provide recommendations for difficulty assessment
+- Suggest improvements to estimation heuristics
+
+Return JSON with:
+{{
+  "difficulty_assessment": str,
+  "complexity_factors": [str],
+  "assessment_recommendations": [str],
+  "heuristic_improvements": [str]
+}}
+"""
+        try:
+            if self.local_llm_client:
+                llm_response = await self.local_llm_client.complete(prompt, max_tokens=200)
+                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                if llm_data:
+                    logger.debug(f"Task difficulty analysis: {llm_data.get('difficulty_assessment', 'N/A')[:100]}")
+        except Exception as e:
+            logger.warning(f"LLM difficulty analysis failed: {e}")
+        
+        return difficulty
 
     def _convert_spice_to_se_trajectory(self, reasoner_result) -> Trajectory:
         """
@@ -1446,6 +1672,39 @@ class SEDarwinAgent(StandardIntegrationMixin):
             else:
                 execution_results.append(result)
 
+        # LLM analysis of parallel execution
+        prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze parallel trajectory execution and provide insights.
+
+Execution Details:
+- Trajectories Executed: {len(trajectories)}
+- Successful: {sum(1 for r in execution_results if r.success)}
+- Failed: {sum(1 for r in execution_results if not r.success)}
+
+Requirements:
+- Assess execution efficiency
+- Identify optimization opportunities
+- Provide recommendations for parallel execution
+- Suggest improvements to timeout handling
+
+Return JSON with:
+{{
+  "execution_assessment": str,
+  "optimization_opportunities": [str],
+  "parallel_execution_recommendations": [str],
+  "timeout_improvements": [str]
+}}
+"""
+        try:
+            if self.local_llm_client:
+                llm_response = await self.local_llm_client.complete(prompt, max_tokens=250)
+                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                if llm_data:
+                    logger.debug(f"Parallel execution analysis: {llm_data.get('execution_assessment', 'N/A')[:100]}")
+        except Exception as e:
+            logger.warning(f"LLM parallel execution analysis failed: {e}")
+
         return execution_results
 
     async def _execute_single_trajectory(
@@ -1502,12 +1761,48 @@ class SEDarwinAgent(StandardIntegrationMixin):
                     f"Trajectory {trajectory.trajectory_id} completed: score={trajectory.success_score:.3f}, time={execution_time:.2f}s"
                 )
 
-                return TrajectoryExecutionResult(
+                result = TrajectoryExecutionResult(
                     trajectory=trajectory,
                     benchmark_result=benchmark_result,
                     execution_time=execution_time,
                     success=trajectory.is_successful(self.success_threshold)
                 )
+
+                # LLM analysis of single trajectory execution
+                prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze single trajectory execution and provide insights.
+
+Execution Details:
+- Trajectory ID: {trajectory.trajectory_id}
+- Success: {result.success}
+- Score: {trajectory.success_score:.3f}
+- Execution Time: {execution_time:.2f}s
+
+Requirements:
+- Assess execution quality
+- Identify optimization opportunities
+- Provide recommendations for trajectory improvement
+- Suggest improvements to validation strategy
+
+Return JSON with:
+{{
+  "execution_assessment": str,
+  "optimization_opportunities": [str],
+  "trajectory_improvements": [str],
+  "validation_improvements": [str]
+}}
+"""
+                try:
+                    if self.local_llm_client:
+                        llm_response = await self.local_llm_client.complete(prompt, max_tokens=200)
+                        llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                        if llm_data:
+                            logger.debug(f"Single trajectory execution analysis: {llm_data.get('execution_assessment', 'N/A')[:100]}")
+                except Exception as e:
+                    logger.warning(f"LLM single trajectory execution analysis failed: {e}")
+
+                return result
 
         except asyncio.TimeoutError:
             logger.warning(f"Trajectory {trajectory.trajectory_id} timed out after {self.timeout_per_trajectory}s")
@@ -1668,10 +1963,43 @@ class SEDarwinAgent(StandardIntegrationMixin):
 
         return benchmark_result
 
-    def _get_safety_benchmark(self) -> SafetyBenchmark:
-        """Lazily instantiate the WaltzRL safety benchmark runner."""
+    async def _get_safety_benchmark(self) -> SafetyBenchmark:
+        """Lazily instantiate the WaltzRL safety benchmark runner with LLM analysis."""
         if self._safety_benchmark is None:
             self._safety_benchmark = SafetyBenchmark()
+            
+            # LLM analysis of safety benchmark initialization
+            prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze safety benchmark initialization and provide insights.
+
+Safety Benchmark:
+- Benchmark Type: WaltzRL
+- Initialized: True
+
+Requirements:
+- Assess safety benchmark configuration
+- Identify optimization opportunities
+- Provide recommendations for safety validation
+- Suggest improvements to benchmark strategy
+
+Return JSON with:
+{{
+  "benchmark_assessment": str,
+  "optimization_opportunities": [str],
+  "safety_validation_recommendations": [str],
+  "benchmark_strategy_improvements": [str]
+}}
+"""
+            try:
+                if self.local_llm_client:
+                    llm_response = await self.local_llm_client.complete(prompt, max_tokens=200)
+                    llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                    if llm_data:
+                        logger.debug(f"Safety benchmark analysis: {llm_data.get('benchmark_assessment', 'N/A')[:100]}")
+            except Exception as e:
+                logger.warning(f"LLM safety benchmark analysis failed: {e}")
+        
         return self._safety_benchmark
 
     async def _validate_trajectory_safety(self, trajectory: Trajectory) -> bool:
@@ -1687,7 +2015,7 @@ class SEDarwinAgent(StandardIntegrationMixin):
             return True
 
         try:
-            benchmark = self._get_safety_benchmark()
+            benchmark = await self._get_safety_benchmark()
             metrics = await benchmark.evaluate_agent_safety(
                 agent_code=trajectory.code_after or trajectory.code_changes,
                 agent_type=self.agent_name,

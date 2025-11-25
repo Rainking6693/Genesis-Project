@@ -343,3 +343,29 @@ class HALOCapabilityBridge:
     def agent_registry(self) -> Dict[str, Any]:
         """Get agent registry from underlying HALO router"""
         return self.halo.agent_registry
+
+    async def route_tasks(
+        self,
+        dag_or_tasks,
+        available_agents: Optional[List[str]] = None,
+        agent_tokens: Optional[Dict[str, str]] = None,
+        optimization_constraints = None
+    ):
+        """
+        Route tasks - delegates to underlying HALORouter
+
+        Args:
+            dag_or_tasks: Either a TaskDAG or List[Task]
+            available_agents: Optional list of available agents
+            agent_tokens: Optional agent authentication tokens
+            optimization_constraints: Optional DAAO constraints
+
+        Returns:
+            RoutingPlan with assignments
+        """
+        return await self.halo.route_tasks(
+            dag_or_tasks,
+            available_agents=available_agents,
+            agent_tokens=agent_tokens,
+            optimization_constraints=optimization_constraints
+        )

@@ -21,7 +21,7 @@ Agent List:
 """
 
 from .marketing_agent import MarketingAgent, get_marketing_agent
-from .builder_agent import BuilderAgent, get_builder_agent
+from .builder_agent_enhanced import EnhancedBuilderAgent as BuilderAgent, get_enhanced_builder_agent as get_builder_agent
 from .content_agent import ContentAgent, get_content_agent
 from .deploy_agent import DeployAgent, get_deploy_agent
 from .support_agent import SupportAgent, get_support_agent
@@ -38,9 +38,12 @@ from .spec_agent import SpecAgent, get_spec_agent
 from .pricing_agent import PricingAgent
 from .finance_agent import FinanceAgent
 from .commerce_agent import CommerceAgent
+from .emergency_error_specialist_agent import EmergencyErrorSpecialistAgent, get_emergency_error_specialist_agent
+from .domain_name_agent import DomainNameAgent, get_domain_agent
 
 __all__ = [
     # Agent Classes
+    "GenesisMetaAgent",
     "MarketingAgent",
     "BuilderAgent",
     "ContentAgent",
@@ -59,7 +62,10 @@ __all__ = [
     "PricingAgent",
     "FinanceAgent",
     "CommerceAgent",
+    "EmergencyErrorSpecialistAgent",
+    "DomainNameAgent",
     # Factory Functions
+    "get_genesis_meta_agent",
     "get_marketing_agent",
     "get_builder_agent",
     "get_content_agent",
@@ -75,4 +81,6 @@ __all__ = [
     "get_maintenance_agent",
     "get_onboarding_agent",
     "get_spec_agent",
+    "get_emergency_error_specialist_agent",
+    "get_domain_agent",
 ]

@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+EXCELLENCE_PROMPT = "YOU ARE THE WORLD'S PREMIER FINANCE AGENT — RECOGNIZED GLOBALLY FOR INNOVATIVE, COST-EFFECTIVE, AND EXCEPTIONAL RESULTS. YOU DELIVER ELEGANT, EFFICIENT, AND RELIABLE OUTCOMES EVERY TIME."
+
 """
 Finance Agent - AP2-governed treasury + accounting workflows.
 
@@ -14,8 +18,6 @@ INTEGRATIONS (Phase 1 Critical Fixes - Nov 18, 2025):
 - TrajectoryPool: Learning from successful financial workflows
 - CaseBank: Case-based reasoning for invoice processing
 """
-
-from __future__ import annotations
 
 import asyncio
 import hashlib
@@ -78,6 +80,9 @@ class FinanceAgent(StandardIntegrationMixin):
     - Memory: TrajectoryPool learning, CaseBank reasoning
     """
 
+    def _get_system_instruction(self) -> str:
+        return """You are the world's premier Finance ? recognized globally for innovative, cost-effective, and exceptional results. You deliver elegant, efficient, and reliable outcomes every time."""
+
     def __init__(self, business_id: str = "default"):
         super().__init__()
         self.business_id = business_id
@@ -87,7 +92,12 @@ class FinanceAgent(StandardIntegrationMixin):
         self.ap2_service: Optional[AP2Service] = None
         self._ap2_loop: Optional[asyncio.AbstractEventLoop] = None
         self._ap2_thread: Optional[threading.Thread] = None
-        self._budget_config = self._get_finance_budget()
+        # Note: _get_finance_budget is now async, but called from __init__
+        # We'll initialize it synchronously here and update it async later if needed
+        self._budget_config = DEFAULT_BUDGETS.get(
+            "finance_agent",
+            AP2BudgetConfig(monthly_limit=15000.0, per_transaction_alert=2500.0, require_manual_above=5000.0),
+        )
         self._monthly_spend = 0.0
         self._budget_window = datetime.utcnow().strftime("%Y-%m")
         self._ap2_secret = os.getenv("AP2_SECRET_KEY", "dev-finance-secret")
@@ -141,9 +151,9 @@ class FinanceAgent(StandardIntegrationMixin):
         )
 
     @traced_operation(operation_name="finance_agent.run_payroll_batch", span_type=SpanType.EXECUTION)
-    def run_payroll_batch(self, employee_count: int, cost_per_employee: float) -> str:
+    async def run_payroll_batch(self, employee_count: int, cost_per_employee: float) -> str:
         """
-        Run payroll batch with OTEL tracing, tool reliability metrics, and experience capture.
+        Run payroll batch with LLM generation and excellence instructions.
 
         Integrations used:
         - OTEL Tracing: @traced_operation decorator
@@ -159,20 +169,60 @@ class FinanceAgent(StandardIntegrationMixin):
 
         try:
             total = round(employee_count * cost_per_employee, 2)
-            receipt = self._ensure_finance_budget(
+
+            prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Generate payroll batch processing details and recommendations
+
+Context:
+- Employee Count: {employee_count}
+- Cost Per Employee: ${cost_per_employee}
+- Total Cost: ${total}
+
+Requirements:
+- Analyze payroll batch efficiency and cost
+- Recommend payment scheduling and distribution
+- Include tax and deduction considerations
+- Provide processing status and timeline
+- Identify any compliance requirements
+
+Generate payroll batch result as JSON with:
+- batch_id (unique identifier)
+- employee_count
+- total_cost
+- payment_methods (array of payment options)
+- processing_timeline (estimated completion time)
+- tax_considerations (tax-related notes)
+- compliance_checks (any regulatory requirements)
+- recommendations (suggestions for optimization)
+- status (processing/approved/pending)
+"""
+
+            try:
+                llm_response = await self.local_llm_client.complete(prompt, max_tokens=800)
+                payroll_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+            except Exception as e:
+                logger.error(f"LLM call failed in run_payroll_batch: {e}")
+                # Fallback to basic template only on error
+                payroll_data = {}
+
+            receipt = await self._ensure_finance_budget(
                 service_name="Payroll processor",
                 amount=total,
                 metadata={"employees": employee_count},
             )
-            x402_receipt = self._charge_x402(
+            x402_receipt = await self._charge_x402(
                 vendor="finance-payroll-api",
                 amount=max(0.05, total * 0.0005),
                 metadata={"employees": employee_count},
             )
             result = {
+                "batch_id": f"PAYROLL-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
                 "employee_count": employee_count,
+                "cost_per_employee": cost_per_employee,
                 "total_cost": total,
                 "processed_at": datetime.utcnow().isoformat(),
+                "llm_analysis": payroll_data,
                 "ap2_approval": receipt,
                 "x402_payment": x402_receipt,
             }
@@ -247,12 +297,12 @@ class FinanceAgent(StandardIntegrationMixin):
                         f"avg ${avg_amount:.2f} for {vendor}/{category}"
                     )
 
-            receipt = self._ensure_finance_budget(
+            receipt = await self._ensure_finance_budget(
                 service_name=f"{vendor} invoice",
                 amount=amount,
                 metadata={"category": category, "anomaly_detected": anomaly_detected},
             )
-            x402_receipt = self._charge_x402(
+            x402_receipt = await self._charge_x402(
                 vendor="finance-vendor-ledger",
                 amount=max(0.03, amount * 0.0002),
                 metadata={"vendor": vendor, "category": category},
@@ -306,7 +356,7 @@ class FinanceAgent(StandardIntegrationMixin):
             )
             raise
 
-    def sync_bank_fees(self, account: str, fee_amount: float) -> str:
+    async def sync_bank_fees(self, account: str, fee_amount: float) -> str:
         receipt = self._ensure_finance_budget(
             service_name="Bank fee reconciliation",
             amount=fee_amount,
@@ -324,9 +374,44 @@ class FinanceAgent(StandardIntegrationMixin):
             "ap2_approval": receipt,
             "x402_payment": x402_receipt,
         }
+
+        # LLM analysis of bank fees
+        prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze bank fee synchronization and provide insights.
+
+Bank Fee Details:
+- Account: {account}
+- Fee Amount: ${fee_amount}
+
+Requirements:
+- Assess fee patterns and trends
+- Identify optimization opportunities
+- Provide recommendations for fee reduction
+- Suggest account management improvements
+
+Return JSON with:
+{{
+  "fee_analysis": str,
+  "optimization_opportunities": [str],
+  "recommendations": [str],
+  "account_management_suggestions": [str]
+}}
+"""
+        try:
+            if self.local_llm_client:
+                llm_response = await self.local_llm_client.complete(prompt, max_tokens=250)
+                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+            else:
+                llm_data = {}
+        except Exception as e:
+            logger.warning(f"LLM bank fee analysis failed: {e}")
+            llm_data = {}
+
+        result["llm_analysis"] = llm_data if llm_data else None
         return json.dumps(result, indent=2)
 
-    def generate_finance_report(self, month: str, tooling_cost: float = 150.0) -> str:
+    async def generate_finance_report(self, month: str, tooling_cost: float = 150.0) -> str:
         receipt = self._ensure_finance_budget(
             service_name="Accounting analytics",
             amount=tooling_cost,
@@ -343,9 +428,44 @@ class FinanceAgent(StandardIntegrationMixin):
             "ap2_approval": receipt,
             "x402_payment": x402_receipt,
         }
+
+        # LLM analysis of finance report
+        prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze finance report generation and provide insights.
+
+Report Details:
+- Month: {month}
+- Tooling Cost: ${tooling_cost}
+
+Requirements:
+- Assess financial health indicators
+- Identify trends and patterns
+- Provide recommendations for financial optimization
+- Suggest improvements to reporting process
+
+Return JSON with:
+{{
+  "financial_health_indicators": [str],
+  "trends": [str],
+  "optimization_recommendations": [str],
+  "reporting_improvements": [str]
+}}
+"""
+        try:
+            if self.local_llm_client:
+                llm_response = await self.local_llm_client.complete(prompt, max_tokens=300)
+                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+            else:
+                llm_data = {}
+        except Exception as e:
+            logger.warning(f"LLM finance report analysis failed: {e}")
+            llm_data = {}
+
+        result["llm_analysis"] = llm_data if llm_data else None
         return json.dumps(result, indent=2)
 
-    def run_finance_close(
+    async def run_finance_close(
         self,
         employee_count: int,
         cost_per_employee: float,
@@ -353,23 +473,75 @@ class FinanceAgent(StandardIntegrationMixin):
         category: str,
         bank_fee: float,
     ) -> Dict[str, Any]:
-        payroll = json.loads(self.run_payroll_batch(employee_count, cost_per_employee))
-        vendor = json.loads(self.process_vendor_invoice("Core SaaS", vendor_amount, category))
-        fees = json.loads(self.sync_bank_fees("operating", bank_fee))
-        report = json.loads(self.generate_finance_report(datetime.utcnow().strftime("%Y-%m")))
+        """Run complete finance close process with LLM analysis."""
+        payroll = json.loads(await self.run_payroll_batch(employee_count, cost_per_employee))
+        vendor = json.loads(await self.process_vendor_invoice("Core SaaS", vendor_amount, category))
+        fees = json.loads(await self.sync_bank_fees("operating", bank_fee))
+        report = json.loads(await self.generate_finance_report(datetime.utcnow().strftime("%Y-%m")))
         receipts = [
             payroll.get("ap2_approval"),
             vendor.get("ap2_approval"),
             fees.get("ap2_approval"),
             report.get("ap2_approval"),
         ]
-        return {
+        
+        result = {
             "payroll": payroll,
             "vendor": vendor,
             "fees": fees,
             "report": report,
             "ap2_receipts": [r for r in receipts if r],
         }
+        
+        # LLM analysis of finance close
+        prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze finance close process and provide insights.
+
+Close Details:
+- Employee Count: {employee_count}
+- Cost Per Employee: ${cost_per_employee:.2f}
+- Vendor Amount: ${vendor_amount:.2f}
+- Category: {category}
+- Bank Fee: ${bank_fee:.2f}
+- Payroll Total: ${payroll.get('total', 0):.2f}
+- Vendor Total: ${vendor.get('total', 0):.2f}
+- Fees Total: ${fees.get('total', 0):.2f}
+
+Requirements:
+- Assess close process effectiveness
+- Identify optimization opportunities
+- Provide recommendations for finance operations
+- Suggest improvements to close workflow
+
+Return JSON with:
+{{
+  "close_assessment": str,
+  "optimization_opportunities": [str],
+  "workflow_recommendations": [str],
+  "cost_analysis": {{
+    "total_expenses": float,
+    "breakdown": dict,
+    "efficiency_score": float
+  }}
+}}
+"""
+        try:
+            if hasattr(self, 'local_llm_client') and self.local_llm_client:
+                llm_response = await self.local_llm_client.complete(prompt, max_tokens=300)
+            elif self.sonnet_client:
+                llm_response = await self.sonnet_client.complete(prompt, max_tokens=300)
+            else:
+                llm_response = None
+            if llm_response:
+                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                if llm_data:
+                    result['llm_insights'] = llm_data
+                    logger.debug(f"Finance close analysis: {llm_data.get('close_assessment', 'N/A')[:100]}")
+        except Exception as e:
+            logger.warning(f"LLM finance close analysis failed: {e}")
+        
+        return result
 
     def shutdown(self) -> None:
         """Gracefully shutdown agent and all integrations."""
@@ -389,28 +561,130 @@ class FinanceAgent(StandardIntegrationMixin):
 
         logger.info("FinanceAgent shutdown complete")
 
-    def get_budget_metrics(self) -> Dict[str, Any]:
+    async def get_budget_metrics(self) -> Dict[str, Any]:
         self._reset_budget_if_needed()
-        return {
+        base_result = {
             "monthly_limit": self._budget_config.monthly_limit,
             "monthly_spend": self._monthly_spend,
             "remaining_budget": max(self._budget_config.monthly_limit - self._monthly_spend, 0),
             "window": self._budget_window,
         }
 
-    def get_audit_log(self) -> list[Dict[str, Any]]:
-        return list(self.finance_audit)
+        # LLM analysis of budget metrics
+        prompt = f"""{EXCELLENCE_PROMPT}
 
-    def get_alerts(self) -> list[Dict[str, Any]]:
-        return list(self.finance_alerts)
+Task: Analyze finance budget metrics and provide recommendations.
 
-    def get_integration_status(self) -> Dict[str, Any]:
+Budget Metrics: {json.dumps(base_result, indent=2)}
+
+Requirements:
+- Assess budget utilization
+- Identify optimization opportunities
+- Provide recommendations for budget management
+- Suggest cost-saving strategies
+
+Return JSON with:
+{{
+  "budget_utilization_analysis": str,
+  "optimization_opportunities": [str],
+  "budget_management_recommendations": [str],
+  "cost_saving_strategies": [str]
+}}
+"""
+        try:
+            if self.local_llm_client:
+                llm_response = await self.local_llm_client.complete(prompt, max_tokens=250)
+                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+            else:
+                llm_data = {}
+        except Exception as e:
+            logger.warning(f"LLM budget metrics analysis failed: {e}")
+            llm_data = {}
+
+        base_result["llm_insights"] = llm_data if llm_data else None
+        return base_result
+
+    async def get_audit_log(self) -> list[Dict[str, Any]]:
+        audit_log = list(self.finance_audit)
+        
+        # LLM analysis of audit log patterns
+        if audit_log:
+            prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze finance audit log patterns and provide insights.
+
+Audit Log Entries: {len(audit_log)} entries
+
+Requirements:
+- Identify patterns in finance activities
+- Assess compliance and best practices
+- Provide recommendations for improvement
+- Highlight any anomalies
+
+Return JSON with:
+{{
+  "patterns_identified": [str],
+  "compliance_assessment": str,
+  "recommendations": [str],
+  "anomalies": [str]
+}}
+"""
+            try:
+                if self.local_llm_client:
+                    llm_response = await self.local_llm_client.complete(prompt, max_tokens=250)
+                    llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                    # Add LLM insights as metadata
+                    for entry in audit_log:
+                        entry['_llm_analysis'] = llm_data if llm_data else None
+            except Exception as e:
+                logger.warning(f"LLM audit log analysis failed: {e}")
+        
+        return audit_log
+
+    async def get_alerts(self) -> list[Dict[str, Any]]:
+        alerts = list(self.finance_alerts)
+        
+        # LLM analysis of alerts
+        if alerts:
+            prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze finance alerts and provide recommendations.
+
+Alerts: {len(alerts)} active alerts
+
+Requirements:
+- Assess alert severity and patterns
+- Provide recommendations for resolution
+- Suggest preventive measures
+- Identify root causes
+
+Return JSON with:
+{{
+  "severity_assessment": str,
+  "resolution_recommendations": [str],
+  "preventive_measures": [str],
+  "root_causes": [str]
+}}
+"""
+            try:
+                if self.local_llm_client:
+                    llm_response = await self.local_llm_client.complete(prompt, max_tokens=250)
+                    llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                    # Add LLM insights as metadata
+                    for alert in alerts:
+                        alert['_llm_analysis'] = llm_data if llm_data else None
+            except Exception as e:
+                logger.warning(f"LLM alerts analysis failed: {e}")
+        
+        return alerts
+
+    async def get_integration_status(self) -> Dict[str, Any]:
         """
-        Get comprehensive integration status report.
+        Get comprehensive integration status report with LLM insights.
 
         Returns integration coverage metrics for all 85 systems.
         """
-        return {
+        base_result = {
             "agent_name": self.agent_name,
             "integrations_count": 19,  # Up from 6 (was 7.1%, now 22.4%)
             "integrations_coverage_pct": 22.4,
@@ -444,8 +718,45 @@ class FinanceAgent(StandardIntegrationMixin):
                 "casebank": len(self.casebank.cases) if hasattr(self.casebank, 'cases') else 0,
             },
             "experience_buffer_stats": self.experience_buffer.get_statistics(),
-            "budget_metrics": self.get_budget_metrics(),
+            "budget_metrics": await self.get_budget_metrics(),
         }
+
+        # LLM analysis of integration status
+        prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze integration status and provide recommendations.
+
+Integration Status:
+- Integrations Count: {base_result['integrations_count']}
+- Coverage: {base_result['integrations_coverage_pct']}%
+- Active Integrations: {sum(1 for v in base_result['integrations'].values() if v)}
+
+Requirements:
+- Assess integration completeness
+- Identify missing or recommended integrations
+- Provide recommendations for expansion
+- Suggest optimization strategies
+
+Return JSON with:
+{{
+  "completeness_assessment": str,
+  "missing_integrations": [str],
+  "expansion_recommendations": [str],
+  "optimization_strategies": [str]
+}}
+"""
+        try:
+            if self.local_llm_client:
+                llm_response = await self.local_llm_client.complete(prompt, max_tokens=300)
+                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+            else:
+                llm_data = {}
+        except Exception as e:
+            logger.warning(f"LLM integration status analysis failed: {e}")
+            llm_data = {}
+
+        base_result["llm_insights"] = llm_data if llm_data else None
+        return base_result
 
     async def get_tool_reliability_report(self) -> Dict[str, Any]:
         """
@@ -484,30 +795,66 @@ class FinanceAgent(StandardIntegrationMixin):
             raise RuntimeError(f"AP2 request denied: {result.get('status')}")
         return result
 
-    def _charge_x402(
+    async def _charge_x402(
         self,
         vendor: str,
         amount: float,
         metadata: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         try:
-            prepared_metadata = self._prepare_x402_metadata(vendor, metadata)
+            prepared_metadata = await self._prepare_x402_metadata(vendor, metadata)
             receipt = self.x402_client.record_manual_payment(
                 agent_name="finance_agent",
                 vendor=vendor,
                 amount=max(amount, 0.01),
                 metadata=prepared_metadata,
             )
-            return {
+            result = {
                 "tx_hash": receipt.tx_hash,
                 "amount": float(receipt.amount),
                 "token": receipt.token,
                 "chain": receipt.chain,
             }
+            
+            # LLM analysis of x402 payment
+            prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze x402 micropayment and provide insights.
+
+Payment Details:
+- Vendor: {vendor}
+- Amount: ${amount}
+- Token: {receipt.token}
+- Chain: {receipt.chain}
+- Transaction Hash: {receipt.tx_hash}
+
+Requirements:
+- Assess payment efficiency and cost-effectiveness
+- Identify optimization opportunities
+- Provide recommendations for payment strategy
+- Suggest cost-saving strategies
+
+Return JSON with:
+{{
+  "payment_analysis": str,
+  "optimization_opportunities": [str],
+  "strategy_recommendations": [str],
+  "cost_saving_strategies": [str]
+}}
+"""
+            try:
+                if self.local_llm_client:
+                    llm_response = await self.local_llm_client.complete(prompt, max_tokens=200)
+                    llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                    result["llm_analysis"] = llm_data if llm_data else None
+            except Exception as e:
+                logger.warning(f"LLM x402 payment analysis failed: {e}")
+            
+            return result
         except X402PaymentError as exc:
             raise RuntimeError(f"Finance Agent x402 budget exceeded: {exc}") from exc
 
-    def _prepare_x402_metadata(
+    async def _prepare_x402_metadata(
         self, vendor: str, metadata: Optional[Dict[str, Any]]
     ) -> Dict[str, Any]:
         data = dict(metadata or {})
@@ -518,11 +865,47 @@ class FinanceAgent(StandardIntegrationMixin):
         if capabilities:
             data.setdefault("accepted_tokens", capabilities.get("accepted_tokens"))
             data.setdefault("preferred_chain", capabilities.get("preferred_chain"))
+        
+        # LLM analysis of metadata preparation
+        prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze x402 metadata preparation and provide recommendations.
+
+Metadata Context:
+- Vendor: {vendor}
+- Business ID: {self.business_id}
+- Category: finance
+- Capabilities: {json.dumps(capabilities) if capabilities else 'None'}
+
+Requirements:
+- Assess metadata completeness and accuracy
+- Identify optimization opportunities
+- Provide recommendations for metadata enhancement
+- Suggest improvements for payment tracking
+
+Return JSON with:
+{{
+  "metadata_assessment": str,
+  "optimization_opportunities": [str],
+  "enhancement_recommendations": [str],
+  "tracking_improvements": [str]
+}}
+"""
+        try:
+            if self.local_llm_client:
+                llm_response = await self.local_llm_client.complete(prompt, max_tokens=150)
+                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                if llm_data:
+                    logger.debug(f"Finance x402 metadata analysis: {llm_data.get('metadata_assessment', 'N/A')[:100]}")
+        except Exception as e:
+            logger.warning(f"LLM x402 metadata analysis failed: {e}")
+        
         return data
 
-    def import_x402_transactions(self, transactions: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """Sync ledger data into the finance audit trail."""
+    async def import_x402_transactions(self, transactions: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Sync ledger data into the finance audit trail with LLM analysis."""
         synced = 0
+        total_amount = 0.0
         for tx in transactions:
             entry = {
                 "timestamp": tx.get("timestamp"),
@@ -533,21 +916,127 @@ class FinanceAgent(StandardIntegrationMixin):
             }
             self.finance_audit.append(entry)
             synced += 1
-        return {"synced": synced, "total_records": len(transactions)}
+            total_amount += tx.get("amount_usdc", 0.0)
+        
+        result = {"synced": synced, "total_records": len(transactions), "total_amount": total_amount}
+        
+        # LLM analysis of transaction import
+        prompt = f"""{EXCELLENCE_PROMPT}
 
-    def _get_finance_budget(self) -> AP2BudgetConfig:
-        return DEFAULT_BUDGETS.get(
+Task: Analyze x402 transaction import and provide insights.
+
+Import Details:
+- Records Synced: {synced}
+- Total Records: {len(transactions)}
+- Total Amount: ${total_amount:.2f}
+
+Requirements:
+- Assess import completeness and accuracy
+- Identify patterns or anomalies
+- Provide recommendations for transaction management
+- Suggest improvements to import process
+
+Return JSON with:
+{{
+  "import_assessment": str,
+  "patterns_identified": [str],
+  "management_recommendations": [str],
+  "process_improvements": [str]
+}}
+"""
+        try:
+            if self.local_llm_client:
+                llm_response = await self.local_llm_client.complete(prompt, max_tokens=200)
+                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                result["llm_analysis"] = llm_data if llm_data else None
+        except Exception as e:
+            logger.warning(f"LLM transaction import analysis failed: {e}")
+        
+        return result
+
+    async def _get_finance_budget(self) -> AP2BudgetConfig:
+        budget = DEFAULT_BUDGETS.get(
             "finance_agent",
             AP2BudgetConfig(monthly_limit=15000.0, per_transaction_alert=2500.0, require_manual_above=5000.0),
         )
+        
+        # LLM budget configuration analysis
+        prompt = f"""{EXCELLENCE_PROMPT}
 
-    def _reset_budget_if_needed(self) -> None:
+Task: Analyze finance budget configuration and provide recommendations.
+
+Budget Configuration:
+- Monthly Limit: ${budget.monthly_limit}
+- Per Transaction Alert: ${budget.per_transaction_alert}
+- Manual Review Threshold: ${budget.require_manual_above}
+
+Requirements:
+- Assess budget appropriateness for finance operations
+- Identify optimization opportunities
+- Provide recommendations for budget adjustment
+- Suggest cost management strategies
+
+Return JSON with:
+{{
+  "budget_assessment": str,
+  "optimization_opportunities": [str],
+  "budget_adjustment_recommendations": [str],
+  "cost_management_strategies": [str]
+}}
+"""
+        try:
+            if self.local_llm_client:
+                llm_response = await self.local_llm_client.complete(prompt, max_tokens=200)
+                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                if llm_data:
+                    logger.debug(f"Finance budget configuration analysis: {llm_data.get('budget_assessment', 'N/A')[:100]}")
+        except Exception as e:
+            logger.warning(f"LLM budget analysis failed: {e}")
+        
+        return budget
+
+    async def _reset_budget_if_needed(self) -> None:
         current_window = datetime.utcnow().strftime("%Y-%m")
         if current_window != self._budget_window:
+            old_window = self._budget_window
+            old_spend = self._monthly_spend
             self._budget_window = current_window
             self._monthly_spend = 0.0
+            
+            # LLM analysis of budget reset
+            prompt = f"""{EXCELLENCE_PROMPT}
 
-    def _ensure_finance_budget(
+Task: Analyze finance budget reset and provide insights.
+
+Budget Reset:
+- Previous Window: {old_window}
+- Previous Spend: ${old_spend:.2f}
+- New Window: {current_window}
+
+Requirements:
+- Assess previous period spending patterns
+- Identify optimization opportunities
+- Provide recommendations for new period
+- Suggest budget management improvements
+
+Return JSON with:
+{{
+  "spending_analysis": str,
+  "optimization_opportunities": [str],
+  "new_period_recommendations": [str],
+  "budget_management_improvements": [str]
+}}
+"""
+            try:
+                if self.local_llm_client and old_spend > 0:
+                    llm_response = await self.local_llm_client.complete(prompt, max_tokens=200)
+                    llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                    if llm_data:
+                        logger.info(f"Finance budget reset analysis: {llm_data.get('spending_analysis', 'N/A')[:100]}")
+            except Exception as e:
+                logger.warning(f"LLM budget reset analysis failed: {e}")
+
+    async def _ensure_finance_budget(
         self,
         service_name: str,
         amount: float,
@@ -558,7 +1047,7 @@ class FinanceAgent(StandardIntegrationMixin):
         if not self.ap2_service:
             raise RuntimeError("AP2 service unavailable for FinanceAgent.")
 
-        self._reset_budget_if_needed()
+        await self._reset_budget_if_needed()
         if self._monthly_spend + amount > self._budget_config.monthly_limit:
             raise ValueError(
                 f"Finance monthly budget exhausted. Remaining "
@@ -586,9 +1075,9 @@ class FinanceAgent(StandardIntegrationMixin):
             "timestamp": datetime.utcnow().isoformat(),
             "metadata": metadata or {},
         }
-        signature = self._sign_payload(payload)
+        signature = await self._sign_payload(payload)
         payload["signature"] = signature
-        if not self._verify_signature(payload, signature):
+        if not await self._verify_signature(payload, signature):
             raise RuntimeError("FinanceAgent AP2 signature verification failed.")
 
         self._monthly_spend += amount
@@ -599,19 +1088,52 @@ class FinanceAgent(StandardIntegrationMixin):
             )
         return payload
 
-    def _sign_payload(self, payload: Dict[str, Any]) -> str:
+    async def _sign_payload(self, payload: Dict[str, Any]) -> str:
         body = json.dumps(payload, sort_keys=True)
-        return hmac.new(
+        signature = hmac.new(
             self._ap2_secret.encode("utf-8"),
             body.encode("utf-8"),
             hashlib.sha256,
         ).hexdigest()
+        
+        # LLM security analysis of signature
+        prompt = f"""{EXCELLENCE_PROMPT}
 
-    def _verify_signature(self, payload: Dict[str, Any], signature: str) -> bool:
+Task: Analyze finance payload signature security.
+
+Signature Details:
+- Payload Keys: {list(payload.keys())[:10]}
+- Signature Length: {len(signature)} characters
+
+Requirements:
+- Assess signature security strength
+- Identify potential vulnerabilities
+- Provide recommendations for security improvement
+- Suggest best practices for payload signing
+
+Return JSON with:
+{{
+  "security_assessment": str,
+  "potential_vulnerabilities": [str],
+  "security_improvements": [str],
+  "best_practices": [str]
+}}
+"""
+        try:
+            if self.local_llm_client:
+                llm_response = await self.local_llm_client.complete(prompt, max_tokens=200)
+                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                if llm_data:
+                    logger.debug(f"Finance signature security analysis: {llm_data.get('security_assessment', 'N/A')[:100]}")
+        except Exception as e:
+            logger.warning(f"LLM signature analysis failed: {e}")
+        
+        return signature
+
+    async def _verify_signature(self, payload: Dict[str, Any], signature: str) -> bool:
         comparison = {k: v for k, v in payload.items() if k != "signature"}
-        expected = self._sign_payload(comparison)
+        expected = await self._sign_payload(comparison)
         return hmac.compare_digest(signature, expected)
 
 
 __all__ = ["FinanceAgent"]
-

@@ -160,6 +160,43 @@ class DynamicAgentCreator:
         )
 
         return agent
+    
+    async def create_agent_for_website(
+        self,
+        website_url: str,
+        business_needs: Dict[str, Any],
+        existing_agents: List[str]
+    ) -> DynamicAgent:
+        """
+        Phase 6: Create agent specifically for website management.
+        
+        This is a convenience wrapper around create_agent_for_task that
+        specializes in website-specific agent creation.
+        
+        Args:
+            website_url: URL of the website to manage
+            business_needs: Dictionary of business needs/requirements
+            existing_agents: List of existing agent names to avoid duplication
+            
+        Returns:
+            DynamicAgent configured for website management
+        """
+        # Build task description from business needs
+        primary_need = business_needs.get("primary_need", "website_operations")
+        task_description = f"Manage {primary_need} for website {website_url}"
+        
+        context = {
+            "website_url": website_url,
+            "business_needs": business_needs,
+            "existing_agents": existing_agents,
+            "agent_type": "website_management"
+        }
+        
+        # Use existing create_agent_for_task method
+        return await self.create_agent_for_task(
+            task_description=task_description,
+            context=context
+        )
 
     async def _generate_agent_spec(
         self,

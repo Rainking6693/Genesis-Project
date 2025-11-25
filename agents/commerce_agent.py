@@ -1,11 +1,13 @@
+from __future__ import annotations
+
+EXCELLENCE_PROMPT = "YOU ARE THE WORLD'S PREMIER COMMERCE AGENT — RECOGNIZED GLOBALLY FOR INNOVATIVE, COST-EFFECTIVE, AND EXCEPTIONAL RESULTS. YOU DELIVER ELEGANT, EFFICIENT, AND RELIABLE OUTCOMES EVERY TIME."
+
 """
 Commerce Agent - AP2-backed commerce orchestration.
 
 Manages domain registration, payment gateways, tax engines, and fulfillment budgets
 with signatures and alerts.
 """
-
-from __future__ import annotations
 
 import asyncio
 import hashlib
@@ -60,21 +62,54 @@ class CommerceAgent(StandardIntegrationMixin):
             )
             self._ap2_thread.start()
 
-    def _charge_x402(self, vendor: str, amount: float, metadata: Optional[Dict[str, Any]] = None) -> None:
+    async def _charge_x402(self, vendor: str, amount: float, metadata: Optional[Dict[str, Any]] = None) -> None:
+        """Charge x402 payment with LLM analysis."""
         try:
-            prepared_metadata = self._prepare_x402_metadata(vendor, metadata)
+            prepared_metadata = await self._prepare_x402_metadata(vendor, metadata)
             self._x402_client_instance.record_manual_payment(
                 agent_name="commerce_agent",
                 vendor=vendor,
                 amount=max(amount, 0.01),
                 metadata=prepared_metadata,
             )
+            
+            # LLM analysis of x402 payment
+            prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze x402 payment and provide insights.
+
+Payment Details:
+- Vendor: {vendor}
+- Amount: ${amount:.2f}
+- Category: commerce
+
+Requirements:
+- Assess payment efficiency
+- Identify optimization opportunities
+- Provide recommendations for payment strategy
+
+Return JSON with:
+{{
+  "payment_assessment": str,
+  "optimization_opportunities": [str],
+  "strategy_recommendations": [str]
+}}
+"""
+            try:
+                if hasattr(self, 'local_llm_client') and self.local_llm_client:
+                    llm_response = await self.local_llm_client.complete(prompt, max_tokens=200)
+                    llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                    if llm_data:
+                        logger.debug(f"x402 payment analysis: {llm_data.get('payment_assessment', 'N/A')[:100]}")
+            except Exception as e:
+                logger.warning(f"LLM x402 payment analysis failed: {e}")
         except X402PaymentError as exc:
             raise RuntimeError(f"Commerce Agent x402 budget exceeded: {exc}") from exc
 
-    def _prepare_x402_metadata(
+    async def _prepare_x402_metadata(
         self, vendor: str, metadata: Optional[Dict[str, Any]]
     ) -> Dict[str, Any]:
+        """Prepare x402 metadata with LLM analysis."""
         data = dict(metadata or {})
         data.setdefault("business_id", self.business_id)
         data.setdefault("agent_name", "commerce_agent")
@@ -83,86 +118,254 @@ class CommerceAgent(StandardIntegrationMixin):
         if capabilities:
             data.setdefault("accepted_tokens", capabilities.get("accepted_tokens"))
             data.setdefault("preferred_chain", capabilities.get("preferred_chain"))
+        
+        # LLM analysis of metadata preparation
+        prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze x402 metadata preparation and provide insights.
+
+Metadata Details:
+- Vendor: {vendor}
+- Business ID: {self.business_id}
+- Category: commerce
+- Capabilities: {json.dumps(capabilities, indent=2) if capabilities else 'None'}
+
+Requirements:
+- Assess metadata completeness
+- Identify optimization opportunities
+- Provide recommendations for metadata strategy
+
+Return JSON with:
+{{
+  "metadata_assessment": str,
+  "optimization_opportunities": [str],
+  "strategy_recommendations": [str]
+}}
+"""
+        try:
+            if hasattr(self, 'local_llm_client') and self.local_llm_client:
+                llm_response = await self.local_llm_client.complete(prompt, max_tokens=200)
+                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                if llm_data:
+                    logger.debug(f"Metadata preparation analysis: {llm_data.get('metadata_assessment', 'N/A')[:100]}")
+        except Exception as e:
+            logger.warning(f"LLM metadata preparation analysis failed: {e}")
+        
         return data
 
-    def register_domain(self, domain: str, registrar: str = "Namecheap", registration_cost: float = 12.0) -> str:
+    async def register_domain(self, domain: str, registrar: str = "Namecheap", registration_cost: float = 12.0) -> str:
         receipt = self._ensure_commerce_budget(
             service_name=f"{registrar} domain",
             amount=registration_cost,
             metadata={"domain": domain},
         )
         staged_amount = max(0.02, registration_cost * 0.01)
-        auth_id = self._authorize_staged_payment(
+        auth_id = await self._authorize_staged_payment(
             vendor="commerce-domain-api",
             amount=staged_amount,
             metadata={"domain": domain, "registrar": registrar},
         )
+
+        # LLM validation and analysis
+        prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Validate domain registration and provide recommendations.
+
+Domain: {domain}
+Registrar: {registrar}
+Cost: ${registration_cost}
+
+Requirements:
+- Validate domain name quality
+- Check for brand risk
+- Suggest DNS configuration
+- Recommend security settings
+
+Return JSON with:
+{{
+  "domain_quality_score": float,
+  "brand_risk_assessment": str,
+  "dns_recommendations": [str],
+  "security_recommendations": [str],
+  "registration_status": str
+}}
+"""
+
+        try:
+            response = await self.local_llm_client.complete(prompt, max_tokens=350)
+            domain_data = json.loads(response) if response.strip().startswith('{') else {}
+        except Exception as e:
+            logger.warning(f"LLM domain validation failed: {e}")
+            domain_data = {}
+
         result = {
             "domain": domain,
             "registrar": registrar,
             "cost": registration_cost,
-            "status": "registered",
+            "status": domain_data.get("registration_status", "registered"),
             "ap2_approval": receipt,
+            "llm_validation": {**domain_data} if domain_data else None,
         }
         try:
             if auth_id:
-                self._capture_staged_payment(auth_id, {"domain": domain, "status": "registered"})
+                await self._capture_staged_payment(auth_id, {"domain": domain, "status": result["status"]})
         except Exception as exc:
             self._cancel_staged_payment(auth_id, f"domain_capture_failed:{exc}")
         return json.dumps(result, indent=2)
-        return json.dumps(result, indent=2)
 
-    def activate_payment_gateway(self, gateway: str, setup_fee: float) -> str:
+    async def activate_payment_gateway(self, gateway: str, setup_fee: float) -> str:
         receipt = self._ensure_commerce_budget(
             service_name=f"{gateway} gateway setup",
             amount=setup_fee,
             metadata={"gateway": gateway},
         )
         staged_amount = max(0.03, setup_fee * 0.005)
-        auth_id = self._authorize_staged_payment(
+        auth_id = await self._authorize_staged_payment(
             vendor="commerce-gateway-cert",
             amount=staged_amount,
             metadata={"gateway": gateway},
         )
+
+        # LLM configuration recommendation
+        prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Recommend optimal payment gateway configuration.
+
+Gateway: {gateway}
+Setup Fee: ${setup_fee}
+
+Requirements:
+- Validate gateway selection for business type
+- Recommend security settings
+- Suggest fee optimization
+- Identify compliance requirements
+
+Return JSON with:
+{{
+  "configuration_recommendations": [str],
+  "security_settings": [str],
+  "fee_optimization": str,
+  "compliance_checklist": [str],
+  "activation_status": str
+}}
+"""
+
+        try:
+            response = await self.local_llm_client.complete(prompt, max_tokens=400)
+            gateway_data = json.loads(response) if response.strip().startswith('{') else {}
+        except Exception as e:
+            logger.warning(f"LLM gateway configuration failed: {e}")
+            gateway_data = {}
+
         result = {
             "gateway": gateway,
             "setup_fee": setup_fee,
             "activated_at": datetime.utcnow().isoformat(),
             "ap2_approval": receipt,
+            "llm_configuration": {**gateway_data} if gateway_data else None,
         }
         try:
             if auth_id:
-                self._capture_staged_payment(auth_id, {"gateway": gateway, "status": "activated"})
+                await self._capture_staged_payment(auth_id, {"gateway": gateway, "status": gateway_data.get("activation_status", "activated")})
         except Exception as exc:
             self._cancel_staged_payment(auth_id, f"gateway_capture_failed:{exc}")
         return json.dumps(result, indent=2)
 
-    def configure_tax_engine(self, provider: str, monthly_cost: float) -> str:
+    async def configure_tax_engine(self, provider: str, monthly_cost: float) -> str:
         receipt = self._ensure_commerce_budget(
             service_name=f"{provider} tax engine",
             amount=monthly_cost,
             metadata={"provider": provider},
         )
+
+        # LLM tax compliance analysis
+        prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze tax engine configuration and compliance.
+
+Tax Provider: {provider}
+Monthly Cost: ${monthly_cost}
+
+Requirements:
+- Identify tax jurisdictions covered
+- Recommend tax rule updates
+- Assess compliance gaps
+- Suggest optimization strategies
+
+Return JSON with:
+{{
+  "jurisdictions_covered": [str],
+  "compliance_status": str,
+  "recommended_rules": [str],
+  "tax_optimization_tips": [str],
+  "configuration_complete": bool
+}}
+"""
+
+        try:
+            response = await self.local_llm_client.complete(prompt, max_tokens=350)
+            tax_data = json.loads(response) if response.strip().startswith('{') else {}
+        except Exception as e:
+            logger.warning(f"LLM tax analysis failed: {e}")
+            tax_data = {}
+
         result = {
             "provider": provider,
             "monthly_cost": monthly_cost,
             "configured_at": datetime.utcnow().isoformat(),
             "ap2_approval": receipt,
+            "llm_analysis": {**tax_data} if tax_data else None,
         }
         return json.dumps(result, indent=2)
 
-    def ship_fulfillment_batch(self, carrier: str, orders: int, per_order_cost: float) -> str:
+    async def ship_fulfillment_batch(self, carrier: str, orders: int, per_order_cost: float) -> str:
         spend = round(orders * per_order_cost, 2)
         receipt = self._ensure_commerce_budget(
             service_name=f"{carrier} fulfillment batch",
             amount=spend,
             metadata={"orders": orders},
         )
+
+        # LLM fulfillment optimization
+        prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Optimize fulfillment batch configuration.
+
+Carrier: {carrier}
+Order Count: {orders}
+Per Order Cost: ${per_order_cost}
+Total Cost: ${spend}
+
+Requirements:
+- Validate carrier efficiency
+- Recommend batch optimization
+- Suggest cost reduction strategies
+- Identify shipping risks
+
+Return JSON with:
+{{
+  "carrier_rating": float,
+  "efficiency_score": float,
+  "cost_optimization": str,
+  "recommended_batch_size": int,
+  "shipping_recommendations": [str],
+  "batch_status": str
+}}
+"""
+
+        try:
+            response = await self.local_llm_client.complete(prompt, max_tokens=400)
+            fulfillment_data = json.loads(response) if response.strip().startswith('{') else {}
+        except Exception as e:
+            logger.warning(f"LLM fulfillment optimization failed: {e}")
+            fulfillment_data = {}
+
         result = {
             "carrier": carrier,
             "orders": orders,
             "total_cost": spend,
             "ap2_approval": receipt,
+            "llm_optimization": {**fulfillment_data} if fulfillment_data else None,
         }
         return json.dumps(result, indent=2)
 
@@ -215,27 +418,92 @@ class CommerceAgent(StandardIntegrationMixin):
     def get_alerts(self) -> list[Dict[str, Any]]:
         return list(self.commerce_alerts)
 
-    def _authorize_staged_payment(
+    async def _authorize_staged_payment(
         self, *, vendor: str, amount: float, metadata: Dict[str, Any]
     ) -> Optional[str]:
+        """Authorize staged payment with LLM analysis."""
         if not self._x402_client_instance:
             return None
         try:
-            return self._x402_client_instance.authorize_payment(
+            auth_id = self._x402_client_instance.authorize_payment(
                 agent_name="commerce_agent",
                 vendor=vendor,
                 amount=amount,
                 metadata=metadata,
             )
+            
+            # LLM analysis of payment authorization
+            prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze payment authorization and provide insights.
+
+Authorization Details:
+- Vendor: {vendor}
+- Amount: ${amount:.2f}
+- Auth ID: {auth_id or 'None'}
+
+Requirements:
+- Assess authorization effectiveness
+- Identify optimization opportunities
+- Provide recommendations for payment strategy
+
+Return JSON with:
+{{
+  "authorization_assessment": str,
+  "optimization_opportunities": [str],
+  "strategy_recommendations": [str]
+}}
+"""
+            try:
+                if hasattr(self, 'local_llm_client') and self.local_llm_client:
+                    llm_response = await self.local_llm_client.complete(prompt, max_tokens=200)
+                    llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                    if llm_data:
+                        logger.debug(f"Payment authorization analysis: {llm_data.get('authorization_assessment', 'N/A')[:100]}")
+            except Exception as e:
+                logger.warning(f"LLM payment authorization analysis failed: {e}")
+            
+            return auth_id
         except X402PaymentError as exc:
             raise RuntimeError(f"Commerce Agent staged payment denied: {exc}") from exc
         except Exception as exc:
             logger.warning("CommerceAgent: staged payment skipped (%s)", exc)
             return None
 
-    def _capture_staged_payment(self, auth_id: Optional[str], metadata: Dict[str, Any]) -> None:
+    async def _capture_staged_payment(self, auth_id: Optional[str], metadata: Dict[str, Any]) -> None:
+        """Capture staged payment with LLM analysis."""
         if auth_id and self._x402_client_instance:
             self._x402_client_instance.capture_payment(auth_id, metadata=metadata)
+            
+            # LLM analysis of payment capture
+            prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze payment capture and provide insights.
+
+Capture Details:
+- Auth ID: {auth_id}
+- Metadata: {json.dumps(metadata, indent=2)[:200]}
+
+Requirements:
+- Assess capture effectiveness
+- Identify optimization opportunities
+- Provide recommendations for payment strategy
+
+Return JSON with:
+{{
+  "capture_assessment": str,
+  "optimization_opportunities": [str],
+  "strategy_recommendations": [str]
+}}
+"""
+            try:
+                if hasattr(self, 'local_llm_client') and self.local_llm_client:
+                    llm_response = await self.local_llm_client.complete(prompt, max_tokens=200)
+                    llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                    if llm_data:
+                        logger.debug(f"Payment capture analysis: {llm_data.get('capture_assessment', 'N/A')[:100]}")
+            except Exception as e:
+                logger.warning(f"LLM payment capture analysis failed: {e}")
 
     def _cancel_staged_payment(self, auth_id: Optional[str], reason: str) -> None:
         if not auth_id or not self._x402_client_instance:
@@ -317,9 +585,9 @@ class CommerceAgent(StandardIntegrationMixin):
             "timestamp": datetime.utcnow().isoformat(),
             "metadata": metadata or {},
         }
-        signature = self._sign_payload(payload)
+        signature = await self._sign_payload(payload)
         payload["signature"] = signature
-        if not self._verify_signature(payload, signature):
+        if not await self._verify_signature(payload, signature):
             raise RuntimeError("CommerceAgent AP2 signature verification failed.")
 
         self._monthly_spend += amount
@@ -330,18 +598,88 @@ class CommerceAgent(StandardIntegrationMixin):
             )
         return payload
 
-    def _sign_payload(self, payload: Dict[str, Any]) -> str:
+    async def _sign_payload(self, payload: Dict[str, Any]) -> str:
+        """Sign payload with LLM security analysis."""
         body = json.dumps(payload, sort_keys=True)
-        return hmac.new(
+        signature = hmac.new(
             self._ap2_secret.encode("utf-8"),
             body.encode("utf-8"),
             hashlib.sha256,
         ).hexdigest()
+        
+        # LLM security analysis of payload signing
+        prompt = f"""{EXCELLENCE_PROMPT}
 
-    def _verify_signature(self, payload: Dict[str, Any], signature: str) -> bool:
+Task: Analyze payload signing security and provide insights.
+
+Signing Details:
+- Payload Keys: {', '.join(payload.keys())[:200]}
+- Signature Generated: Yes
+
+Requirements:
+- Assess signing security
+- Identify potential vulnerabilities
+- Provide recommendations for security improvements
+- Suggest best practices for payload signing
+
+Return JSON with:
+{{
+  "security_assessment": str,
+  "vulnerability_analysis": [str],
+  "security_recommendations": [str],
+  "best_practices": [str]
+}}
+"""
+        try:
+            if hasattr(self, 'local_llm_client') and self.local_llm_client:
+                llm_response = await self.local_llm_client.complete(prompt, max_tokens=200)
+                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                if llm_data:
+                    logger.debug(f"Payload signing security analysis: {llm_data.get('security_assessment', 'N/A')[:100]}")
+        except Exception as e:
+            logger.warning(f"LLM payload signing analysis failed: {e}")
+        
+        return signature
+
+    async def _verify_signature(self, payload: Dict[str, Any], signature: str) -> bool:
+        """Verify signature with LLM security analysis."""
         comparison = {k: v for k, v in payload.items() if k != "signature"}
-        expected = self._sign_payload(comparison)
-        return hmac.compare_digest(signature, expected)
+        expected = await self._sign_payload(comparison)
+        is_valid = hmac.compare_digest(signature, expected)
+        
+        # LLM security analysis of signature verification
+        prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze signature verification security and provide insights.
+
+Verification Details:
+- Signature Valid: {is_valid}
+- Payload Keys: {', '.join(comparison.keys())[:200]}
+
+Requirements:
+- Assess verification security
+- Identify potential vulnerabilities
+- Provide recommendations for security improvements
+- Suggest best practices for signature verification
+
+Return JSON with:
+{{
+  "verification_assessment": str,
+  "vulnerability_analysis": [str],
+  "security_recommendations": [str],
+  "best_practices": [str]
+}}
+"""
+        try:
+            if hasattr(self, 'local_llm_client') and self.local_llm_client:
+                llm_response = await self.local_llm_client.complete(prompt, max_tokens=200)
+                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                if llm_data:
+                    logger.debug(f"Signature verification security analysis: {llm_data.get('verification_assessment', 'N/A')[:100]}")
+        except Exception as e:
+            logger.warning(f"LLM signature verification analysis failed: {e}")
+        
+        return is_valid
 
 
 __all__ = ["CommerceAgent"]

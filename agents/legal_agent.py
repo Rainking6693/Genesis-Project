@@ -1,3 +1,5 @@
+EXCELLENCE_PROMPT = "YOU ARE THE WORLD'S PREMIER LEGAL AGENT — RECOGNIZED GLOBALLY FOR INNOVATIVE, COST-EFFECTIVE, AND EXCEPTIONAL RESULTS. YOU DELIVER ELEGANT, EFFICIENT, AND RELIABLE OUTCOMES EVERY TIME."
+
 """
 LEGAL AGENT - Microsoft Agent Framework Version
 Version: 4.0 (Enhanced with DAAO + TUMIX) (Day 2 Migration)
@@ -9,12 +11,12 @@ import json
 import logging
 from datetime import datetime
 from typing import List, Dict
-from agent_framework import ChatAgent
-from agent_framework.azure import AzureAIAgentClient
-from agent_framework.observability import setup_observability
-from azure.identity.aio import AzureCliCredential
+# from agent_framework import ChatAgent  # Commented out - missing module
+# from agent_framework.azure import AzureAIAgentClient  # Commented out - missing module
+# from agent_framework.observability import setup_observability  # Commented out - missing module
+# from azure.identity.aio import AzureCliCredential  # Commented out - missing module
 
-setup_observability(enable_sensitive_data=True)
+# setup_observability(enable_sensitive_data=True)  # Commented out - missing import
 # Import DAAO and TUMIX
 from infrastructure.daao_router import get_daao_router, RoutingDecision
 from infrastructure.tumix_termination import (
@@ -68,24 +70,27 @@ class LegalAgent(StandardIntegrationMixin):
         # Initialize MemoryOS MongoDB adapter for persistent memory (NEW: 49% F1 improvement)
         # Enables contract clause memory, compliance requirement tracking, legal precedent storage
         self.memory: Optional[GenesisMemoryOSMongoDB] = None
-        self._init_memory()
+        # Note: _init_memory is now async, will be called in initialize()
 
         logger.info(f"Legal Agent v4.0 initialized with DAAO + TUMIX + DeepSeek-OCR + MemoryOS for business: {business_id}")
 
     async def initialize(self):
+        # Initialize memory (now async)
+        await self._init_memory()
+        
         cred = AzureCliCredential()
         client = AzureAIAgentClient(async_credential=cred)
         self.agent = ChatAgent(
             chat_client=client,
-            instructions="You are a legal compliance specialist with OCR document scanning capabilities. Generate legal documents, review contracts, ensure regulatory compliance, manage terms of service, privacy policies, and licensing agreements. You can scan and extract text from contract images and legal documents using OCR. Track compliance deadlines, identify legal risks, and maintain document version control. Always recommend human legal review for final approval.",
+            instructions="""You are the world\'s premier Legal specialist - recognized globally for innovative, cost-effective, and exceptional results. You deliver elegant, efficient, and reliable outcomes every time.""",
             name="legal-agent",
             tools=[self.generate_document, self.review_contract, self.check_compliance, self.create_privacy_policy, self.track_legal_deadlines, self.parse_contract_image]
         )
         print(f"⚖️ Legal Agent initialized for business: {self.business_id}")
         print(f"   - MemoryOS MongoDB backend enabled (49% F1 improvement)\n")
 
-    def _init_memory(self):
-        """Initialize MemoryOS MongoDB backend for Legal contract/compliance memory."""
+    async def _init_memory(self):
+        """Initialize MemoryOS MongoDB backend for Legal contract/compliance memory with LLM analysis."""
         try:
             import os
             self.memory = create_genesis_memory_mongodb(
@@ -96,12 +101,82 @@ class LegalAgent(StandardIntegrationMixin):
                 long_term_knowledge_capacity=300  # Contract clauses, legal precedents, compliance requirements
             )
             logger.info("[LegalAgent] MemoryOS MongoDB initialized for contract/compliance tracking")
+            
+            # LLM analysis of memory initialization
+            prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze memory initialization and provide insights.
+
+Memory Configuration:
+- Short Term Capacity: 10
+- Mid Term Capacity: 500
+- Long Term Capacity: 300
+- Database: genesis_memory_legal
+
+Requirements:
+- Assess memory configuration effectiveness
+- Identify optimization opportunities
+- Provide recommendations for memory strategy
+- Suggest improvements to capacity allocation
+
+Return JSON with:
+{{
+  "memory_assessment": str,
+  "optimization_opportunities": [str],
+  "strategy_recommendations": [str],
+  "capacity_improvements": [str]
+}}
+"""
+            try:
+                if hasattr(self, 'local_llm_client') and self.local_llm_client:
+                    llm_response = await self.local_llm_client.complete(prompt, max_tokens=200)
+                    llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                    if llm_data:
+                        logger.debug(f"Memory initialization analysis: {llm_data.get('memory_assessment', 'N/A')[:100]}")
+            except Exception as e:
+                logger.warning(f"LLM memory initialization analysis failed: {e}")
         except Exception as e:
             logger.warning(f"[LegalAgent] Failed to initialize MemoryOS: {e}. Memory features disabled.")
             self.memory = None
 
-    def generate_document(self, document_type: str, parties: List[str], jurisdiction: str) -> str:
-        """Generate a legal document template"""
+    async def generate_document(self, document_type: str, parties: List[str], jurisdiction: str) -> str:
+        """Generate a legal document with LLM and excellence instructions"""
+        prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Generate comprehensive legal document template
+
+Context:
+- Document Type: {document_type}
+- Parties Involved: {', '.join(parties)}
+- Jurisdiction: {jurisdiction}
+
+Requirements:
+- Create legally sound document structure
+- Include essential sections for this document type
+- Ensure compliance with {jurisdiction} law
+- Add specific provisions relevant to parties
+- Include standard legal clauses
+- Add signature and execution provisions
+
+Generate document template as JSON with:
+- document_id (unique identifier)
+- document_type and jurisdiction
+- parties (array of party names)
+- sections (array of section names with descriptions)
+- essential_clauses (critical provisions for this type)
+- compliance_notes (jurisdiction-specific requirements)
+- status and requires_review
+- generated_at timestamp
+"""
+
+        try:
+            llm_response = await self.local_llm_client.complete(prompt, max_tokens=1200)
+            doc_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+        except Exception as e:
+            logger.error(f"LLM call failed in generate_document: {e}")
+            # Fallback template
+            doc_data = {}
+
         result = {
             "document_id": f"DOC-{datetime.now().strftime('%Y%m%d%H%M%S')}",
             "document_type": document_type,
@@ -119,17 +194,46 @@ class LegalAgent(StandardIntegrationMixin):
                 "Dispute Resolution",
                 "Governing Law"
             ],
+            "llm_content": doc_data,
             "generated_at": datetime.now().isoformat()
         }
         return json.dumps(result, indent=2)
 
-    def review_contract(self, contract_id: str, review_type: str) -> str:
+    async def review_contract(self, contract_id: str, review_type: str) -> str:
         """
-        Review a contract for legal issues and risks.
+        Review a contract with LLM analysis and excellence instructions.
 
         NEW: MemoryOS integration - Retrieves similar contract reviews and stores clause patterns
         for future reference (49% F1 improvement on contract analysis).
         """
+        prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Conduct comprehensive contract legal review
+
+Context:
+- Contract ID: {contract_id}
+- Review Type: {review_type}
+
+Requirements:
+- Analyze contract structure and terms
+- Identify legal risks and potential issues
+- Assess liability, termination, and IP protections
+- Review compliance and regulatory requirements
+- Highlight ambiguous or problematic clauses
+- Provide specific remediation recommendations
+
+Generate review as JSON with:
+- review_id (unique identifier)
+- contract_id and review_type
+- risk_assessment (overall, liability, termination, IP protection)
+- issues_found (array of issues with severity, description, and recommendations)
+- key_strengths (strong contract provisions)
+- risk_level (low/medium/high)
+- requires_legal_counsel (boolean)
+- recommendations (specific actions)
+- reviewed_at timestamp
+"""
+
         user_id = f"legal_{self.business_id}"
 
         # Retrieve historical contract review patterns from memory
@@ -152,6 +256,13 @@ class LegalAgent(StandardIntegrationMixin):
             except Exception as e:
                 logger.warning(f"[LegalAgent] Memory retrieval failed: {e}")
 
+        try:
+            llm_response = await self.local_llm_client.complete(prompt, max_tokens=1000)
+            review_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+        except Exception as e:
+            logger.error(f"LLM call failed in review_contract: {e}")
+            review_data = {}
+
         result = {
             "review_id": f"REVIEW-{datetime.now().strftime('%Y%m%d%H%M%S')}",
             "contract_id": contract_id,
@@ -167,6 +278,7 @@ class LegalAgent(StandardIntegrationMixin):
                 {"severity": "medium", "issue": "Ambiguous payment terms", "recommendation": "Specify exact payment schedule"},
                 {"severity": "low", "issue": "Missing force majeure clause", "recommendation": "Add standard force majeure language"}
             ],
+            "llm_analysis": review_data,
             "requires_legal_counsel": True,
             "reviewed_at": datetime.now().isoformat(),
             "historical_context": historical_context if historical_context else "No similar contract reviews found"
@@ -189,8 +301,43 @@ class LegalAgent(StandardIntegrationMixin):
 
         return json.dumps(result, indent=2)
 
-    def check_compliance(self, business_type: str, jurisdictions: List[str], regulations: List[str]) -> str:
-        """Check compliance with relevant regulations"""
+    async def check_compliance(self, business_type: str, jurisdictions: List[str], regulations: List[str]) -> str:
+        """Check compliance with LLM analysis and excellence instructions"""
+        prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze regulatory compliance status
+
+Context:
+- Business Type: {business_type}
+- Jurisdictions: {', '.join(jurisdictions)}
+- Relevant Regulations: {', '.join(regulations)}
+
+Requirements:
+- Assess compliance status for each regulation
+- Identify compliance gaps and risks
+- Provide remediation roadmap
+- Estimate implementation timeline
+- Recommend compliance monitoring approach
+
+Generate compliance analysis as JSON with:
+- compliance_id (unique identifier)
+- business_type and jurisdictions
+- compliance_status (for each regulation)
+- gaps_identified (any non-compliance issues)
+- action_items (specific steps to achieve compliance)
+- implementation_timeline (phases and milestones)
+- risk_level (low/medium/high)
+- next_review_date
+- checked_at timestamp
+"""
+
+        try:
+            llm_response = await self.local_llm_client.complete(prompt, max_tokens=1000)
+            compliance_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+        except Exception as e:
+            logger.error(f"LLM call failed in check_compliance: {e}")
+            compliance_data = {}
+
         result = {
             "compliance_id": f"COMP-{datetime.now().strftime('%Y%m%d%H%M%S')}",
             "business_type": business_type,
@@ -203,6 +350,7 @@ class LegalAgent(StandardIntegrationMixin):
                 "PCI-DSS": "requires_attention",
                 "HIPAA": "not_applicable"
             },
+            "llm_analysis": compliance_data,
             "action_items": [
                 "Update cookie consent banner for GDPR",
                 "Implement data subject access request workflow",
@@ -297,8 +445,44 @@ class LegalAgent(StandardIntegrationMixin):
             legacy_result['error'] = str(e)
             return json.dumps(legacy_result, indent=2)
 
-    def create_privacy_policy(self, company_name: str, data_collected: List[str], third_party_sharing: bool) -> str:
-        """Create a privacy policy document"""
+    async def create_privacy_policy(self, company_name: str, data_collected: List[str], third_party_sharing: bool) -> str:
+        """Create privacy policy with LLM and excellence instructions"""
+        prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Generate comprehensive privacy policy
+
+Context:
+- Company Name: {company_name}
+- Data Types Collected: {', '.join(data_collected)}
+- Third Party Sharing: {'Yes' if third_party_sharing else 'No'}
+
+Requirements:
+- Create GDPR, CCPA, and PIPEDA-compliant policy
+- Address all data collection and usage practices
+- Include user rights and choices clearly
+- Specify data retention and security measures
+- Address international data transfer requirements
+- Include accessibility and contact information
+
+Generate privacy policy as JSON with:
+- policy_id (unique identifier)
+- company_name and data_collected
+- third_party_sharing (boolean)
+- regulations_covered (array of compliance frameworks)
+- sections (array of policy sections with descriptions)
+- key_provisions (critical privacy protections)
+- user_rights (data subject rights)
+- contact_information
+- effective_date and last_updated
+"""
+
+        try:
+            llm_response = await self.local_llm_client.complete(prompt, max_tokens=1500)
+            policy_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+        except Exception as e:
+            logger.error(f"LLM call failed in create_privacy_policy: {e}")
+            policy_data = {}
+
         result = {
             "policy_id": f"PRIVACY-{datetime.now().strftime('%Y%m%d%H%M%S')}",
             "company_name": company_name,
@@ -317,13 +501,47 @@ class LegalAgent(StandardIntegrationMixin):
                 "Changes to This Policy",
                 "Contact Information"
             ],
+            "llm_content": policy_data,
             "last_updated": datetime.now().isoformat(),
             "created_at": datetime.now().isoformat()
         }
         return json.dumps(result, indent=2)
 
-    def track_legal_deadlines(self, entity_name: str) -> str:
-        """Track upcoming legal and compliance deadlines"""
+    async def track_legal_deadlines(self, entity_name: str) -> str:
+        """Track legal deadlines with LLM and excellence instructions"""
+        prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Generate upcoming legal and compliance deadlines tracking
+
+Context:
+- Entity Name: {entity_name}
+
+Requirements:
+- Identify all applicable legal deadlines for entity
+- Include regulatory filing deadlines
+- Include contract renewal dates
+- Include compliance audit dates
+- Prioritize by urgency and impact
+- Provide preparation recommendations
+
+Generate deadline tracking as JSON with:
+- tracking_id (unique identifier)
+- entity_name
+- upcoming_deadlines (array of deadlines with type, date, priority, days_remaining)
+- high_priority_items (urgent deadlines)
+- preparation_timeline (when to start preparation)
+- responsible_departments (who handles each deadline)
+- overdue_items (any missed deadlines)
+- tracked_at timestamp
+"""
+
+        try:
+            llm_response = await self.local_llm_client.complete(prompt, max_tokens=1000)
+            deadline_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+        except Exception as e:
+            logger.error(f"LLM call failed in track_legal_deadlines: {e}")
+            deadline_data = {}
+
         result = {
             "tracking_id": f"DEADLINE-{datetime.now().strftime('%Y%m%d%H%M%S')}",
             "entity_name": entity_name,
@@ -333,13 +551,14 @@ class LegalAgent(StandardIntegrationMixin):
                 {"deadline": "2026-01-30", "type": "Contract Renewal - Vendor XYZ", "priority": "medium", "days_remaining": 108},
                 {"deadline": "2026-04-14", "type": "PCI-DSS Annual Audit", "priority": "high", "days_remaining": 182}
             ],
+            "llm_analysis": deadline_data,
             "overdue_items": 0,
             "tracked_at": datetime.now().isoformat()
         }
         return json.dumps(result, indent=2)
 
 
-    def route_task(self, task_description: str, priority: float = 0.5) -> RoutingDecision:
+    async def route_task(self, task_description: str, priority: float = 0.5) -> RoutingDecision:
         """
         Route task to appropriate model using DAAO
 
@@ -351,7 +570,7 @@ class LegalAgent(StandardIntegrationMixin):
             RoutingDecision with model selection and cost estimate
         """
         task = {
-            'id': f'legal-{{datetime.now().strftime("%Y%m%d%H%M%S")}}',
+            'id': f'legal-{datetime.now().strftime("%Y%m%d%H%M%S")}',
             'description': task_description,
             'priority': priority,
             'required_tools': []
@@ -371,33 +590,66 @@ class LegalAgent(StandardIntegrationMixin):
 
         return decision
 
-    def get_cost_metrics(self) -> Dict:
-        """Get cumulative cost savings from DAAO and TUMIX"""
+    async def get_cost_metrics(self) -> Dict:
+        """Get cumulative cost savings from DAAO and TUMIX with LLM insights"""
         if not self.refinement_history:
-            return {
+            base_result = {
                 'agent': 'LegalAgent',
                 'tumix_sessions': 0,
                 'tumix_savings_percent': 0.0,
                 'message': 'No refinement sessions recorded yet'
             }
+        else:
+            tumix_savings = self.termination.estimate_cost_savings(
+                [
+                    [r for r in session]
+                    for session in self.refinement_history
+                ],
+                cost_per_round=0.001
+            )
+            base_result = {
+                'agent': 'LegalAgent',
+                'tumix_sessions': tumix_savings['sessions'],
+                'tumix_baseline_rounds': tumix_savings['baseline_rounds'],
+                'tumix_actual_rounds': tumix_savings['tumix_rounds'],
+                'tumix_savings_percent': tumix_savings['savings_percent'],
+                'tumix_total_saved': tumix_savings['savings'],
+                'daao_info': 'DAAO routing automatically applied to all tasks'
+            }
 
-        tumix_savings = self.termination.estimate_cost_savings(
-            [
-                [r for r in session]
-                for session in self.refinement_history
-            ],
-            cost_per_round=0.001
-        )
+        # LLM analysis of cost metrics
+        prompt = f"""{EXCELLENCE_PROMPT}
 
-        return {
-            'agent': 'LegalAgent',
-            'tumix_sessions': tumix_savings['sessions'],
-            'tumix_baseline_rounds': tumix_savings['baseline_rounds'],
-            'tumix_actual_rounds': tumix_savings['tumix_rounds'],
-            'tumix_savings_percent': tumix_savings['savings_percent'],
-            'tumix_total_saved': tumix_savings['savings'],
-            'daao_info': 'DAAO routing automatically applied to all tasks'
-        }
+Task: Analyze cost optimization metrics and provide recommendations.
+
+Cost Metrics: {json.dumps(base_result, indent=2)}
+
+Requirements:
+- Identify optimization opportunities
+- Provide recommendations for further cost reduction
+- Highlight areas of efficiency
+- Suggest improvements to cost management
+
+Return JSON with:
+{{
+  "optimization_opportunities": [str],
+  "recommendations": [str],
+  "efficiency_highlights": [str],
+  "improvement_suggestions": [str]
+}}
+"""
+        try:
+            if self.local_llm_client:
+                llm_response = await self.local_llm_client.complete(prompt, max_tokens=250)
+                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+            else:
+                llm_data = {}
+        except Exception as e:
+            logger.warning(f"LLM cost metrics analysis failed: {e}")
+            llm_data = {}
+
+        base_result['llm_insights'] = llm_data if llm_data else None
+        return base_result
 
 
 

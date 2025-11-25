@@ -575,6 +575,16 @@ class HALORouter:
                 success_rate=0.88
             ),
 
+            # Billing Operations (medium cost, payment processing)
+            "billing_agent": AgentCapability(
+                agent_name="billing_agent",
+                supported_task_types=["billing", "payment", "invoice", "subscription", "refund", "stripe"],
+                skills=["payment_processing", "stripe_integration", "invoice_generation",
+                        "subscription_management", "refund_processing", "revenue_reporting"],
+                cost_tier="medium",
+                success_rate=0.90
+            ),
+
             # Domain Registration & DNS Management (cheap, infrastructure)
             "domain_name_agent": AgentCapability(
                 agent_name="domain_name_agent",
@@ -593,6 +603,19 @@ class HALORouter:
                 cost_tier="expensive",  # Uses GPT-4o/Claude for meta-programming
                 success_rate=0.0,  # Will learn over time
                 max_concurrent_tasks=3  # Evolution is resource-intensive
+            ),
+
+            # Emergency Error Specialist (expensive, critical error resolution)
+            "emergency_error_specialist": AgentCapability(
+                agent_name="emergency_error_specialist",
+                supported_task_types=["error_diagnosis", "error_fix", "critical_error", "database_error",
+                                      "api_error", "infrastructure_error", "security_error", "performance_error"],
+                skills=["root_cause_analysis", "error_diagnosis", "database_troubleshooting",
+                        "api_debugging", "infrastructure_repair", "security_remediation",
+                        "performance_optimization", "rollback_management"],
+                cost_tier="expensive",  # Uses advanced reasoning for complex error diagnosis
+                success_rate=0.92,  # High success rate for critical errors
+                max_concurrent_tasks=5  # Can handle multiple error types simultaneously
             ),
         }
 
@@ -773,6 +796,43 @@ class HALORouter:
                 explanation="Finance tasks route to Finance Agent (accounting)"
             ),
 
+            # Billing Rules (Payment Processing)
+            RoutingRule(
+                rule_id="rule_billing",
+                condition={"task_type": "billing"},
+                target_agent="billing_agent",
+                priority=10,
+                explanation="Billing tasks route to Billing Agent (payment processing)"
+            ),
+            RoutingRule(
+                rule_id="rule_payment",
+                condition={"task_type": "payment"},
+                target_agent="billing_agent",
+                priority=10,
+                explanation="Payment tasks route to Billing Agent (Stripe integration)"
+            ),
+            RoutingRule(
+                rule_id="rule_invoice",
+                condition={"task_type": "invoice"},
+                target_agent="billing_agent",
+                priority=10,
+                explanation="Invoice tasks route to Billing Agent (invoice generation)"
+            ),
+            RoutingRule(
+                rule_id="rule_subscription",
+                condition={"task_type": "subscription"},
+                target_agent="billing_agent",
+                priority=10,
+                explanation="Subscription tasks route to Billing Agent (subscription management)"
+            ),
+            RoutingRule(
+                rule_id="rule_refund",
+                condition={"task_type": "refund"},
+                target_agent="billing_agent",
+                priority=10,
+                explanation="Refund tasks route to Billing Agent (refund processing)"
+            ),
+
             # Atomic Task Types
             RoutingRule(
                 rule_id="rule_api_call",
@@ -833,6 +893,64 @@ class HALORouter:
                 target_agent="darwin_agent",
                 priority=15,
                 explanation="Agent performance optimization routes to Darwin"
+            ),
+
+            # Emergency Error Specialist Rules (High Priority for Critical Errors)
+            RoutingRule(
+                rule_id="critical_error_diagnosis",
+                condition={"task_type": "error_diagnosis"},
+                target_agent="emergency_error_specialist",
+                priority=25,  # Highest priority for critical errors
+                explanation="Error diagnosis tasks route to Emergency Error Specialist"
+            ),
+            RoutingRule(
+                rule_id="critical_error_fix",
+                condition={"task_type": "error_fix"},
+                target_agent="emergency_error_specialist",
+                priority=25,
+                explanation="Error fix tasks route to Emergency Error Specialist"
+            ),
+            RoutingRule(
+                rule_id="critical_error",
+                condition={"task_type": "critical_error"},
+                target_agent="emergency_error_specialist",
+                priority=25,
+                explanation="Critical errors route to Emergency Error Specialist immediately"
+            ),
+            RoutingRule(
+                rule_id="database_error",
+                condition={"task_type": "database_error"},
+                target_agent="emergency_error_specialist",
+                priority=20,
+                explanation="Database errors route to Emergency Error Specialist"
+            ),
+            RoutingRule(
+                rule_id="api_error",
+                condition={"task_type": "api_error"},
+                target_agent="emergency_error_specialist",
+                priority=20,
+                explanation="API errors route to Emergency Error Specialist"
+            ),
+            RoutingRule(
+                rule_id="infrastructure_error",
+                condition={"task_type": "infrastructure_error"},
+                target_agent="emergency_error_specialist",
+                priority=20,
+                explanation="Infrastructure errors route to Emergency Error Specialist"
+            ),
+            RoutingRule(
+                rule_id="security_error",
+                condition={"task_type": "security_error"},
+                target_agent="emergency_error_specialist",
+                priority=20,
+                explanation="Security errors route to Emergency Error Specialist"
+            ),
+            RoutingRule(
+                rule_id="performance_error",
+                condition={"task_type": "performance_error"},
+                target_agent="emergency_error_specialist",
+                priority=15,
+                explanation="Performance errors route to Emergency Error Specialist"
             ),
         ]
 

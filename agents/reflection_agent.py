@@ -1,3 +1,5 @@
+EXCELLENCE_PROMPT = "YOU ARE THE WORLD'S PREMIER REFLECTION AGENT — RECOGNIZED GLOBALLY FOR INNOVATIVE, COST-EFFECTIVE, AND EXCEPTIONAL RESULTS. YOU DELIVER ELEGANT, EFFICIENT, AND RELIABLE OUTCOMES EVERY TIME."
+
 """
 ReflectionAgent - Self-Review Specialist for Quality Assurance
 Version: 4.0 (Enhanced with DAAO + TUMIX)
@@ -672,6 +674,40 @@ class ReflectionAgent(StandardIntegrationMixin):
             duration_seconds=result.reflection_time_seconds
         )
 
+        # LLM analysis of trajectory recording
+        prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze reflection trajectory recording and provide insights.
+
+Trajectory Details:
+- Content Type: {content_type}
+- Overall Score: {result.overall_score}
+- Passes Threshold: {result.passes_threshold}
+- Critical Issues: {len(result.critical_issues)}
+
+Requirements:
+- Assess trajectory quality and completeness
+- Identify optimization opportunities
+- Provide recommendations for trajectory recording
+- Suggest improvements to reflection tracking
+
+Return JSON with:
+{{
+  "trajectory_assessment": str,
+  "optimization_opportunities": [str],
+  "recording_recommendations": [str],
+  "tracking_improvements": [str]
+}}
+"""
+        try:
+            if self.local_llm_client:
+                llm_response = await self.local_llm_client.complete(prompt, max_tokens=200)
+                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                if llm_data:
+                    logger.debug(f"Trajectory recording analysis: {llm_data.get('trajectory_assessment', 'N/A')[:100]}")
+        except Exception as e:
+            logger.warning(f"LLM trajectory analysis failed: {e}")
+
         # Store in buffer
         try:
             self.replay_buffer.store_trajectory(trajectory)
@@ -693,6 +729,39 @@ class ReflectionAgent(StandardIntegrationMixin):
         if not self.reasoning_bank:
             return
 
+        # LLM analysis of pattern storage
+        prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze reflection pattern storage and provide insights.
+
+Pattern Details:
+- Content Type: {content_type}
+- Overall Score: {result.overall_score}
+- Threshold: {self.quality_threshold}
+
+Requirements:
+- Assess pattern quality and reusability
+- Identify optimization opportunities
+- Provide recommendations for pattern storage
+- Suggest improvements to pattern retrieval
+
+Return JSON with:
+{{
+  "pattern_assessment": str,
+  "optimization_opportunities": [str],
+  "storage_recommendations": [str],
+  "retrieval_improvements": [str]
+}}
+"""
+        try:
+            if self.local_llm_client:
+                llm_response = await self.local_llm_client.complete(prompt, max_tokens=200)
+                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                if llm_data:
+                    logger.debug(f"Pattern storage analysis: {llm_data.get('pattern_assessment', 'N/A')[:100]}")
+        except Exception as e:
+            logger.warning(f"LLM pattern storage analysis failed: {e}")
+
         try:
             strategy_id = self.reasoning_bank.store_strategy(
                 description=f"Successful {content_type} reflection",
@@ -712,9 +781,9 @@ class ReflectionAgent(StandardIntegrationMixin):
         except Exception as e:
             logger.error(f"Failed to store reflection pattern: {e}")
 
-    def get_statistics(self) -> Dict[str, Any]:
+    async def get_statistics(self) -> Dict[str, Any]:
         """
-        Get reflection agent statistics
+        Get reflection agent statistics with LLM insights
 
         Returns:
             Dictionary with statistics
@@ -722,7 +791,7 @@ class ReflectionAgent(StandardIntegrationMixin):
         total = self.total_reflections
         success_rate = (self.total_passes / total) if total > 0 else 0.0
 
-        return {
+        base_result = {
             "agent_id": self.agent_id,
             "total_reflections": total,
             "total_passes": self.total_passes,
@@ -734,39 +803,108 @@ class ReflectionAgent(StandardIntegrationMixin):
             "daao_tumix_enabled": self.router is not None
         }
 
-    def get_cost_metrics(self) -> Dict:
-        """Get cumulative cost savings from DAAO and TUMIX"""
+        # LLM analysis of reflection statistics
+        prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze reflection agent statistics and provide insights.
+
+Statistics:
+- Total Reflections: {total}
+- Success Rate: {success_rate:.2%}
+- Quality Threshold: {self.quality_threshold}
+
+Requirements:
+- Assess reflection effectiveness
+- Identify improvement opportunities
+- Provide recommendations for quality enhancement
+- Suggest optimization strategies
+
+Return JSON with:
+{{
+  "effectiveness_analysis": str,
+  "improvement_opportunities": [str],
+  "quality_recommendations": [str],
+  "optimization_strategies": [str]
+}}
+"""
+        try:
+            if self.local_llm_client:
+                llm_response = await self.local_llm_client.complete(prompt, max_tokens=250)
+                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+            else:
+                llm_data = {}
+        except Exception as e:
+            logger.warning(f"LLM statistics analysis failed: {e}")
+            llm_data = {}
+
+        base_result["llm_insights"] = llm_data if llm_data else None
+        return base_result
+
+    async def get_cost_metrics(self) -> Dict:
+        """Get cumulative cost savings from DAAO and TUMIX with LLM insights"""
         if not self.refinement_history:
-            return {
+            base_result = {
                 'agent': 'ReflectionAgent',
                 'tumix_sessions': 0,
                 'tumix_savings_percent': 0.0,
                 'message': 'No refinement sessions recorded yet (reflection agent)'
             }
-
-        if not self.termination:
-            return {
+        elif not self.termination:
+            base_result = {
                 'agent': 'ReflectionAgent',
                 'message': 'TUMIX not enabled'
             }
+        else:
+            tumix_savings = self.termination.estimate_cost_savings(
+                [
+                    [r for r in session]
+                    for session in self.refinement_history
+                ],
+                cost_per_round=0.001
+            )
+            base_result = {
+                'agent': 'ReflectionAgent',
+                'tumix_sessions': tumix_savings['sessions'],
+                'tumix_baseline_rounds': tumix_savings['baseline_rounds'],
+                'tumix_actual_rounds': tumix_savings['tumix_rounds'],
+                'tumix_savings_percent': tumix_savings['savings_percent'],
+                'tumix_total_saved': tumix_savings['savings'],
+                'daao_info': 'DAAO routing automatically applied to all tasks'
+            }
 
-        tumix_savings = self.termination.estimate_cost_savings(
-            [
-                [r for r in session]
-                for session in self.refinement_history
-            ],
-            cost_per_round=0.001
-        )
+        # LLM analysis of cost metrics
+        prompt = f"""{EXCELLENCE_PROMPT}
 
-        return {
-            'agent': 'ReflectionAgent',
-            'tumix_sessions': tumix_savings['sessions'],
-            'tumix_baseline_rounds': tumix_savings['baseline_rounds'],
-            'tumix_actual_rounds': tumix_savings['tumix_rounds'],
-            'tumix_savings_percent': tumix_savings['savings_percent'],
-            'tumix_total_saved': tumix_savings['savings'],
-            'daao_info': 'DAAO routing automatically applied to all tasks'
-        }
+Task: Analyze cost optimization metrics and provide recommendations.
+
+Cost Metrics: {json.dumps(base_result, indent=2)}
+
+Requirements:
+- Identify optimization opportunities
+- Provide recommendations for further cost reduction
+- Highlight areas of efficiency
+- Suggest improvements to cost management
+
+Return JSON with:
+{{
+  "optimization_opportunities": [str],
+  "recommendations": [str],
+  "efficiency_highlights": [str],
+  "improvement_suggestions": [str]
+}}
+"""
+        try:
+            if self.local_llm_client:
+                llm_response = await self.local_llm_client.complete(prompt, max_tokens=250)
+                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+            else:
+                llm_data = {}
+        except Exception as e:
+            logger.warning(f"LLM cost metrics analysis failed: {e}")
+            llm_data = {}
+
+        base_result['llm_insights'] = llm_data if llm_data else None
+        return base_result
 
 
 # Factory function for easy instantiation

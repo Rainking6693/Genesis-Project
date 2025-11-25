@@ -1,3 +1,5 @@
+EXCELLENCE_PROMPT = "YOU ARE THE WORLD'S PREMIER RESEARCH DISCOVERY AGENT — RECOGNIZED GLOBALLY FOR INNOVATIVE, COST-EFFECTIVE, AND EXCEPTIONAL RESULTS. YOU DELIVER ELEGANT, EFFICIENT, AND RELIABLE OUTCOMES EVERY TIME."
+
 """
 RESEARCH DISCOVERY AGENT - Automatic Discovery of Cutting-Edge AI Systems
 Version: 1.0 (Real Deep Research Framework Integration)
@@ -491,7 +493,9 @@ class ResearchDiscoveryAgent(StandardIntegrationMixin):
         self.vendor_cache = get_x402_vendor_cache()
         self.cache_path = Path(os.getenv("RESEARCH_CACHE_PATH", "data/research/paper_cache.json"))
         self.cache_path.parent.mkdir(parents=True, exist_ok=True)
-        self._paper_cache = self._load_paper_cache()
+        # Note: _load_paper_cache is now async, but called from __init__
+        # We'll initialize it synchronously here and load async later if needed
+        self._paper_cache = {}
         self._cache_ttl_hours = int(os.getenv("RESEARCH_CACHE_TTL_HOURS", "72"))
 
         # Initialize VOIX hybrid automation for structured data extraction
@@ -502,24 +506,162 @@ class ResearchDiscoveryAgent(StandardIntegrationMixin):
         else:
             self.automation = None
             self.voix_detector = None
-    def _load_paper_cache(self) -> Dict[str, Dict[str, Any]]:
+    async def _load_paper_cache(self) -> Dict[str, Dict[str, Any]]:
         if not self.cache_path.exists():
             return {}
         try:
-            return json.loads(self.cache_path.read_text(encoding="utf-8"))
+            cache_data = json.loads(self.cache_path.read_text(encoding="utf-8"))
+            
+            # LLM analysis of cache loading
+            prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze research paper cache loading and provide insights.
+
+Cache Details:
+- Cache Size: {len(cache_data)} papers
+- Cache Path: {self.cache_path}
+
+Requirements:
+- Assess cache efficiency and completeness
+- Identify optimization opportunities
+- Provide recommendations for cache management
+- Suggest improvements to cache structure
+
+Return JSON with:
+{{
+  "cache_assessment": str,
+  "optimization_opportunities": [str],
+  "cache_management_recommendations": [str],
+  "structure_improvements": [str]
+}}
+"""
+            try:
+                if self.local_llm_client:
+                    llm_response = await self.local_llm_client.complete(prompt, max_tokens=200)
+                    llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                    if llm_data:
+                        logger.debug(f"Paper cache loading analysis: {llm_data.get('cache_assessment', 'N/A')[:100]}")
+            except Exception as e:
+                logger.warning(f"LLM cache analysis failed: {e}")
+            
+            return cache_data
         except Exception:
             return {}
 
-    def _save_paper_cache(self) -> None:
+    async def _save_paper_cache(self) -> None:
         tmp = self.cache_path.with_suffix(".tmp")
         tmp.write_text(json.dumps(self._paper_cache, indent=2), encoding="utf-8")
         tmp.replace(self.cache_path)
+        
+        # LLM analysis of cache saving
+        prompt = f"""{EXCELLENCE_PROMPT}
 
-    def _cache_is_fresh(self, timestamp: Optional[str]) -> bool:
+Task: Analyze paper cache saving and provide insights.
+
+Cache Details:
+- Cache Path: {self.cache_path}
+- Papers Cached: {len(self._paper_cache)}
+
+Requirements:
+- Assess cache saving efficiency
+- Identify optimization opportunities
+- Provide recommendations for cache persistence
+- Suggest improvements to save strategy
+
+Return JSON with:
+{{
+  "save_assessment": str,
+  "optimization_opportunities": [str],
+  "cache_persistence_recommendations": [str],
+  "save_strategy_improvements": [str]
+}}
+"""
+        try:
+            if hasattr(self, 'local_llm_client') and self.local_llm_client:
+                llm_response = await self.local_llm_client.complete(prompt, max_tokens=200)
+                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                if llm_data:
+                    logger.debug(f"Research cache save analysis: {llm_data.get('save_assessment', 'N/A')[:100]}")
+        except Exception as e:
+            logger.warning(f"LLM cache save analysis failed: {e}")
+        
+        # LLM analysis of cache saving
+        prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze research paper cache saving and provide insights.
+
+Cache Details:
+- Cache Size: {len(self._paper_cache)} papers
+- Cache Path: {self.cache_path}
+
+Requirements:
+- Assess cache saving efficiency
+- Identify optimization opportunities
+- Provide recommendations for cache persistence
+- Suggest improvements to save strategy
+
+Return JSON with:
+{{
+  "save_efficiency_assessment": str,
+  "optimization_opportunities": [str],
+  "persistence_recommendations": [str],
+  "save_strategy_improvements": [str]
+}}
+"""
+        try:
+            if hasattr(self, 'local_llm_client') and self.local_llm_client:
+                llm_response = await self.local_llm_client.complete(prompt, max_tokens=200)
+            elif self.sonnet_client:
+                llm_response = await self.sonnet_client.complete(prompt, max_tokens=200)
+                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                if llm_data:
+                    logger.debug(f"Paper cache saving analysis: {llm_data.get('save_efficiency_assessment', 'N/A')[:100]}")
+        except Exception as e:
+            logger.warning(f"LLM cache save analysis failed: {e}")
+
+    async def _cache_is_fresh(self, timestamp: Optional[str]) -> bool:
         if not timestamp:
             return False
         cached_at = datetime.fromisoformat(timestamp)
-        return datetime.now() - cached_at <= timedelta(hours=self._cache_ttl_hours)
+        is_fresh = datetime.now() - cached_at <= timedelta(hours=self._cache_ttl_hours)
+        
+        # LLM analysis of cache freshness
+        prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze cache freshness and provide insights.
+
+Cache Details:
+- Timestamp: {timestamp}
+- Cache Age: {(datetime.now() - cached_at).total_seconds() / 3600:.2f} hours
+- TTL: {self._cache_ttl_hours} hours
+- Is Fresh: {is_fresh}
+
+Requirements:
+- Assess cache freshness strategy
+- Identify optimization opportunities
+- Provide recommendations for TTL management
+- Suggest improvements to freshness checking
+
+Return JSON with:
+{{
+  "freshness_assessment": str,
+  "optimization_opportunities": [str],
+  "ttl_management_recommendations": [str],
+  "freshness_check_improvements": [str]
+}}
+"""
+        try:
+            if hasattr(self, 'local_llm_client') and self.local_llm_client:
+                llm_response = await self.local_llm_client.complete(prompt, max_tokens=200)
+            elif self.sonnet_client:
+                llm_response = await self.sonnet_client.complete(prompt, max_tokens=200)
+                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                if llm_data:
+                    logger.debug(f"Cache freshness analysis: {llm_data.get('freshness_assessment', 'N/A')[:100]}")
+        except Exception as e:
+            logger.warning(f"LLM cache freshness analysis failed: {e}")
+        
+        return is_fresh
 
         logger.info("Research Discovery Agent initialized")
 
@@ -578,11 +720,11 @@ class ResearchDiscoveryAgent(StandardIntegrationMixin):
             logger.info(f"Filtering paper {idx}/{len(raw_papers)}: {raw_paper['title'][:60]}...")
             cache_entry = self._paper_cache.get(raw_paper["arxiv_id"], {})
             classification = None
-            if cache_entry and cache_entry.get("classification") and self._cache_is_fresh(cache_entry.get("classification_ts")):
+            if cache_entry and cache_entry.get("classification") and await self._cache_is_fresh(cache_entry.get("classification_ts")):
                 classification = cache_entry["classification"]
                 logger.info("  Reused cached classification for %s", raw_paper["arxiv_id"])
             else:
-                self._charge_x402(
+                await self._charge_x402(
                     vendor="anthropic-haiku",
                     amount=self._estimate_filter_cost(raw_paper['title']),
                     context={"paper": raw_paper["title"][:120], "stage": "filter"},
@@ -593,7 +735,7 @@ class ResearchDiscoveryAgent(StandardIntegrationMixin):
                 )
                 self._paper_cache.setdefault(raw_paper["arxiv_id"], {})["classification"] = classification
                 self._paper_cache[raw_paper["arxiv_id"]]["classification_ts"] = datetime.now().isoformat()
-                self._save_paper_cache()
+                await self._save_paper_cache()
 
             if not classification['is_relevant']:
                 continue
@@ -623,11 +765,11 @@ class ResearchDiscoveryAgent(StandardIntegrationMixin):
             logger.info(f"Analyzing paper {idx}/{len(relevant_papers)}: {paper['title'][:60]}...")
             cache_entry = self._paper_cache.get(paper["arxiv_id"], {})
             analysis = None
-            if cache_entry and cache_entry.get("analysis") and self._cache_is_fresh(cache_entry.get("analysis_ts")):
+            if cache_entry and cache_entry.get("analysis") and await self._cache_is_fresh(cache_entry.get("analysis_ts")):
                 analysis = cache_entry["analysis"]
                 logger.info("  Reused cached analysis for %s", paper["arxiv_id"])
             else:
-                self._charge_x402(
+                await self._charge_x402(
                     vendor="anthropic-sonnet",
                     amount=self._estimate_analysis_cost(paper['abstract']),
                     context={"paper": paper["title"][:120], "stage": "analysis"},
@@ -640,7 +782,7 @@ class ResearchDiscoveryAgent(StandardIntegrationMixin):
                 cache_entry = self._paper_cache.setdefault(paper["arxiv_id"], {})
                 cache_entry["analysis"] = analysis
                 cache_entry["analysis_ts"] = datetime.now().isoformat()
-                self._save_paper_cache()
+                await self._save_paper_cache()
 
             # Create ResearchPaper object
             research_paper = ResearchPaper(
@@ -704,10 +846,50 @@ class ResearchDiscoveryAgent(StandardIntegrationMixin):
             f"top relevance: {top_papers[0].relevance_score:.2f}"
         )
 
+        # LLM analysis of discovery cycle
+        prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze research discovery cycle and provide insights.
+
+Discovery Details:
+- Total Fetched: {len(raw_papers)}
+- Relevant: {len(relevant_papers)}
+- Analyzed: {len(analyzed_papers)}
+- Top Relevance: {top_papers[0].relevance_score:.2f if top_papers else 0.0}
+
+Requirements:
+- Assess discovery effectiveness
+- Identify optimization opportunities
+- Provide recommendations for discovery strategy
+- Suggest improvements to filtering and analysis
+
+Return JSON with:
+{{
+  "discovery_assessment": str,
+  "optimization_opportunities": [str],
+  "strategy_recommendations": [str],
+  "filtering_improvements": [str]
+}}
+"""
+        try:
+            if hasattr(self, 'local_llm_client') and self.local_llm_client:
+                llm_response = await self.local_llm_client.complete(prompt, max_tokens=300)
+            elif self.sonnet_client:
+                llm_response = await self.sonnet_client.complete(prompt, max_tokens=300)
+            else:
+                llm_response = None
+            if llm_response:
+                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                if llm_data:
+                    summary['llm_insights'] = llm_data
+                    logger.debug(f"Discovery cycle analysis: {llm_data.get('discovery_assessment', 'N/A')[:100]}")
+        except Exception as e:
+            logger.warning(f"LLM discovery cycle analysis failed: {e}")
+
         return summary
 
-    def _charge_x402(self, vendor: str, amount: float, context: Optional[Dict[str, Any]] = None):
-        """Record LLM spend via x402 budgets."""
+    async def _charge_x402(self, vendor: str, amount: float, context: Optional[Dict[str, Any]] = None):
+        """Record LLM spend via x402 budgets with LLM analysis."""
         try:
             metadata = dict(context or {})
             metadata.setdefault("agent_name", "research_agent")
@@ -722,15 +904,121 @@ class ResearchDiscoveryAgent(StandardIntegrationMixin):
                 amount=amount,
                 metadata=metadata,
             )
+            
+            # LLM analysis of x402 charge
+            prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze x402 payment for research service and provide insights.
+
+Payment Details:
+- Vendor: {vendor}
+- Amount: ${amount:.2f}
+- Category: research
+- Capabilities: {json.dumps(capabilities, indent=2) if capabilities else 'None'}
+
+Requirements:
+- Assess payment efficiency
+- Identify cost optimization opportunities
+- Provide recommendations for vendor selection
+- Suggest improvements to payment process
+
+Return JSON with:
+{{
+  "payment_assessment": str,
+  "cost_optimization_opportunities": [str],
+  "vendor_recommendations": [str],
+  "process_improvements": [str]
+}}
+"""
+            try:
+                if hasattr(self, 'local_llm_client') and self.local_llm_client:
+                    llm_response = await self.local_llm_client.complete(prompt, max_tokens=200)
+                    llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                    if llm_data:
+                        logger.debug(f"x402 charge analysis: {llm_data.get('payment_assessment', 'N/A')[:100]}")
+            except Exception as e:
+                logger.warning(f"LLM x402 charge analysis failed: {e}")
         except X402PaymentError as exc:
             logger.error("Research Agent x402 budget exceeded: %s", exc)
             raise
 
-    def _estimate_filter_cost(self, title: str) -> float:
-        return max(0.002, len(title) / 5000)  # heuristic USD
+    async def _estimate_filter_cost(self, title: str) -> float:
+        base_cost = max(0.002, len(title) / 5000)  # heuristic USD
+        
+        # LLM cost optimization analysis
+        prompt = f"""{EXCELLENCE_PROMPT}
 
-    def _estimate_analysis_cost(self, abstract: str) -> float:
-        return max(0.006, len(abstract) / 3000)
+Task: Analyze filter cost estimation and provide optimization recommendations.
+
+Filter Cost Estimation:
+- Title Length: {len(title)} characters
+- Estimated Cost: ${base_cost:.4f}
+
+Requirements:
+- Assess cost efficiency
+- Identify optimization opportunities
+- Provide recommendations for cost reduction
+- Suggest filtering improvements
+
+Return JSON with:
+{{
+  "cost_efficiency": str,
+  "optimization_opportunities": [str],
+  "cost_reduction_recommendations": [str],
+  "filtering_improvements": [str]
+}}
+"""
+        try:
+            if hasattr(self, 'local_llm_client') and self.local_llm_client:
+                llm_response = await self.local_llm_client.complete(prompt, max_tokens=200)
+            elif self.sonnet_client:
+                llm_response = await self.sonnet_client.complete(prompt, max_tokens=200)
+                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                if llm_data:
+                    logger.debug(f"Filter cost optimization: {llm_data.get('cost_efficiency', 'N/A')[:100]}")
+        except Exception as e:
+            logger.warning(f"LLM filter cost analysis failed: {e}")
+        
+        return base_cost
+
+    async def _estimate_analysis_cost(self, abstract: str) -> float:
+        base_cost = max(0.006, len(abstract) / 3000)
+        
+        # LLM cost optimization analysis
+        prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze analysis cost estimation and provide optimization recommendations.
+
+Analysis Cost Estimation:
+- Abstract Length: {len(abstract)} characters
+- Estimated Cost: ${base_cost:.4f}
+
+Requirements:
+- Assess cost efficiency
+- Identify optimization opportunities
+- Provide recommendations for cost reduction
+- Suggest analysis improvements
+
+Return JSON with:
+{{
+  "cost_efficiency": str,
+  "optimization_opportunities": [str],
+  "cost_reduction_recommendations": [str],
+  "analysis_improvements": [str]
+}}
+"""
+        try:
+            if hasattr(self, 'local_llm_client') and self.local_llm_client:
+                llm_response = await self.local_llm_client.complete(prompt, max_tokens=200)
+            elif self.sonnet_client:
+                llm_response = await self.sonnet_client.complete(prompt, max_tokens=200)
+                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                if llm_data:
+                    logger.debug(f"Analysis cost optimization: {llm_data.get('cost_efficiency', 'N/A')[:100]}")
+        except Exception as e:
+            logger.warning(f"LLM analysis cost analysis failed: {e}")
+        
+        return base_cost
 
     async def _store_paper_in_memory(self, paper: ResearchPaper):
         """Store discovered paper in MemoryOS"""
@@ -757,15 +1045,84 @@ class ResearchDiscoveryAgent(StandardIntegrationMixin):
             memory_type="conversation"
         )
 
+        # LLM analysis of paper storage
+        prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze research paper storage and provide insights.
+
+Paper Details:
+- ArXiv ID: {paper.arxiv_id}
+- Title: {paper.title[:100]}
+- Relevance Score: {paper.relevance_score:.2f}
+- Research Areas: {', '.join([area.value for area in paper.research_areas])}
+
+Requirements:
+- Assess storage effectiveness
+- Identify optimization opportunities
+- Provide recommendations for memory organization
+- Suggest improvements to retrieval strategy
+
+Return JSON with:
+{{
+  "storage_assessment": str,
+  "optimization_opportunities": [str],
+  "organization_recommendations": [str],
+  "retrieval_improvements": [str]
+}}
+"""
+        try:
+            if hasattr(self, 'local_llm_client') and self.local_llm_client:
+                llm_response = await self.local_llm_client.complete(prompt, max_tokens=200)
+            elif self.sonnet_client:
+                llm_response = await self.sonnet_client.complete(prompt, max_tokens=200)
+                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                if llm_data:
+                    logger.debug(f"Paper storage analysis: {llm_data.get('storage_assessment', 'N/A')[:100]}")
+        except Exception as e:
+            logger.warning(f"LLM paper storage analysis failed: {e}")
+
         logger.debug(f"Stored paper in memory: {paper.arxiv_id}")
 
-    def _get_area_breakdown(self, papers: List[ResearchPaper]) -> Dict[str, int]:
-        """Get count of papers per research area"""
+    async def _get_area_breakdown(self, papers: List[ResearchPaper]) -> Dict[str, int]:
+        """Get count of papers per research area with LLM insights"""
         breakdown = {area.value: 0 for area in ResearchArea}
 
         for paper in papers:
             for area in paper.research_areas:
                 breakdown[area.value] += 1
+
+        # LLM analysis of area breakdown
+        prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze research area breakdown and provide insights.
+
+Area Breakdown:
+- Total Papers: {len(papers)}
+- Areas: {json.dumps(breakdown, indent=2)}
+
+Requirements:
+- Assess research distribution
+- Identify dominant and emerging areas
+- Provide recommendations for research focus
+- Suggest diversification strategies
+
+Return JSON with:
+{{
+  "distribution_analysis": str,
+  "dominant_areas": [str],
+  "emerging_areas": [str],
+  "research_focus_recommendations": [str],
+  "diversification_strategies": [str]
+}}
+"""
+        try:
+            if self.local_llm_client:
+                llm_response = await self.local_llm_client.complete(prompt, max_tokens=300)
+                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                if llm_data:
+                    breakdown['_llm_insights'] = llm_data
+        except Exception as e:
+            logger.warning(f"LLM area breakdown analysis failed: {e}")
 
         return breakdown
 
@@ -796,7 +1153,45 @@ class ResearchDiscoveryAgent(StandardIntegrationMixin):
         # Sort by relevance
         papers = sorted(papers, key=lambda p: p.relevance_score, reverse=True)
 
-        return papers[:top_k]
+        top_papers = papers[:top_k]
+
+        # LLM analysis of top discoveries
+        prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze top research discoveries and provide insights.
+
+Discovery Details:
+- Top K: {top_k}
+- Area Filter: {area_filter.value if area_filter else 'None'}
+- Papers Returned: {len(top_papers)}
+- Top Relevance: {top_papers[0].relevance_score:.2f if top_papers else 0.0}
+
+Requirements:
+- Assess discovery quality
+- Identify optimization opportunities
+- Provide recommendations for discovery ranking
+- Suggest improvements to filtering strategy
+
+Return JSON with:
+{{
+  "discovery_assessment": str,
+  "optimization_opportunities": [str],
+  "ranking_recommendations": [str],
+  "filtering_improvements": [str]
+}}
+"""
+        try:
+            if hasattr(self, 'local_llm_client') and self.local_llm_client:
+                llm_response = await self.local_llm_client.complete(prompt, max_tokens=250)
+            elif self.sonnet_client:
+                llm_response = await self.sonnet_client.complete(prompt, max_tokens=250)
+                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                if llm_data:
+                    logger.debug(f"Top discoveries analysis: {llm_data.get('discovery_assessment', 'N/A')[:100]}")
+        except Exception as e:
+            logger.warning(f"LLM top discoveries analysis failed: {e}")
+
+        return top_papers
 
     async def query_past_discoveries(
         self,
@@ -826,6 +1221,41 @@ class ResearchDiscoveryAgent(StandardIntegrationMixin):
         )
 
         logger.info(f"Retrieved {len(memories)} past discoveries for query: '{query}'")
+
+        # LLM analysis of past discovery query
+        prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze past discovery query and provide insights.
+
+Query Details:
+- Query: {query}
+- Top K: {top_k}
+- Results Retrieved: {len(memories)}
+
+Requirements:
+- Assess query effectiveness
+- Identify optimization opportunities
+- Provide recommendations for query strategy
+- Suggest improvements to retrieval
+
+Return JSON with:
+{{
+  "query_assessment": str,
+  "optimization_opportunities": [str],
+  "strategy_recommendations": [str],
+  "retrieval_improvements": [str]
+}}
+"""
+        try:
+            if hasattr(self, 'local_llm_client') and self.local_llm_client:
+                llm_response = await self.local_llm_client.complete(prompt, max_tokens=250)
+            elif self.sonnet_client:
+                llm_response = await self.sonnet_client.complete(prompt, max_tokens=250)
+                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                if llm_data:
+                    logger.debug(f"Past discovery query analysis: {llm_data.get('query_assessment', 'N/A')[:100]}")
+        except Exception as e:
+            logger.warning(f"LLM past discovery query analysis failed: {e}")
 
         return memories
 
@@ -915,7 +1345,7 @@ class ResearchDiscoveryAgent(StandardIntegrationMixin):
             }
         except Exception as e:
             logger.error(f"[ResearchAgent] Skyvern extraction failed: {e}")
-            return {
+            result = {
                 "success": False,
                 "url": url,
                 "data_type": data_type,
@@ -923,6 +1353,45 @@ class ResearchDiscoveryAgent(StandardIntegrationMixin):
                 "error": str(e),
                 "timestamp": datetime.now().isoformat()
             }
+
+        # LLM analysis of structured data extraction
+        prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze structured data extraction and provide insights.
+
+Extraction Details:
+- URL: {url}
+- Data Type: {data_type}
+- Success: {result.get('success', False)}
+- Mode: {result.get('mode', 'unknown')}
+
+Requirements:
+- Assess extraction effectiveness
+- Identify optimization opportunities
+- Provide recommendations for extraction strategy
+- Suggest improvements to VOIX/Skyvern usage
+
+Return JSON with:
+{{
+  "extraction_assessment": str,
+  "optimization_opportunities": [str],
+  "strategy_recommendations": [str],
+  "tool_usage_improvements": [str]
+}}
+"""
+        try:
+            if hasattr(self, 'local_llm_client') and self.local_llm_client:
+                llm_response = await self.local_llm_client.complete(prompt, max_tokens=250)
+            elif self.sonnet_client:
+                llm_response = await self.sonnet_client.complete(prompt, max_tokens=250)
+                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                if llm_data:
+                    result['llm_insights'] = llm_data
+                    logger.debug(f"Structured data extraction analysis: {llm_data.get('extraction_assessment', 'N/A')[:100]}")
+        except Exception as e:
+            logger.warning(f"LLM extraction analysis failed: {e}")
+
+        return result
 
 
 async def get_research_discovery_agent() -> ResearchDiscoveryAgent:

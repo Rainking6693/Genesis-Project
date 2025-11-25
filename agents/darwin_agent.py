@@ -1,3 +1,5 @@
+EXCELLENCE_PROMPT = "YOU ARE THE WORLD'S PREMIER DARWIN AGENT — RECOGNIZED GLOBALLY FOR INNOVATIVE, COST-EFFECTIVE, AND EXCEPTIONAL RESULTS. YOU DELIVER ELEGANT, EFFICIENT, AND RELIABLE OUTCOMES EVERY TIME."
+
 """
 Darwin Gödel Machine Agent - Self-Improving Code Evolution
 Layer 2 implementation for Genesis multi-agent system
@@ -194,9 +196,9 @@ class DarwinAgent(StandardIntegrationMixin):
         logger.info(f"Max generations: {max_generations}, Population size: {population_size}")
         logger.info(f"Acceptance threshold: {acceptance_threshold * 100}%")
 
-    def _sanitize_path_component(self, user_input: str) -> str:
+    async def _sanitize_path_component(self, user_input: str) -> str:
         """
-        Sanitize user input for safe path construction
+        Sanitize user input for safe path construction with LLM security analysis
 
         SECURITY FIX #2: Prevents path traversal attacks
         Blocks: ../, ..\\, /, \\, and non-alphanumeric characters
@@ -221,9 +223,41 @@ class DarwinAgent(StandardIntegrationMixin):
         if not sanitized:
             raise ValueError(f"Path sanitization resulted in empty string from: '{user_input}'")
 
+        # LLM security analysis
+        prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze path sanitization security and provide insights.
+
+Sanitization Details:
+- Original Input: {user_input[:50]}
+- Sanitized Output: {sanitized[:50]}
+
+Requirements:
+- Assess sanitization effectiveness
+- Identify potential security vulnerabilities
+- Provide recommendations for security improvement
+- Suggest best practices for path sanitization
+
+Return JSON with:
+{{
+  "security_assessment": str,
+  "potential_vulnerabilities": [str],
+  "security_improvements": [str],
+  "best_practices": [str]
+}}
+"""
+        try:
+            if self.local_llm_client:
+                llm_response = await self.local_llm_client.complete(prompt, max_tokens=200)
+                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                if llm_data:
+                    logger.debug(f"Path sanitization security analysis: {llm_data.get('security_assessment', 'N/A')[:100]}")
+        except Exception as e:
+            logger.warning(f"LLM security analysis failed: {e}")
+
         return sanitized
 
-    def _sanitize_for_logging(self, data: Any) -> Any:
+    async def _sanitize_for_logging(self, data: Any) -> Any:
         """
         Sanitize data to remove sensitive credentials before logging
 
@@ -413,6 +447,40 @@ class DarwinAgent(StandardIntegrationMixin):
         # Sample parent
         parent = random.choices(self.archive, probabilities)[0]
         logger.info(f"Selected parent: {parent}")
+        
+        # LLM analysis of parent selection
+        prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze parent selection strategy and provide insights.
+
+Selection Details:
+- Archive Size: {len(self.archive)}
+- Selected Parent: {parent}
+- Best Score: {self.best_score:.2f}
+
+Requirements:
+- Assess selection strategy effectiveness
+- Identify optimization opportunities
+- Provide recommendations for parent selection
+- Suggest improvements to evolution strategy
+
+Return JSON with:
+{{
+  "selection_assessment": str,
+  "optimization_opportunities": [str],
+  "selection_recommendations": [str],
+  "evolution_improvements": [str]
+}}
+"""
+        try:
+            if self.local_llm_client:
+                llm_response = await self.local_llm_client.complete(prompt, max_tokens=200)
+                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                if llm_data:
+                    logger.debug(f"Parent selection analysis: {llm_data.get('selection_assessment', 'N/A')[:100]}")
+        except Exception as e:
+            logger.warning(f"LLM parent selection analysis failed: {e}")
+        
         return parent
 
     async def _diagnose_problems(self, parent_version: str) -> str:
@@ -466,7 +534,41 @@ Provide a concise diagnosis (2-3 sentences) of the root cause and what needs to 
 
             diagnosis = response.choices[0].message.content
             # SECURITY: Sanitize before logging
-            logger.info(f"Diagnosis: {self._sanitize_for_logging(diagnosis)}")
+            logger.info(f"Diagnosis: {await self._sanitize_for_logging(diagnosis)}")
+            
+            # LLM analysis of problem diagnosis
+            prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze problem diagnosis and provide insights.
+
+Diagnosis Details:
+- Agent: {self.agent_name}
+- Version: {parent_version}
+- Diagnosis: {diagnosis[:200]}
+
+Requirements:
+- Assess diagnosis quality and accuracy
+- Identify optimization opportunities
+- Provide recommendations for diagnosis strategy
+- Suggest improvements to problem analysis
+
+Return JSON with:
+{{
+  "diagnosis_assessment": str,
+  "optimization_opportunities": [str],
+  "strategy_recommendations": [str],
+  "analysis_improvements": [str]
+}}
+"""
+            try:
+                if self.local_llm_client:
+                    llm_response = await self.local_llm_client.complete(prompt, max_tokens=200)
+                    llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                    if llm_data:
+                        logger.debug(f"Problem diagnosis analysis: {llm_data.get('diagnosis_assessment', 'N/A')[:100]}")
+            except Exception as e:
+                logger.warning(f"LLM diagnosis analysis failed: {e}")
+            
             return diagnosis
 
         except Exception as e:
@@ -671,8 +773,8 @@ IMPROVED CODE:
             logger.error(f"Code generation failed: {e}")
             return None
 
-    def _run_rifl_guard(self, attempt: EvolutionAttempt, improved_code: str) -> Dict[str, Any]:
-        """Apply RIFL rubric verifier to the generated improvements."""
+    async def _run_rifl_guard(self, attempt: EvolutionAttempt, improved_code: str) -> Dict[str, Any]:
+        """Apply RIFL rubric verifier to the generated improvements with LLM enhancement."""
         if not self.rifl_evaluator:
             feedback = {"verdict": "pass", "reward": 1.0}
         else:
@@ -684,6 +786,41 @@ IMPROVED CODE:
 
         attempt.validation_results["rifl"] = feedback
         self.rifl_reward_history.append(feedback.get("reward", 0.0))
+        
+        # LLM analysis of RIFL guard results
+        if feedback.get("reward", 0.0) < 0.7:  # Low reward threshold
+            prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze RIFL guard failure and provide improvement recommendations.
+
+RIFL Guard Results:
+- Verdict: {feedback.get("verdict", "unknown")}
+- Reward: {feedback.get("reward", 0.0)}
+- Improvement Type: {attempt.improvement_type}
+- Problem Diagnosis: {attempt.problem_diagnosis[:200]}
+
+Requirements:
+- Assess why the guard failed
+- Provide recommendations for improvement
+- Suggest code quality enhancements
+- Identify specific issues
+
+Return JSON with:
+{{
+  "failure_analysis": str,
+  "improvement_recommendations": [str],
+  "quality_enhancements": [str],
+  "specific_issues": [str]
+}}
+"""
+            try:
+                if self.local_llm_client:
+                    llm_response = await self.local_llm_client.complete(prompt, max_tokens=300)
+                    llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                    feedback['llm_analysis'] = llm_data if llm_data else None
+            except Exception as e:
+                logger.warning(f"LLM RIFL guard analysis failed: {e}")
+        
         return feedback
 
     async def _validate_in_sandbox(self, code_path: Path) -> Tuple[bool, str]:
@@ -861,9 +998,9 @@ This strategy successfully improved the agent and can be applied to similar prob
 
         return archive
 
-    def save_checkpoint(self, path: str) -> bool:
+    async def save_checkpoint(self, path: str) -> bool:
         """
-        Save evolution state to checkpoint file
+        Save evolution state to checkpoint file with LLM validation
 
         Args:
             path: Path to save checkpoint file
@@ -890,6 +1027,40 @@ This strategy successfully improved the agent and can be applied to similar prob
                 "attempts_count": len(self.attempts),
             }
 
+            # LLM validation of checkpoint data
+            prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Validate checkpoint data and provide recommendations.
+
+Checkpoint Data:
+- Agent: {self.agent_name}
+- Generation: {self.current_generation}/{self.max_generations}
+- Best Score: {self.best_score:.3f}
+- Archive Size: {len(self.archive)}
+
+Requirements:
+- Assess checkpoint completeness
+- Identify any missing critical data
+- Provide recommendations for checkpoint optimization
+- Suggest improvements to checkpoint structure
+
+Return JSON with:
+{{
+  "completeness_assessment": str,
+  "missing_data": [str],
+  "optimization_recommendations": [str],
+  "structure_improvements": [str]
+}}
+"""
+            try:
+                if self.local_llm_client:
+                    llm_response = await self.local_llm_client.complete(prompt, max_tokens=200)
+                    llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                    if llm_data and llm_data.get('missing_data'):
+                        logger.warning(f"Checkpoint validation: {llm_data.get('missing_data')}")
+            except Exception as e:
+                logger.warning(f"LLM checkpoint validation failed: {e}")
+
             # Write checkpoint
             with open(checkpoint_path, 'w') as f:
                 json.dump(checkpoint_data, f, indent=2)
@@ -901,9 +1072,9 @@ This strategy successfully improved the agent and can be applied to similar prob
             logger.error(f"Failed to save checkpoint: {e}")
             return False
 
-    def load_checkpoint(self, path: str) -> bool:
+    async def load_checkpoint(self, path: str) -> bool:
         """
-        Load evolution state from checkpoint file
+        Load evolution state from checkpoint file with LLM validation
 
         Args:
             path: Path to checkpoint file
@@ -921,6 +1092,40 @@ This strategy successfully improved the agent and can be applied to similar prob
             # Read checkpoint
             with open(checkpoint_path, 'r') as f:
                 checkpoint_data = json.load(f)
+
+            # LLM validation of loaded checkpoint
+            prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Validate loaded checkpoint data and assess recovery strategy.
+
+Checkpoint Data:
+- Agent: {checkpoint_data.get('agent_name', 'unknown')}
+- Generation: {checkpoint_data.get('current_generation', 0)}/{checkpoint_data.get('max_generations', 0)}
+- Best Score: {checkpoint_data.get('best_score', 0.0):.3f}
+- Archive Size: {len(checkpoint_data.get('archive', []))}
+
+Requirements:
+- Assess checkpoint data integrity
+- Identify any inconsistencies
+- Provide recommendations for recovery
+- Suggest validation checks
+
+Return JSON with:
+{{
+  "integrity_assessment": str,
+  "inconsistencies": [str],
+  "recovery_recommendations": [str],
+  "validation_checks": [str]
+}}
+"""
+            try:
+                if self.local_llm_client:
+                    llm_response = await self.local_llm_client.complete(prompt, max_tokens=200)
+                    llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                    if llm_data and llm_data.get('inconsistencies'):
+                        logger.warning(f"Checkpoint validation: {llm_data.get('inconsistencies')}")
+            except Exception as e:
+                logger.warning(f"LLM checkpoint validation failed: {e}")
 
             # Restore evolution state
             self.current_generation = checkpoint_data["current_generation"]

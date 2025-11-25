@@ -1,3 +1,5 @@
+EXCELLENCE_PROMPT = "YOU ARE THE WORLD'S PREMIER DOMAIN NAME AGENT — RECOGNIZED GLOBALLY FOR INNOVATIVE, COST-EFFECTIVE, AND EXCEPTIONAL RESULTS. YOU DELIVER ELEGANT, EFFICIENT, AND RELIABLE OUTCOMES EVERY TIME."
+
 """
 Domain Name Agent - Autonomous Domain Registration and Management
 Author: Genesis AI
@@ -130,7 +132,7 @@ class DomainNameAgent(StandardIntegrationMixin):
             f"preferred_tlds={self.preferred_tlds}, ap2_consent={'enabled' if enable_ap2_consent else 'disabled'})"
         )
 
-    def generate_domain_candidates(
+    async def generate_domain_candidates(
         self,
         business_name: str,
         business_type: str,
@@ -178,20 +180,20 @@ class DomainNameAgent(StandardIntegrationMixin):
             # Exact match
             domain = "".join(words) + tld
             if 3 <= len("".join(words)) <= 20:
-                candidates.append(self._score_domain(domain, words, tld))
+                candidates.append(await self._score_domain(domain, words, tld))
 
             # Hyphenated
             if len(words) > 1:
                 domain = "-".join(words) + tld
                 if len(domain) <= 30:
-                    candidates.append(self._score_domain(domain, words, tld))
+                    candidates.append(await self._score_domain(domain, words, tld))
 
             # Abbreviated (first letters of each word)
             if len(words) >= 2:
                 abbrev = "".join([w[0] for w in words if w])
                 if 2 <= len(abbrev) <= 5:
                     domain = abbrev + tld
-                    candidates.append(self._score_domain(domain, words, tld))
+                    candidates.append(await self._score_domain(domain, words, tld))
 
         # Strategy 2: Keyword combinations
         for keyword in keywords[:3]:
@@ -220,7 +222,7 @@ class DomainNameAgent(StandardIntegrationMixin):
                 syllable2 = words[1][:random.randint(2, min(4, len(words[1])))]
                 domain = syllable1 + syllable2 + tld
                 if len(domain) <= 25:
-                    candidates.append(self._score_domain(domain, words, tld))
+                    candidates.append(await self._score_domain(domain, words, tld))
 
         # Remove duplicates and sort by score
         seen = set()
@@ -234,14 +236,14 @@ class DomainNameAgent(StandardIntegrationMixin):
 
         return unique_candidates[:count]
 
-    def _score_domain(
+    async def _score_domain(
         self,
         domain: str,
         keywords: List[str],
         tld: str
     ) -> DomainCandidate:
         """
-        Score a domain candidate (0-100)
+        Score a domain candidate (0-100) with LLM enhancement
 
         Scoring factors:
         - Length: Shorter is better (10-15 chars ideal)
@@ -281,7 +283,7 @@ class DomainNameAgent(StandardIntegrationMixin):
         # Brandability scoring (25 points max)
         has_hyphens = "-" in name_part
         has_numbers = any(c.isdigit() for c in name_part)
-        is_pronounceable = self._is_pronounceable(name_part)
+        is_pronounceable = await self._is_pronounceable(name_part)
 
         if not has_hyphens and not has_numbers and is_pronounceable:
             score += 25  # Perfect brandability
@@ -308,6 +310,46 @@ class DomainNameAgent(StandardIntegrationMixin):
         else:
             score += 5
 
+        # LLM analysis of domain scoring
+        prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze domain name scoring and provide insights.
+
+Domain Details:
+- Domain: {domain}
+- Name Part: {name_part}
+- TLD: {tld}
+- Keywords: {', '.join(keywords)}
+- Score: {score}/100
+
+Requirements:
+- Assess domain quality and brandability
+- Identify optimization opportunities
+- Provide recommendations for domain selection
+- Suggest improvements to scoring strategy
+
+Return JSON with:
+{{
+  "domain_assessment": str,
+  "optimization_opportunities": [str],
+  "selection_recommendations": [str],
+  "scoring_strategy_improvements": [str]
+}}
+"""
+        try:
+            if self.local_llm_client:
+                llm_response = await self.local_llm_client.complete(prompt, max_tokens=200)
+                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                if llm_data:
+                    logger.debug(f"Domain scoring analysis: {llm_data.get('domain_assessment', 'N/A')[:100]}")
+        except Exception as e:
+            logger.warning(f"LLM domain scoring analysis failed: {e}")
+
+        if not has_repeated:
+            score += 10
+        else:
+            score += 5
+
         return DomainCandidate(
             domain=domain,
             score=min(100.0, score),
@@ -318,9 +360,9 @@ class DomainNameAgent(StandardIntegrationMixin):
             brandable=not has_hyphens and not has_numbers
         )
 
-    def _is_pronounceable(self, name: str) -> bool:
+    async def _is_pronounceable(self, name: str) -> bool:
         """
-        Check if name is pronounceable (has reasonable vowel/consonant distribution)
+        Check if name is pronounceable (has reasonable vowel/consonant distribution) with LLM enhancement
 
         Args:
             name: Domain name without TLD
@@ -336,7 +378,41 @@ class DomainNameAgent(StandardIntegrationMixin):
         vowel_ratio = vowel_count / len(name)
 
         # Good pronounceability: 20-60% vowels
-        return 0.2 <= vowel_ratio <= 0.6
+        pronounceable = 0.2 <= vowel_ratio <= 0.6
+        
+        # LLM analysis of pronounceability
+        prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze domain name pronounceability and provide insights.
+
+Domain Name: {name}
+Vowel Ratio: {vowel_ratio:.2%}
+Rule-Based Result: {'Pronounceable' if pronounceable else 'Not Pronounceable'}
+
+Requirements:
+- Assess name pronounceability from linguistic perspective
+- Identify potential pronunciation challenges
+- Provide recommendations for name improvement
+- Suggest alternative pronunciations
+
+Return JSON with:
+{{
+  "pronounceability_assessment": str,
+  "pronunciation_challenges": [str],
+  "improvement_recommendations": [str],
+  "alternative_pronunciations": [str]
+}}
+"""
+        try:
+            if self.local_llm_client:
+                llm_response = await self.local_llm_client.complete(prompt, max_tokens=200)
+                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                if llm_data:
+                    logger.debug(f"Domain pronounceability analysis: {llm_data.get('pronounceability_assessment', 'N/A')[:100]}")
+        except Exception as e:
+            logger.warning(f"LLM pronounceability analysis failed: {e}")
+        
+        return pronounceable
 
     async def create_payment_intent_mandate(
         self,
@@ -489,7 +565,7 @@ class DomainNameAgent(StandardIntegrationMixin):
         logger.info(f"Starting domain selection for '{business_name}' ({business_type})")
 
         # Generate candidates
-        candidates = self.generate_domain_candidates(business_name, business_type, count=20)
+        candidates = await self.generate_domain_candidates(business_name, business_type, count=20)
         logger.info(f"Generated {len(candidates)} domain candidates")
 
         # Check availability for top candidates
@@ -540,6 +616,42 @@ class DomainNameAgent(StandardIntegrationMixin):
             f"🎯 Selected domain: {selected_domain} (score={best_candidate.score:.1f}, "
             f"price=${best_availability.price:.2f})"
         )
+
+        # LLM analysis of domain selection
+        prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze domain selection strategy and provide insights.
+
+Selection Details:
+- Business Name: {business_name}
+- Business Type: {business_type}
+- Selected Domain: {selected_domain}
+- Domain Score: {best_candidate.score:.1f}
+- Price: ${best_availability.price:.2f}
+- Candidates Checked: {checked_count}
+
+Requirements:
+- Assess domain selection quality
+- Identify optimization opportunities
+- Provide recommendations for domain strategy
+- Suggest improvements to candidate generation
+
+Return JSON with:
+{{
+  "selection_assessment": str,
+  "optimization_opportunities": [str],
+  "strategy_recommendations": [str],
+  "generation_improvements": [str]
+}}
+"""
+        try:
+            if self.local_llm_client:
+                llm_response = await self.local_llm_client.complete(prompt, max_tokens=200)
+                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+                if llm_data:
+                    logger.debug(f"Domain selection analysis: {llm_data.get('selection_assessment', 'N/A')[:100]}")
+        except Exception as e:
+            logger.warning(f"LLM domain selection analysis failed: {e}")
 
         # Register domain if auto_register=True
         registration_success = False
@@ -705,20 +817,57 @@ class DomainNameAgent(StandardIntegrationMixin):
             payment_consent_status=payment_consent_status
         )
 
-    def get_cost_summary(self) -> Dict[str, Any]:
+    async def get_cost_summary(self) -> Dict[str, Any]:
         """
-        Get domain cost summary
+        Get domain cost summary with LLM insights
 
         Returns:
             Cost summary dict
         """
-        return {
+        base_result = {
             "total_monthly_cost": self.total_monthly_cost,
             "total_domains": len(self.registered_domains),
             "cost_alert_threshold": self.cost_alert_threshold,
             "threshold_exceeded": self.total_monthly_cost > self.cost_alert_threshold,
             "domains": self.registered_domains
         }
+
+        # LLM analysis of domain costs
+        prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Analyze domain cost summary and provide optimization recommendations.
+
+Cost Summary:
+- Total Monthly Cost: ${self.total_monthly_cost}
+- Total Domains: {len(self.registered_domains)}
+- Threshold Exceeded: {self.total_monthly_cost > self.cost_alert_threshold}
+
+Requirements:
+- Assess cost efficiency
+- Identify optimization opportunities
+- Provide recommendations for cost reduction
+- Suggest domain management improvements
+
+Return JSON with:
+{{
+  "cost_efficiency_analysis": str,
+  "optimization_opportunities": [str],
+  "cost_reduction_recommendations": [str],
+  "domain_management_suggestions": [str]
+}}
+"""
+        try:
+            if self.local_llm_client:
+                llm_response = await self.local_llm_client.complete(prompt, max_tokens=250)
+                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
+            else:
+                llm_data = {}
+        except Exception as e:
+            logger.warning(f"LLM cost summary analysis failed: {e}")
+            llm_data = {}
+
+        base_result["llm_insights"] = llm_data if llm_data else None
+        return base_result
 
 
 def get_domain_agent(

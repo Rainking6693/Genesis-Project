@@ -234,12 +234,39 @@ build/
         if not self.init_git_if_needed():
             return False
 
+        # Create environment with Node.js and Railway paths
+        import os
+        import copy
+        env = copy.deepcopy(os.environ)
+
+        # Add Node.js and Railway CLI to PATH
+        nodejs_path = r"C:\Program Files\nodejs"
+        railway_path = r"C:\Users\Administrator\AppData\Roaming\npm"
+
+        current_path = env.get("PATH", "")
+        if nodejs_path not in current_path:
+            env["PATH"] = f"{nodejs_path};{current_path}"
+        if railway_path not in env["PATH"]:
+            env["PATH"] = f"{railway_path};{env['PATH']}"
+
+        # Add Railway token for authentication
+        railway_token = os.getenv("RAILWAY_TOKEN")
+        if railway_token:
+            env["RAILWAY_TOKEN"] = railway_token
+            logger.info(f"✅ Railway token configured for autonomous deployment")
+        else:
+            logger.warning("⚠️  RAILWAY_TOKEN not found in environment - deployment may require manual login")
+
+        logger.info(f"✅ Added Node.js and Railway to subprocess PATH")
+
         # Check if Railway CLI is installed
         try:
             result = subprocess.run(
-                ["railway", "version"],
+                "railway version",
                 capture_output=True,
-                text=True
+                text=True,
+                shell=True,
+                env=env
             )
             logger.info(f"✅ Railway CLI version: {result.stdout.strip()}")
         except FileNotFoundError:
@@ -251,30 +278,42 @@ build/
         # Login check
         logger.info("Checking Railway authentication...")
         result = subprocess.run(
-            ["railway", "whoami"],
+            "railway whoami",
             cwd=self.app_path,
             capture_output=True,
-            text=True
+            text=True,
+            shell=True,
+            env=env
         )
 
         if result.returncode != 0:
             logger.info("Not logged in to Railway. Starting login...")
-            subprocess.run(["railway", "login"], cwd=self.app_path)
+            subprocess.run("railway login", cwd=self.app_path, shell=True, env=env)
 
-        # Link to project or create new
-        logger.info("Linking to Railway project...")
-        subprocess.run(
-            ["railway", "link"],
-            cwd=self.app_path
+        # Create new project (autonomous deployment)
+        logger.info("Creating new Railway project...")
+        result = subprocess.run(
+            "railway init",
+            cwd=self.app_path,
+            capture_output=True,
+            text=True,
+            shell=True,
+            env=env
         )
+        if result.returncode != 0:
+            logger.warning(f"⚠️  Railway init warning: {result.stderr}")
+        else:
+            logger.info("✅ Railway project created")
 
         # Deploy
         logger.info("Deploying to Railway...")
         result = subprocess.run(
-            ["railway", "up"],
+            "railway up",
             cwd=self.app_path,
             capture_output=True,
-            text=True
+            text=True,
+            shell=True,
+            env=env
         )
 
         if result.returncode == 0:

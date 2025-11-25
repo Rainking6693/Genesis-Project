@@ -52,6 +52,7 @@ from infrastructure.tumix_termination import (
 
 # Import StandardIntegrationMixin for ALL 283 integrations
 from infrastructure.standard_integration_mixin import StandardIntegrationMixin
+from infrastructure.smart_tool_router import SmartToolRouterMixin
 from infrastructure.mcp_chrome_devtools_client import ChromeDevToolsMCPClient
 
 # Import AP2 Protocol Support
@@ -138,7 +139,7 @@ class RefundRequest(BaseModel):
         return round(v, 2)
 
 
-class BillingAgent(StandardIntegrationMixin):
+class BillingAgent(SmartToolRouterMixin, StandardIntegrationMixin):
     """
     Payment processing and revenue management agent with AP2 protocol support
 
@@ -157,7 +158,8 @@ class BillingAgent(StandardIntegrationMixin):
         enable_ap2: bool = True,
         enable_crypto: bool = False
     ):
-        super().__init__()  # Initialize StandardIntegrationMixin with all 283 integrations
+        super().__init__()  # Initialize mixins and StandardIntegrationMixin
+        self.load_brain("checkpoints/latest_god_mode.json")
         self.business_id = business_id
         self.agent = None
         self.use_database = use_database and MONGO_AVAILABLE
@@ -205,18 +207,18 @@ class BillingAgent(StandardIntegrationMixin):
 
         if self.use_database:
             # Note: _init_database is now async but called from sync __init__
-        # This is acceptable as it's initialization code
-        import asyncio
-        try:
-            loop = asyncio.get_event_loop()
-            if loop.is_running():
-                # If loop is running, schedule it
-                asyncio.create_task(self._init_database())
-            else:
-                loop.run_until_complete(self._init_database())
-        except RuntimeError:
-            # No event loop, create one
-            asyncio.run(self._init_database())
+            # This is acceptable as it's initialization code
+            import asyncio
+            try:
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    # If loop is running, schedule it
+                    asyncio.create_task(self._init_database())
+                else:
+                    loop.run_until_complete(self._init_database())
+            except RuntimeError:
+                # No event loop, create one
+                asyncio.run(self._init_database())
 
         # Chrome DevTools MCP client for payment flow testing
         self.chrome_devtools_client = ChromeDevToolsMCPClient(agent_name="billing_agent")
@@ -1801,7 +1803,8 @@ Return JSON with:
             result = {
                 **health,
                 "business_id": self.business_id
-            }, indent=2)
+            }
+            return json.dumps(result, indent=2)
 
         except Exception as e:
             return json.dumps({

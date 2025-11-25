@@ -38,6 +38,7 @@ from typing import Any, Dict, List, Optional, Awaitable
 
 # Import DAAO and TUMIX
 from infrastructure.daao_router import get_daao_router, RoutingDecision
+from infrastructure.smart_tool_router import SmartToolRouterMixin
 from infrastructure.tumix_termination import (
     get_tumix_termination,
     RefinementResult,
@@ -69,7 +70,7 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 
-class MarketingAgent(StandardIntegrationMixin):
+class MarketingAgent(SmartToolRouterMixin, StandardIntegrationMixin):
     """
 
     Marketing Agent - Growth Specialist
@@ -94,7 +95,8 @@ class MarketingAgent(StandardIntegrationMixin):
         business_id: str = "default",
         ap2_service: Optional[AP2Service] = None,
     ):
-        super().__init__()  # Initialize StandardIntegrationMixin with all 283 integrations
+        super().__init__()  # Initialize mixins and StandardIntegrationMixin
+        self.load_brain("checkpoints/latest_god_mode.json")
         self.business_id = business_id
         self.agent = None
         self.campaigns_created = 0

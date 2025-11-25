@@ -122,6 +122,7 @@ from infrastructure.mcp_chrome_devtools_client import ChromeDevToolsMCPClient
 
 # Import StandardIntegrationMixin for ALL 283 integrations
 from infrastructure.standard_integration_mixin import StandardIntegrationMixin
+from infrastructure.smart_tool_router import SmartToolRouterMixin
 
 # VOIX integration for platform deployments
 try:
@@ -786,7 +787,7 @@ class GeminiComputerUseClient:
         }
 
 
-class DeployAgent(StandardIntegrationMixin):
+class DeployAgent(SmartToolRouterMixin, StandardIntegrationMixin):
     """
     Production-ready deployment agent with self-improvement capabilities
 
@@ -813,7 +814,8 @@ class DeployAgent(StandardIntegrationMixin):
         use_reflection: bool = True,
         use_api: bool = True  # Use API instead of browser automation
     ):
-        super().__init__()  # Initialize StandardIntegrationMixin
+        super().__init__()  # Initialize mixins and StandardIntegrationMixin
+        self.load_brain("checkpoints/latest_god_mode.json")
         self.business_id = business_id
         self.agent_id = f"deploy_agent_{business_id}"
         self.agent = None

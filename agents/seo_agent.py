@@ -38,15 +38,17 @@ from infrastructure.mcp_chrome_devtools_client import ChromeDevToolsMCPClient
 
 # Import StandardIntegrationMixin for ALL 283 integrations
 from infrastructure.standard_integration_mixin import StandardIntegrationMixin
+from infrastructure.smart_tool_router import SmartToolRouterMixin
 
 logger = logging.getLogger(__name__)
 
 
-class SEOAgent(StandardIntegrationMixin):
+class SEOAgent(SmartToolRouterMixin, StandardIntegrationMixin):
     """SEO optimization and search ranking agent"""
 
     def __init__(self, business_id: str = "default"):
-        super().__init__()  # Initialize StandardIntegrationMixin with all 283 integrations
+        super().__init__()  # Initialize mixins and StandardIntegrationMixin
+        self.load_brain("checkpoints/latest_god_mode.json")
         self.business_id = business_id
         self.agent: Optional[ChatAgent] = None
         self.x402_client = get_x402_client()

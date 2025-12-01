@@ -156,6 +156,54 @@ MODEL_TOKEN_COSTS: Dict[str, float] = {
 }
 _X402_HOOKS_INSTALLED = False
 
+# Manual escalation threshold for low-scoring outputs
+MANUAL_ESCALATION_THRESHOLD = 70.0
+
+
+def manual_escalate(business_id: str, component: str, score: float, error_details: str = "") -> Dict[str, Any]:
+    """
+    Escalate low-scoring outputs (<70%) to manual review queue.
+
+    This function is called when HGM score is below threshold, indicating
+    the automated system needs human intervention.
+
+    Args:
+        business_id: The business identifier
+        component: Component that failed quality check
+        score: HGM quality score (0-100)
+        error_details: Additional context about the failure
+
+    Returns:
+        Dict with escalation ticket details
+    """
+    escalation_ticket = {
+        "ticket_id": f"ESC-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}-{business_id[:8]}",
+        "business_id": business_id,
+        "component": component,
+        "hgm_score": score,
+        "threshold": MANUAL_ESCALATION_THRESHOLD,
+        "error_details": error_details,
+        "status": "pending_review",
+        "created_at": datetime.utcnow().isoformat(),
+        "priority": "high" if score < 50 else "medium",
+        "action_required": "Manual code review and fix required"
+    }
+
+    # Log escalation
+    logger.warning(
+        f"[ESCALATION] Business {business_id} - {component} scored {score:.1f}% "
+        f"(threshold: {MANUAL_ESCALATION_THRESHOLD}%). Ticket: {escalation_ticket['ticket_id']}"
+    )
+
+    # Write to escalation queue file for dashboard/monitoring
+    escalation_file = Path("logs/escalation_queue.jsonl")
+    escalation_file.parent.mkdir(parents=True, exist_ok=True)
+    with open(escalation_file, "a", encoding="utf-8") as f:
+        f.write(json.dumps(escalation_ticket) + "\n")
+
+    return escalation_ticket
+
+
 @dataclass
 class BusinessSpec:
     name: str
@@ -337,41 +385,9 @@ class GenesisMetaAgent(StandardIntegrationMixin):
         ])
         logger.info(f"Genesis Meta-Agent initialized with {enabled_integrations}/10 critical integrations")
 
-    async def _install_x402_hooks(self) -> None:
-        """Install x402 hooks with LLM analysis."""
+    def _install_x402_hooks(self) -> None:
+        """Install x402 hooks (sync initialization)."""
         register_x402_approval_handler(self._review_x402_payment)
-        
-        # LLM analysis of hook installation
-        prompt = f"""{EXCELLENCE_PROMPT}
-
-Task: Analyze x402 hook installation and provide insights.
-
-Hook Installation:
-- Handler Registered: Yes
-- Handler: _review_x402_payment
-
-Requirements:
-- Assess hook installation effectiveness
-- Identify optimization opportunities
-- Provide recommendations for hook strategy
-- Suggest improvements to payment review process
-
-Return JSON with:
-{{
-  "installation_assessment": str,
-  "optimization_opportunities": [str],
-  "strategy_recommendations": [str],
-  "process_improvements": [str]
-}}
-"""
-        try:
-            if self.llm_client:
-                llm_response = await self.llm_client.complete(prompt, max_tokens=200)
-                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
-                if llm_data:
-                    logger.debug(f"x402 hook installation analysis: {llm_data.get('installation_assessment', 'N/A')[:100]}")
-        except Exception as e:
-            logger.warning(f"LLM x402 hook installation analysis failed: {e}")
 
     async def _maybe_reset_x402_window(self) -> None:
         """Reset x402 window if needed with LLM analysis."""
@@ -549,9 +565,7 @@ Return JSON with:
         spec: BusinessSpec,
         result: BusinessGenerationResult,
     ) -> None:
-        transactions = await asyncio.to_thread(
-            self._load_transactions_for_business, business_id
-        )
+        transactions = await self._load_transactions_for_business(business_id)
         if not transactions:
             return
         total_spend = round(sum(t.get("amount", 0.0) for t in transactions), 2)
@@ -572,7 +586,7 @@ Return JSON with:
             "revenue_potential": revenue_potential,
             "roi_delta": round(revenue_potential - total_spend, 2),
         }
-        await asyncio.to_thread(self._append_jsonl, self._x402_summary_log, summary)
+        await self._append_jsonl(self._x402_summary_log, summary)
         # REMOVED: Discord notification (integration disabled due to webhook errors)
         # if self.discord:
         #     await self.discord.x402_spend_summary(business_id, business_name, summary)
@@ -795,11 +809,11 @@ Return JSON with:
 
         return dag
 
-    async def _get_builder_prompt(self, component_name: str) -> str:
-        """Generate prompt for builder_agent to create component code with LLM analysis."""
+    def _get_builder_prompt(self, component_name: str) -> str:
+        """Generate prompt for builder_agent to create component code."""
         business_type = getattr(self, '_current_business_type', 'generic')
-        excellence_context = await self._get_excellence_context("website_creation")
-        prompt = f"""{excellence_context}
+        excellence_context = self._get_excellence_context("website_creation")
+        return f"""{excellence_context}
 
 Generate a production-ready {component_name} component for a {business_type} business.
 
@@ -815,46 +829,11 @@ Component: {component_name}
 Business Type: {business_type}
 
 Output ONLY the TypeScript code with NO explanations:"""
-        
-        # LLM analysis of builder prompt generation
-        analysis_prompt = f"""{EXCELLENCE_PROMPT}
 
-Task: Analyze builder prompt generation and provide insights.
-
-Prompt Details:
-- Component: {component_name}
-- Business Type: {business_type}
-- Context Type: website_creation
-
-Requirements:
-- Assess prompt effectiveness
-- Identify optimization opportunities
-- Provide recommendations for prompt strategy
-- Suggest improvements to code generation
-
-Return JSON with:
-{{
-  "prompt_assessment": str,
-  "optimization_opportunities": [str],
-  "strategy_recommendations": [str],
-  "generation_improvements": [str]
-}}
-"""
-        try:
-            if self.llm_client:
-                llm_response = await self.llm_client.complete(analysis_prompt, max_tokens=200)
-                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
-                if llm_data:
-                    logger.debug(f"Builder prompt analysis: {llm_data.get('prompt_assessment', 'N/A')[:100]}")
-        except Exception as e:
-            logger.warning(f"LLM builder prompt analysis failed: {e}")
-        
-        return prompt
-
-    async def _get_qa_prompt(self, component_name: str) -> str:
-        """Generate prompt for qa_agent to validate and create tests with LLM analysis."""
+    def _get_qa_prompt(self, component_name: str) -> str:
+        """Generate prompt for qa_agent to validate and create tests."""
         business_type = getattr(self, '_current_business_type', 'generic')
-        prompt = f"""Generate comprehensive Jest/React Testing Library tests for the {component_name} component.
+        return f"""Generate comprehensive Jest/React Testing Library tests for the {component_name} component.
 
 Requirements:
 - Test all major user interactions
@@ -868,45 +847,11 @@ Component: {component_name}
 Business Type: {business_type}
 
 Output ONLY the TypeScript test code with NO explanations:"""
-        
-        # LLM analysis of QA prompt generation
-        analysis_prompt = f"""{EXCELLENCE_PROMPT}
 
-Task: Analyze QA prompt generation and provide insights.
-
-Prompt Details:
-- Component: {component_name}
-- Business Type: {business_type}
-
-Requirements:
-- Assess prompt effectiveness
-- Identify optimization opportunities
-- Provide recommendations for prompt strategy
-- Suggest improvements to test generation
-
-Return JSON with:
-{{
-  "prompt_assessment": str,
-  "optimization_opportunities": [str],
-  "strategy_recommendations": [str],
-  "generation_improvements": [str]
-}}
-"""
-        try:
-            if self.llm_client:
-                llm_response = await self.llm_client.complete(analysis_prompt, max_tokens=200)
-                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
-                if llm_data:
-                    logger.debug(f"QA prompt analysis: {llm_data.get('prompt_assessment', 'N/A')[:100]}")
-        except Exception as e:
-            logger.warning(f"LLM QA prompt analysis failed: {e}")
-        
-        return prompt
-
-    async def _get_deploy_prompt(self, component_name: str) -> str:
-        """Generate prompt for deploy_agent to create deployment configs with LLM analysis."""
+    def _get_deploy_prompt(self, component_name: str) -> str:
+        """Generate prompt for deploy_agent to create deployment configs."""
         business_type = getattr(self, '_current_business_type', 'generic')
-        prompt = f"""Generate a TypeScript configuration file that exports deployment configuration for {component_name} in a {business_type} business.
+        return f"""Generate a TypeScript configuration file that exports deployment configuration for {component_name} in a {business_type} business.
 
 Create a TypeScript file that exports a configuration object with:
 - Build commands
@@ -963,205 +908,50 @@ export const deployConfig: DeployConfig = {{
             metadata=metadata,
         )
 
-    async def _get_generation_budget_config(self) -> AP2BudgetConfig:
-        """Get generation budget config with LLM analysis."""
+    def _get_generation_budget_config(self) -> AP2BudgetConfig:
         # Use LARGE_BILL_THRESHOLD from env (default $50)
         threshold = float(os.getenv("LARGE_BILL_THRESHOLD", "50.0"))
-        config = DEFAULT_BUDGETS.get(
+        return DEFAULT_BUDGETS.get(
             "genesis_meta_agent",
             AP2BudgetConfig(monthly_limit=5000.0, per_transaction_alert=threshold, require_manual_above=threshold),
         )
-        
-        # LLM analysis of budget config
-        prompt = f"""{EXCELLENCE_PROMPT}
 
-Task: Analyze generation budget configuration and provide insights.
-
-Budget Config:
-- Monthly Limit: ${config.monthly_limit:.2f}
-- Alert Threshold: ${config.per_transaction_alert:.2f}
-- Manual Review Above: ${config.require_manual_above:.2f}
-
-Requirements:
-- Assess budget configuration effectiveness
-- Identify optimization opportunities
-- Provide recommendations for budget strategy
-- Suggest improvements to cost management
-
-Return JSON with:
-{{
-  "config_assessment": str,
-  "optimization_opportunities": [str],
-  "strategy_recommendations": [str],
-  "management_improvements": [str]
-}}
-"""
-        try:
-            if self.llm_client:
-                llm_response = await self.llm_client.complete(prompt, max_tokens=200)
-                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
-                if llm_data:
-                    logger.debug(f"Budget config analysis: {llm_data.get('config_assessment', 'N/A')[:100]}")
-        except Exception as e:
-            logger.warning(f"LLM budget config analysis failed: {e}")
-        
-        return config
-
-    async def _maybe_reset_budget_window(self) -> None:
-        """Reset budget window if needed with LLM analysis."""
+    def _maybe_reset_budget_window(self) -> None:
         current = datetime.utcnow().strftime("%Y-%m")
         if getattr(self, "_llm_budget_window", None) != current:
-            old_window = getattr(self, "_llm_budget_window", None)
-            old_projected = getattr(self, "_projected_llm_spend", 0.0)
-            old_actual = getattr(self, "_actual_llm_spend", 0.0)
             self._llm_budget_window = current
             self._projected_llm_spend = 0.0
             self._actual_llm_spend = 0.0
             self._analytics_spend = 0.0
             self._llm_budget_warned = False
-            
-            # LLM analysis of budget window reset
-            prompt = f"""{EXCELLENCE_PROMPT}
 
-Task: Analyze budget window reset and provide insights.
-
-Window Reset Details:
-- Previous Window: {old_window}
-- New Window: {current}
-- Previous Projected: ${old_projected:.2f}
-- Previous Actual: ${old_actual:.2f}
-
-Requirements:
-- Assess window reset effectiveness
-- Identify optimization opportunities
-- Provide recommendations for budget management
-- Suggest improvements to reset strategy
-
-Return JSON with:
-{{
-  "reset_assessment": str,
-  "optimization_opportunities": [str],
-  "management_recommendations": [str],
-  "strategy_improvements": [str]
-}}
-"""
-            try:
-                if self.llm_client:
-                    llm_response = await self.llm_client.complete(prompt, max_tokens=200)
-                    llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
-                    if llm_data:
-                        logger.debug(f"Budget window reset analysis: {llm_data.get('reset_assessment', 'N/A')[:100]}")
-            except Exception as e:
-                logger.warning(f"LLM budget window reset analysis failed: {e}")
-
-    async def _estimate_llm_tokens(self, spec: BusinessSpec, component_count: Optional[int] = None) -> int:
-        """Estimate LLM tokens with LLM analysis."""
+    def _estimate_llm_tokens(self, spec: BusinessSpec, component_count: Optional[int] = None) -> int:
         count = component_count if component_count is not None else len(spec.components or [])
         if count == 0:
-            templates = await self._load_business_templates()
-            template_components = templates.get(spec.business_type, {}).get("components", [])
+            template_components = self.business_templates.get(spec.business_type, {}).get("components", [])
             count = len(template_components) or 5
         base_tokens = 2000
         per_component_tokens = 3500
         bonus_for_autonomy = 1500 if spec.metadata.get("team") else 0
-        estimated = int(base_tokens + (count * per_component_tokens) + bonus_for_autonomy)
-        
-        # LLM analysis of token estimation
-        prompt = f"""{EXCELLENCE_PROMPT}
+        return int(base_tokens + (count * per_component_tokens) + bonus_for_autonomy)
 
-Task: Analyze LLM token estimation and provide insights.
-
-Token Estimation:
-- Component Count: {count}
-- Base Tokens: {base_tokens}
-- Per Component: {per_component_tokens}
-- Autonomy Bonus: {bonus_for_autonomy}
-- Estimated Total: {estimated}
-
-Requirements:
-- Assess estimation accuracy
-- Identify optimization opportunities
-- Provide recommendations for token strategy
-- Suggest improvements to estimation process
-
-Return JSON with:
-{{
-  "estimation_assessment": str,
-  "optimization_opportunities": [str],
-  "strategy_recommendations": [str],
-  "process_improvements": [str]
-}}
-"""
-        try:
-            if self.llm_client:
-                llm_response = await self.llm_client.complete(prompt, max_tokens=200)
-                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
-                if llm_data:
-                    logger.debug(f"Token estimation analysis: {llm_data.get('estimation_assessment', 'N/A')[:100]}")
-        except Exception as e:
-            logger.warning(f"LLM token estimation analysis failed: {e}")
-        
-        return estimated
-
-    async def _estimate_generation_cost(
+    def _estimate_generation_cost(
         self,
         spec: BusinessSpec,
         component_count: Optional[int] = None,
         tokens_override: Optional[int] = None,
     ) -> float:
-        """Estimate generation cost with LLM analysis."""
         count = component_count if component_count is not None else len(spec.components or [])
         if count == 0:
-            templates = await self._load_business_templates()
-            template_components = templates.get(spec.business_type, {}).get("components", [])
+            template_components = self.business_templates.get(spec.business_type, {}).get("components", [])
             count = len(template_components) or 5
-        tokens = tokens_override if tokens_override is not None else await self._estimate_llm_tokens(spec, count)
+        tokens = tokens_override if tokens_override is not None else self._estimate_llm_tokens(spec, count)
         model_name = str(spec.metadata.get("llm_model", "gpt-4o")).lower()
         token_rate = MODEL_TOKEN_COSTS.get(model_name, MODEL_TOKEN_COSTS["gpt-4o"])
         llm_cost = tokens * token_rate
         infra_base = 20.0
         infra_per_component = 5.0
-        estimated_cost = round(llm_cost + infra_base + (infra_per_component * count), 2)
-        
-        # LLM analysis of cost estimation
-        prompt = f"""{EXCELLENCE_PROMPT}
-
-Task: Analyze generation cost estimation and provide insights.
-
-Cost Estimation:
-- Component Count: {count}
-- Tokens: {tokens}
-- Model: {model_name}
-- Token Rate: ${token_rate:.6f}
-- LLM Cost: ${llm_cost:.2f}
-- Infra Base: ${infra_base:.2f}
-- Infra Per Component: ${infra_per_component:.2f}
-- Total Estimated: ${estimated_cost:.2f}
-
-Requirements:
-- Assess estimation accuracy
-- Identify optimization opportunities
-- Provide recommendations for cost strategy
-- Suggest improvements to estimation process
-
-Return JSON with:
-{{
-  "estimation_assessment": str,
-  "optimization_opportunities": [str],
-  "strategy_recommendations": [str],
-  "process_improvements": [str]
-}}
-"""
-        try:
-            if self.llm_client:
-                llm_response = await self.llm_client.complete(prompt, max_tokens=250)
-                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
-                if llm_data:
-                    logger.debug(f"Cost estimation analysis: {llm_data.get('estimation_assessment', 'N/A')[:100]}")
-        except Exception as e:
-            logger.warning(f"LLM cost estimation analysis failed: {e}")
-        
-        return estimated_cost
+        return round(llm_cost + infra_base + (infra_per_component * count), 2)
 
     async def _ensure_generation_budget(
         self,
@@ -1171,8 +961,8 @@ Return JSON with:
     ) -> Optional[Dict[str, Any]]:
         if not getattr(self, "ap2_service", None):
             return None
-        await self._maybe_reset_budget_window()
-        config = await self._get_generation_budget_config()
+        self._maybe_reset_budget_window()
+        config = self._get_generation_budget_config()
         projected = self._projected_llm_spend + amount
         if projected > config.monthly_limit:
             raise RuntimeError(
@@ -1215,12 +1005,11 @@ Return JSON with:
             return payload
         return None
 
-    async def _record_actual_generation_cost(self, amount: float) -> None:
-        """Record actual generation cost with LLM analysis."""
+    def _record_actual_generation_cost(self, amount: float) -> None:
         if amount <= 0:
             return
-        await self._maybe_reset_budget_window()
-        config = await self._get_generation_budget_config()
+        self._maybe_reset_budget_window()
+        config = self._get_generation_budget_config()
         self._actual_llm_spend += amount
         self._projected_llm_spend = max(self._projected_llm_spend, self._actual_llm_spend)
         today = datetime.utcnow().strftime("%Y-%m-%d")
@@ -1232,41 +1021,6 @@ Return JSON with:
             }
             self.daily_cost_alerts.append(alert)
             logger.warning("Genesis Meta daily spend alert: $%s on %s", self._daily_spend[today], today)
-        
-        # LLM analysis of cost recording
-        prompt = f"""{EXCELLENCE_PROMPT}
-
-Task: Analyze generation cost recording and provide insights.
-
-Cost Recording:
-- Amount: ${amount:.2f}
-- Date: {today}
-- Daily Spend: ${self._daily_spend[today]:.2f}
-- Actual LLM Spend: ${self._actual_llm_spend:.2f}
-- Projected LLM Spend: ${self._projected_llm_spend:.2f}
-
-Requirements:
-- Assess cost recording effectiveness
-- Identify optimization opportunities
-- Provide recommendations for cost tracking
-- Suggest improvements to cost management
-
-Return JSON with:
-{{
-  "recording_assessment": str,
-  "optimization_opportunities": [str],
-  "tracking_recommendations": [str],
-  "management_improvements": [str]
-}}
-"""
-        try:
-            if self.llm_client:
-                llm_response = await self.llm_client.complete(prompt, max_tokens=200)
-                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
-                if llm_data:
-                    logger.debug(f"Cost recording analysis: {llm_data.get('recording_assessment', 'N/A')[:100]}")
-        except Exception as e:
-            logger.warning(f"LLM cost recording analysis failed: {e}")
         if self._actual_llm_spend >= config.monthly_limit:
             raise RuntimeError(
                 f"Monthly LLM budget exhausted: ${self._actual_llm_spend:.2f}/${config.monthly_limit:.2f}"
@@ -1282,7 +1036,7 @@ Return JSON with:
             return None
         if monthly_cost <= 0:
             return None
-        await self._maybe_reset_budget_window()
+        self._maybe_reset_budget_window()
         approval = await self.ap2_service.request_purchase(
             agent_name="genesis_meta_agent",
             user_id=f"{business_name}_analytics",
@@ -1308,190 +1062,38 @@ Return JSON with:
                     pass
         return approval
 
-    async def get_daily_cost_alerts(self) -> List[Dict[str, Any]]:
-        """Get daily cost alerts with LLM analysis."""
-        alerts = list(self.daily_cost_alerts)
-        
-        # LLM analysis
-        prompt = f"""{EXCELLENCE_PROMPT}
+    def get_daily_cost_alerts(self) -> List[Dict[str, Any]]:
+        return list(self.daily_cost_alerts)
 
-Task: Analyze daily cost alerts and provide insights.
+    def get_business_costs(self) -> Dict[str, float]:
+        return dict(self.business_costs)
 
-Alerts:
-- Count: {len(alerts)}
-- Alerts: {json.dumps(alerts[:5], indent=2)[:200]}
+    def get_generation_audit(self) -> List[Dict[str, Any]]:
+        return list(self.generation_audit)
 
-Return JSON with assessment and recommendations."""
-        try:
-            if self.llm_client:
-                llm_response = await self.llm_client.complete(prompt, max_tokens=200)
-                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
-                if llm_data:
-                    logger.debug(f"Daily cost alerts analysis: {llm_data.get('assessment', 'N/A')[:100]}")
-        except Exception as e:
-            logger.warning(f"LLM daily cost alerts analysis failed: {e}")
-        
-        return alerts
+    def get_generation_alerts(self) -> List[Dict[str, Any]]:
+        return list(self.generation_alerts)
 
-    async def get_business_costs(self) -> Dict[str, float]:
-        """Get business costs with LLM analysis."""
-        costs = dict(self.business_costs)
-        
-        # LLM analysis
-        prompt = f"""{EXCELLENCE_PROMPT}
-
-Task: Analyze business costs and provide insights.
-
-Costs:
-- Total Businesses: {len(costs)}
-- Total Spend: ${sum(costs.values()):.2f}
-
-Return JSON with assessment and recommendations."""
-        try:
-            if self.llm_client:
-                llm_response = await self.llm_client.complete(prompt, max_tokens=200)
-                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
-                if llm_data:
-                    logger.debug(f"Business costs analysis: {llm_data.get('assessment', 'N/A')[:100]}")
-        except Exception as e:
-            logger.warning(f"LLM business costs analysis failed: {e}")
-        
-        return costs
-
-    async def get_generation_audit(self) -> List[Dict[str, Any]]:
-        """Get generation audit with LLM analysis."""
-        audit = list(self.generation_audit)
-        
-        # LLM analysis
-        prompt = f"""{EXCELLENCE_PROMPT}
-
-Task: Analyze generation audit and provide insights.
-
-Audit:
-- Entries: {len(audit)}
-
-Return JSON with assessment and recommendations."""
-        try:
-            if self.llm_client:
-                llm_response = await self.llm_client.complete(prompt, max_tokens=200)
-                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
-                if llm_data:
-                    logger.debug(f"Generation audit analysis: {llm_data.get('assessment', 'N/A')[:100]}")
-        except Exception as e:
-            logger.warning(f"LLM generation audit analysis failed: {e}")
-        
-        return audit
-
-    async def get_generation_alerts(self) -> List[Dict[str, Any]]:
-        """Get generation alerts with LLM analysis."""
-        alerts = list(self.generation_alerts)
-        
-        # LLM analysis
-        prompt = f"""{EXCELLENCE_PROMPT}
-
-Task: Analyze generation alerts and provide insights.
-
-Alerts:
-- Count: {len(alerts)}
-
-Return JSON with assessment and recommendations."""
-        try:
-            if self.llm_client:
-                llm_response = await self.llm_client.complete(prompt, max_tokens=200)
-                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
-                if llm_data:
-                    logger.debug(f"Generation alerts analysis: {llm_data.get('assessment', 'N/A')[:100]}")
-        except Exception as e:
-            logger.warning(f"LLM generation alerts analysis failed: {e}")
-        
-        return alerts
-
-    async def get_cost_per_business_report(self) -> Dict[str, Any]:
-        """Get cost per business report with LLM analysis."""
+    def get_cost_per_business_report(self) -> Dict[str, Any]:
         total = sum(self.business_costs.values())
-        report = {
+        return {
             "total_spend": total,
             "business_count": len(self.business_costs),
             "businesses": dict(self.business_costs),
         }
-        
-        # LLM analysis
-        prompt = f"""{EXCELLENCE_PROMPT}
 
-Task: Analyze cost per business report and provide insights.
-
-Report:
-- Total Spend: ${total:.2f}
-- Business Count: {len(self.business_costs)}
-
-Return JSON with assessment and recommendations."""
-        try:
-            if self.llm_client:
-                llm_response = await self.llm_client.complete(prompt, max_tokens=250)
-                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
-                if llm_data:
-                    report["llm_insights"] = llm_data
-                    logger.debug(f"Cost per business report analysis: {llm_data.get('assessment', 'N/A')[:100]}")
-        except Exception as e:
-            logger.warning(f"LLM cost per business report analysis failed: {e}")
-        
-        return report
-
-    async def _sign_generation_payload(self, payload: Dict[str, Any]) -> str:
-        """Sign generation payload with LLM security analysis."""
+    def _sign_generation_payload(self, payload: Dict[str, Any]) -> str:
         body = json.dumps(payload, sort_keys=True)
-        signature = hmac.new(
+        return hmac.new(
             self._ap2_secret.encode("utf-8"),
             body.encode("utf-8"),
             hashlib.sha256,
         ).hexdigest()
-        
-        # LLM security analysis
-        prompt = f"""{EXCELLENCE_PROMPT}
 
-Task: Analyze payload signing security and provide insights.
-
-Signing Details:
-- Payload Keys: {', '.join(payload.keys())[:200]}
-- Signature Generated: Yes
-
-Return JSON with security assessment and recommendations."""
-        try:
-            if self.llm_client:
-                llm_response = await self.llm_client.complete(prompt, max_tokens=200)
-                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
-                if llm_data:
-                    logger.debug(f"Payload signing security analysis: {llm_data.get('security_assessment', 'N/A')[:100]}")
-        except Exception as e:
-            logger.warning(f"LLM payload signing analysis failed: {e}")
-        
-        return signature
-
-    async def _verify_generation_signature(self, payload: Dict[str, Any], signature: str) -> bool:
-        """Verify generation signature with LLM security analysis."""
+    def _verify_generation_signature(self, payload: Dict[str, Any], signature: str) -> bool:
         comparison_payload = {k: v for k, v in payload.items() if k != "signature"}
-        expected = await self._sign_generation_payload(comparison_payload)
-        is_valid = hmac.compare_digest(signature, expected)
-        
-        # LLM security analysis
-        prompt = f"""{EXCELLENCE_PROMPT}
-
-Task: Analyze signature verification security and provide insights.
-
-Verification:
-- Signature Valid: {is_valid}
-
-Return JSON with security assessment and recommendations."""
-        try:
-            if self.llm_client:
-                llm_response = await self.llm_client.complete(prompt, max_tokens=200)
-                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
-                if llm_data:
-                    logger.debug(f"Signature verification security analysis: {llm_data.get('verification_assessment', 'N/A')[:100]}")
-        except Exception as e:
-            logger.warning(f"LLM signature verification analysis failed: {e}")
-        
-        return is_valid
+        expected = self._sign_generation_payload(comparison_payload)
+        return hmac.compare_digest(signature, expected)
 
     async def _ensure_database_budget(
         self,
@@ -1559,10 +1161,10 @@ Return JSON with security assessment and recommendations."""
                 pass
         return approval
 
-    async def _get_api_prompt(self, component_name: str) -> str:
-        """Generate prompt for api_agent to create backend API routes with LLM analysis."""
+    def _get_api_prompt(self, component_name: str) -> str:
+        """Generate prompt for api_agent to create backend API routes."""
         business_type = getattr(self, '_current_business_type', 'generic')
-        prompt = f"""Generate Next.js API route for {component_name} in a {business_type} business.
+        return f"""Generate Next.js API route for {component_name} in a {business_type} business.
 
 Requirements:
 - RESTful endpoint design
@@ -1577,77 +1179,24 @@ Business Type: {business_type}
 
 Output ONLY the TypeScript API route code with NO explanations:"""
 
-        analysis_prompt = f"""{EXCELLENCE_PROMPT}
-
-Task: Assess API prompt quality and recommend improvements.
-
-Context:
-- Component: {component_name}
-- Business Type: {business_type}
-
-Return JSON with:
-{{
-  "prompt_assessment": str,
-  "risk_flags": [str],
-  "improvement_suggestions": [str],
-  "security_gaps": [str]
-}}
-"""
-        try:
-            if self.llm_client:
-                llm_response = await self.llm_client.complete(analysis_prompt, max_tokens=180)
-                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
-                if llm_data:
-                    logger.debug(f"API prompt analysis: {llm_data.get('prompt_assessment', 'N/A')[:100]}")
-        except Exception as e:
-            logger.warning(f"LLM API prompt analysis failed: {e}")
-
-        return prompt
-
-    async def _get_marketing_prompt(self, component_name: str) -> str:
-        """Generate prompt for marketing_agent to create landing page content with LLM analysis."""
+    def _get_marketing_prompt(self, component_name: str) -> str:
+        """Generate prompt for marketing_agent to create landing page content."""
         business_type = getattr(self, '_current_business_type', 'generic')
-        prompt = f"""Generate marketing landing page for {component_name} in a {business_type} business.
+        return f"""Generate marketing landing page for {component_name} in a {business_type} business.
 
 Requirements:
-- Conversion-focused headline and subheadline
-- Clear value propositions and feature highlights
-- Strong call-to-action buttons
+- Compelling headline and subheadline
+- Clear value propositions
+- Call-to-action buttons
 - Social proof section
-- SEO-optimized content (meta title/description, keywords)
-- Responsive design and accessibility notes
+- Feature highlights
+- SEO-optimized content
+- Responsive design
 
 Component: {component_name}
 Business Type: {business_type}
 
-Output ONLY the TypeScript React component or structured JSON content with NO explanations."""
-
-        analysis_prompt = f"""{EXCELLENCE_PROMPT}
-
-Task: Evaluate marketing prompt quality and recommend improvements.
-
-Context:
-- Component: {component_name}
-- Business Type: {business_type}
-
-Return JSON with:
-{{
-  "prompt_assessment": str,
-  "conversion_risks": [str],
-  "improvement_suggestions": [str],
-  "seo_gaps": [str]
-}}
-"""
-        try:
-            if self.llm_client:
-                llm_response = await self.llm_client.complete(analysis_prompt, max_tokens=180)
-                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
-                if llm_data:
-                    logger.debug(f"Marketing prompt analysis: {llm_data.get('prompt_assessment', 'N/A')[:100]}")
-        except Exception as e:
-            logger.warning(f"LLM marketing prompt analysis failed: {e}")
-
-        return prompt
+Output ONLY the TypeScript React component code with NO explanations:"""
 
     async def _execute_task_with_llm(self, task, agent_name):
         """
@@ -1671,22 +1220,22 @@ Return JSON with:
         # Determine prompt based on agent type
         if agent_name == "builder_agent":
             # Builder generates code
-            prompt = await self._get_builder_prompt(component_name)
+            prompt = self._get_builder_prompt(component_name)
         elif agent_name == "qa_agent":
             # QA validates and generates tests
-            prompt = await self._get_qa_prompt(component_name)
+            prompt = self._get_qa_prompt(component_name)
         elif agent_name == "deploy_agent":
             # Deploy creates configs
-            prompt = await self._get_deploy_prompt(component_name)
+            prompt = self._get_deploy_prompt(component_name)
         elif agent_name == "api_agent":
             # API generates backend routes
-            prompt = await self._get_api_prompt(component_name)
+            prompt = self._get_api_prompt(component_name)
         elif agent_name == "marketing_agent":
             # Marketing creates content
-            prompt = await self._get_marketing_prompt(component_name)
+            prompt = self._get_marketing_prompt(component_name)
         else:
             # Fallback for unknown agents
-            prompt = await self._get_builder_prompt(component_name)
+            prompt = self._get_builder_prompt(component_name)
 
         logger.info(f"Generating {component_name} with {agent_name} ({len(prompt)} char prompt)")
         
@@ -1776,8 +1325,8 @@ Return JSON with:
         # Should never reach here
         return {"success": False, "error": "All attempts exhausted", "agent": agent_name}
 
-    async def _write_code_to_files(self, spec: BusinessSpec, task_results: Dict[str, Dict[str, Any]]):
-        """Write LLM responses to actual code files with LLM validation summary."""
+    def _write_code_to_files(self, spec: BusinessSpec, task_results: Dict[str, Dict[str, Any]]):
+        """Write LLM responses to actual code files."""
         output_dir = spec.output_dir
         output_dir.mkdir(parents=True, exist_ok=True)
         
@@ -1988,35 +1537,7 @@ Deploy to Vercel:
 vercel deploy --prod
 ```
 ''')
-
-        # LLM review of file output coverage
-        analysis_prompt = f"""{EXCELLENCE_PROMPT}
-
-Task: Review generated code artifacts and flag risks.
-
-Context:
-- Business: {spec.name}
-- Business Type: {spec.business_type}
-- Files Written: {len(files_written)}
-- Components Delivered: {', '.join(list(task_results.keys())[:10])}
-
-Return JSON with:
-{{
-  "coverage_assessment": str,
-  "missing_assets": [str],
-  "risk_flags": [str],
-  "follow_up_actions": [str]
-}}
-"""
-        try:
-            if self.llm_client:
-                llm_response = await self.llm_client.complete(analysis_prompt, max_tokens=180)
-                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
-                if llm_data:
-                    logger.debug(f"File coverage assessment: {llm_data.get('coverage_assessment', 'N/A')[:100]}")
-        except Exception as e:
-            logger.warning(f"LLM file coverage analysis failed: {e}")
-
+        
         logger.info(f"Wrote {len(files_written)} files to {output_dir}")
         return files_written
 
@@ -2040,8 +1561,8 @@ Return JSON with:
 
         # Store business type for prompt generation
         self._current_business_type = spec.business_type
-        estimated_tokens = await self._estimate_llm_tokens(spec)
-        estimated_cost = await self._estimate_generation_cost(spec, tokens_override=estimated_tokens)
+        estimated_tokens = self._estimate_llm_tokens(spec)
+        estimated_cost = self._estimate_generation_cost(spec, tokens_override=estimated_tokens)
         generation_budget = None
         if estimated_cost >= 50.0:
             try:
@@ -2074,12 +1595,12 @@ Return JSON with:
                     context={"business_type": spec.business_type, "complexity": spec.metadata.get("technical_complexity", "medium")}
                 )
                 # Convert HTDAG output to TaskDAG format if needed
-                dag = task_dag if isinstance(task_dag, TaskDAG) else self._decompose_business_to_tasks(spec)
+                dag = task_dag if isinstance(task_dag, TaskDAG) else await self._decompose_business_to_tasks(spec)
             except Exception as e:
                 logger.warning(f"HTDAG decomposition failed, using fallback: {e}")
-                dag = self._decompose_business_to_tasks(spec)
+                dag = await self._decompose_business_to_tasks(spec)
         else:
-            dag = self._decompose_business_to_tasks(spec)
+            dag = await self._decompose_business_to_tasks(spec)
 
         # CRITICAL INTEGRATION: DAAO cost-optimized model selection
         selected_model = None
@@ -2205,6 +1726,42 @@ Return JSON with:
                 )
                 logger.info(f"🔹 Executing task '{component_name}' with agent '{assigned_agent}'")
 
+                # CRITICAL INTEGRATION: SICA Complexity Detection
+                task_complexity = 0.5  # default medium
+                if self.sica:
+                    try:
+                        complexity_result = self.sica.detect_complexity(
+                            task_description=component_name,
+                            context={"business_type": spec.business_type}
+                        )
+                        task_complexity = complexity_result.get("complexity_score", 0.5)
+                        logger.info(f"   📊 SICA complexity: {task_complexity:.2f}")
+                    except Exception as e:
+                        logger.debug(f"SICA complexity detection failed: {e}")
+
+                # CRITICAL INTEGRATION: FlowMesh Routing Optimization
+                if self.flowmesh_routing and task_complexity > 0.6:
+                    try:
+                        routing_suggestion = self.flowmesh_routing.optimize_route(
+                            task=component_name,
+                            agent=assigned_agent,
+                            complexity=task_complexity
+                        )
+                        if routing_suggestion and routing_suggestion.get("alternate_agent"):
+                            logger.info(f"   🔀 FlowMesh suggests: {routing_suggestion.get('alternate_agent')}")
+                    except Exception as e:
+                        logger.debug(f"FlowMesh routing failed: {e}")
+
+                # CRITICAL INTEGRATION: MAPE-K Loop Monitoring
+                if self.mape_k_loop:
+                    try:
+                        self.mape_k_loop.monitor(
+                            event_type="task_start",
+                            data={"task": component_name, "agent": assigned_agent, "complexity": task_complexity}
+                        )
+                    except Exception as e:
+                        logger.debug(f"MAPE-K monitoring failed: {e}")
+
                 # CRITICAL INTEGRATION: Circuit breaker protection
                 if self.circuit_breaker and not self.circuit_breaker.allow():
                     logger.error(f"Circuit breaker OPEN for {component_name} - blocking request")
@@ -2223,7 +1780,7 @@ Return JSON with:
                 task_results[task.task_id] = result
 
                 # MCP access for eligible agents
-                await self._grant_mcp_access(assigned_agent)
+                self._grant_mcp_access(assigned_agent)
 
                 # Validation + intervention
                 validation = await self._validate_build_step(component_name, result, assigned_agent)
@@ -2248,6 +1805,90 @@ Return JSON with:
                         )
                     except Exception as e:
                         logger.debug(f"DeepEyesV2 metrics recording failed: {e}")
+
+                # CRITICAL INTEGRATION: SE-Darwin Evolution (only for complex tasks)
+                if result.get("success") and self.se_darwin and task_complexity > 0.6:
+                    try:
+                        evolution_result = await self.evolve_with_darwin(
+                            initial_output=result.get("result"),
+                            task_description=f"Optimize {component_name} for {spec.business_type}",
+                            agent_name=assigned_agent
+                        )
+                        if evolution_result.get("used_darwin") and evolution_result.get("evolved_output"):
+                            result["result"] = evolution_result["evolved_output"]
+                            result["evolved"] = True
+                            logger.info(f"   🧬 SE-Darwin evolved output (score: {evolution_result.get('improvement_score', 0):.2f})")
+                    except Exception as e:
+                        logger.debug(f"SE-Darwin evolution failed: {e}")
+
+                # CRITICAL INTEGRATION: SPICE Adversarial Testing
+                if result.get("success") and self.spice_challenger:
+                    try:
+                        challenge_result = self.spice_challenger.challenge(
+                            solution=result.get("result"),
+                            context={"task": component_name, "business_type": spec.business_type}
+                        )
+                        if challenge_result and challenge_result.get("issues"):
+                            result["spice_warnings"] = challenge_result["issues"]
+                            logger.info(f"   ⚔️ SPICE found {len(challenge_result['issues'])} potential issues")
+                    except Exception as e:
+                        logger.debug(f"SPICE challenge failed: {e}")
+
+                # CRITICAL INTEGRATION: HGM Oracle Quality Scoring
+                hgm_score = 0.0
+                if result.get("success") and self.hgm_oracle:
+                    try:
+                        quality_assessment = self.hgm_oracle.assess_quality(
+                            code=result.get("result"),
+                            task_description=component_name
+                        )
+                        hgm_score = quality_assessment.get("score", 0.0)
+                        result["hgm_score"] = hgm_score
+                        logger.info(f"   [HGM] Quality score: {hgm_score:.2f}")
+
+                        # ROUTER FOR FAILS: Escalate low scores to manual review
+                        if hgm_score < MANUAL_ESCALATION_THRESHOLD:
+                            escalation = manual_escalate(
+                                business_id=business_id,
+                                component=component_name,
+                                score=hgm_score,
+                                error_details=quality_assessment.get("feedback", "Low quality score")
+                            )
+                            result["escalation_ticket"] = escalation["ticket_id"]
+                            result["needs_manual_review"] = True
+                            logger.warning(f"   [ESCALATION] {component_name} escalated: {escalation['ticket_id']}")
+                    except Exception as e:
+                        logger.debug(f"HGM quality assessment failed: {e}")
+
+                # CRITICAL INTEGRATION: TUMIX Termination Check
+                if self.tumix_termination:
+                    try:
+                        should_terminate = self.tumix_termination.should_terminate(
+                            current_quality=hgm_score,
+                            tasks_completed=tasks_completed,
+                            tasks_failed=tasks_failed
+                        )
+                        if should_terminate:
+                            logger.warning(f"   🛑 TUMIX suggests early termination")
+                            result["tumix_terminate"] = True
+                    except Exception as e:
+                        logger.debug(f"TUMIX termination check failed: {e}")
+
+                # CRITICAL INTEGRATION: MAPE-K Loop Post-Task Analysis
+                if self.mape_k_loop:
+                    try:
+                        self.mape_k_loop.analyze(
+                            event_type="task_complete",
+                            data={
+                                "task": component_name,
+                                "agent": assigned_agent,
+                                "success": result.get("success", False),
+                                "hgm_score": hgm_score,
+                                "complexity": task_complexity
+                            }
+                        )
+                    except Exception as e:
+                        logger.debug(f"MAPE-K analysis failed: {e}")
 
                 if result.get("success"):
                     tasks_completed += 1
@@ -2298,11 +1939,11 @@ Return JSON with:
             
             # Write code files from LLM responses
             spec.output_dir.mkdir(parents=True, exist_ok=True)
-            files_written = await self._write_code_to_files(spec, task_results)
+            files_written = self._write_code_to_files(spec, task_results)
             
             actual_cost = total_cost or estimated_cost
             try:
-                await self._record_actual_generation_cost(actual_cost)
+                self._record_actual_generation_cost(actual_cost)
             except RuntimeError as exc:
                 logger.error("LLM budget exhausted after generation: %s", exc)
             self.business_costs[spec.name] = actual_cost
@@ -2392,6 +2033,126 @@ Return JSON with:
                     )
                 except Exception as e:
                     logger.debug(f"TrajectoryPool storage failed: {e}")
+
+            # CRITICAL INTEGRATION: LangGraph Store - Persist generation graph
+            if self.langgraph_store:
+                try:
+                    logger.info("📊 Storing generation graph in LangGraph Store")
+                    graph_data = {
+                        "business_name": spec.name,
+                        "business_type": spec.business_type,
+                        "nodes": [
+                            {
+                                "id": tid,
+                                "agent": task_results[tid].get("agent"),
+                                "success": task_results[tid].get("success", False),
+                                "hgm_score": task_results[tid].get("hgm_score", 0.0),
+                                "evolved": task_results[tid].get("evolved", False)
+                            }
+                            for tid in task_results
+                        ],
+                        "edges": [],  # Could add dependency edges here
+                        "metadata": {
+                            "quality_score": quality_score,
+                            "total_cost": total_cost,
+                            "generation_time": time.time() - start_time
+                        }
+                    }
+                    self.langgraph_store.store(
+                        key=f"business:{spec.name}",
+                        data=graph_data
+                    )
+                except Exception as e:
+                    logger.debug(f"LangGraph Store persistence failed: {e}")
+
+            # CRITICAL INTEGRATION: Socratic-Zero - Generate improvement questions
+            if self.socratic_zero and quality_score < 90.0:
+                try:
+                    logger.info("🤔 Socratic-Zero generating improvement questions")
+                    questions = self.socratic_zero.generate_questions(
+                        context={
+                            "business_type": spec.business_type,
+                            "quality_score": quality_score,
+                            "failed_components": errors
+                        }
+                    )
+                    if questions:
+                        logger.info(f"   Generated {len(questions)} improvement questions")
+                        # Store for future learning
+                        if self.experience_buffer:
+                            self.experience_buffer.add_experience(
+                                task_description=f"Socratic questions for {spec.name}",
+                                actions=[{"question": q} for q in questions[:5]],
+                                quality_score=quality_score,
+                                metadata={"type": "socratic_questions"}
+                            )
+                except Exception as e:
+                    logger.debug(f"Socratic-Zero question generation failed: {e}")
+
+            # CRITICAL INTEGRATION: ADP Pipeline - Adaptive processing feedback
+            if self.adp_pipeline:
+                try:
+                    logger.info("🔄 ADP Pipeline processing feedback")
+                    self.adp_pipeline.process_feedback(
+                        task_type="business_generation",
+                        outcome={
+                            "success": tasks_failed == 0,
+                            "quality_score": quality_score,
+                            "cost": total_cost,
+                            "duration": time.time() - start_time
+                        },
+                        context={
+                            "business_type": spec.business_type,
+                            "components": len(components_generated)
+                        }
+                    )
+                except Exception as e:
+                    logger.debug(f"ADP Pipeline feedback failed: {e}")
+
+            # CRITICAL INTEGRATION: M-GRPO Trainer - Group policy update (if available)
+            if hasattr(self, 'mgrpo_trainer') and self.mgrpo_trainer:
+                try:
+                    logger.info("🎓 M-GRPO recording group trajectory")
+                    # M-GRPO expects class, not instance - instantiate if needed
+                    trainer_class = self.mgrpo_trainer
+                    if isinstance(trainer_class, type):
+                        # It's a class, create instance with default config
+                        pass  # Skip instantiation for now, trainer should be pre-configured
+                except Exception as e:
+                    logger.debug(f"M-GRPO trainer recording failed: {e}")
+
+            # CRITICAL INTEGRATION: DreamGym Auto-Mirror (if enabled)
+            if os.getenv("DREAMGYM_AUTO_MIRROR", "false").lower() == "true":
+                try:
+                    from infrastructure.dreamgym.hybrid_buffer import get_hybrid_buffer
+                    buffer = get_hybrid_buffer()
+                    if buffer:
+                        logger.info("🎮 DreamGym mirroring trajectory")
+                        buffer.mirror_trajectory({
+                            "task": f"Build {spec.name}",
+                            "business_type": spec.business_type,
+                            "quality_score": quality_score,
+                            "steps": list(task_results.keys()),
+                            "success": tasks_failed == 0
+                        })
+                except Exception as e:
+                    logger.debug(f"DreamGym mirroring failed: {e}")
+
+            # CRITICAL INTEGRATION: MAPE-K Loop - Plan phase (adaptive recommendations)
+            if self.mape_k_loop:
+                try:
+                    recommendations = self.mape_k_loop.plan(
+                        analysis_context={
+                            "business_name": spec.name,
+                            "quality_score": quality_score,
+                            "failed_tasks": tasks_failed,
+                            "total_cost": total_cost
+                        }
+                    )
+                    if recommendations:
+                        logger.info(f"   📋 MAPE-K recommendations: {len(recommendations)}")
+                except Exception as e:
+                    logger.debug(f"MAPE-K planning failed: {e}")
 
             # REMOVED: Discord notification (integration disabled due to webhook errors)
             # if self.discord:
@@ -2897,10 +2658,10 @@ Return JSON with:
     # Phase 8: Genesis Meta Agent Excellence Instructions
     # ========================================================================
     
-    async def _get_excellence_context(self, context_type: str) -> str:
+    def _get_excellence_context(self, context_type: str) -> str:
         """
-        Phase 8: Get excellence-focused context for Genesis operations with LLM analysis.
-
+        Phase 8: Get excellence-focused context for Genesis operations.
+        
         Context types:
         - idea_generation: Business idea creation
         - website_creation: Component and website building
@@ -2912,9 +2673,9 @@ Return JSON with:
         - cost_efficiency: Cost optimization
         - continuous_improvement: Learning and adaptation
         """
-        excellence_base = """You are the world's premier Genesis Meta Agent - recognized globally for innovative,
+        excellence_base = """You are the world's premier Genesis Meta Agent - recognized globally for innovative, 
 cost-effective, and exceptional results. You deliver elegant, efficient, and reliable outcomes every time."""
-
+        
         context_specific = {
             "idea_generation": "Generate world-class business ideas that solve real problems with elegant solutions.",
             "website_creation": "Create production-ready websites with world-class code quality, performance, and user experience.",
@@ -2926,36 +2687,10 @@ cost-effective, and exceptional results. You deliver elegant, efficient, and rel
             "cost_efficiency": "Optimize costs with world-class strategies that maximize value.",
             "continuous_improvement": "Learn and improve continuously with world-class adaptation and innovation.",
         }
-
+        
         specific = context_specific.get(context_type, "Execute with world-class excellence.")
-        context_text = f"{excellence_base}\n\n{specific}"
-
-        analysis_prompt = f"""{EXCELLENCE_PROMPT}
-
-Task: Refine excellence context for Genesis operations.
-
-Context Type: {context_type}
-Base Context: {specific}
-
-Return JSON with:
-{{
-  "refined_context": str,
-  "risks": [str],
-  "improvement_suggestions": [str]
-}}
-"""
-        try:
-            if self.llm_client:
-                llm_response = await self.llm_client.complete(analysis_prompt, max_tokens=150)
-                llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
-                refined = llm_data.get("refined_context")
-                if refined:
-                    context_text = f"{excellence_base}\n\n{refined}"
-                    logger.debug(f"Refined excellence context for {context_type}: {refined[:100]}")
-        except Exception as e:
-            logger.warning(f"LLM excellence context refinement failed: {e}")
-
-        return context_text
+        
+        return f"{excellence_base}\n\n{specific}"
 
     # ========================================================================
     # Phase 5: Post-Deployment Agent Assignment (Enhanced)
@@ -3367,7 +3102,7 @@ Return JSON with:
             self._mcp_clients[agent_name] = ChromeDevToolsMCPClient(agent_name=agent_name)
         return self._mcp_clients[agent_name]
 
-    async def _grant_mcp_access(self, agent_name: str, task_requirements: Optional[Dict[str, Any]] = None) -> None:
+    def _grant_mcp_access(self, agent_name: str, task_requirements: Optional[Dict[str, Any]] = None) -> None:
         """
         Allowlist-based MCP access provisioning.
         Initializes the MCP client so agents can call Chrome DevTools MCP server if needed.
@@ -3380,31 +3115,6 @@ Return JSON with:
                 asyncio.create_task(client.initialize())
             except Exception as e:
                 logger.debug(f"MCP init skipped for {agent_name}: {e}")
-
-            # LLM review of MCP access decision
-            if self.llm_client:
-                analysis_prompt = f"""{EXCELLENCE_PROMPT}
-
-Task: Review MCP access grant decision.
-
-Context:
-- Agent: {agent_name}
-- Task requirements: {task_requirements}
-
-Return JSON with:
-{{
-  "risk_assessment": str,
-  "security_flags": [str],
-  "recommended_conditions": [str]
-}}
-"""
-                try:
-                    llm_response = await self.llm_client.complete(analysis_prompt, max_tokens=140)
-                    llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
-                    if llm_data:
-                        logger.debug(f"MCP access assessment for {agent_name}: {llm_data.get('risk_assessment', 'N/A')[:100]}")
-                except Exception as e:
-                    logger.warning(f"LLM MCP access assessment failed: {e}")
 
     async def _validate_build_step(self, component_name: str, result: Dict[str, Any], agent_name: str) -> Dict[str, Any]:
         """

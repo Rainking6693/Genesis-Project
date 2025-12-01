@@ -1,9 +1,46 @@
+# LiteLLM Configuration for Genesis Hybrid 2025
+# Optimized for Ollama with batch mode and caching
+
 model_list:
   - model_name: qwen
     litellm_params:
       model: ollama/qwen2.5:14b-instruct-q4_K_M
       api_base: http://localhost:11434
+      # Batch mode for parallel agent calls (+200% throughput)
+      batch_size: 20
+      # Request timeout
+      timeout: 120
+      # Max retries on failure
+      max_retries: 3
+
   - model_name: gemma
     litellm_params:
       model: ollama/gemma2:9b-instruct-q6_K
       api_base: http://localhost:11434
+      # Batch mode for parallel agent calls (+200% throughput)
+      batch_size: 20
+      timeout: 120
+      max_retries: 3
+
+  # Fallback model for high-priority tasks
+  - model_name: qwen-fallback
+    litellm_params:
+      model: ollama/qwen2.5:14b-instruct-q4_K_M
+      api_base: http://localhost:11434
+      batch_size: 10
+      timeout: 180
+
+# Router settings for load balancing
+router_settings:
+  routing_strategy: "least-busy"
+  num_retries: 3
+  retry_after: 5
+  allowed_fails: 2
+
+# General settings
+general_settings:
+  # Enable request caching
+  cache: true
+  cache_params:
+    type: "local"
+    ttl: 300

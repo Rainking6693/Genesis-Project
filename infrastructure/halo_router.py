@@ -617,6 +617,135 @@ class HALORouter:
                 success_rate=0.92,  # High success rate for critical errors
                 max_concurrent_tasks=5  # Can handle multiple error types simultaneously
             ),
+
+            # ===== ADDITIONAL AGENTS (Genesis 2025 Hybrid Tournament) =====
+
+            # Analyst Agent (CrewAI Hybrid Winner)
+            "analyst_agent": AgentCapability(
+                agent_name="analyst_agent",
+                supported_task_types=["analytics", "business_analysis", "data_analysis", "insights", "metrics"],
+                skills=["data_analysis", "business_intelligence", "metrics_interpretation", "reporting"],
+                cost_tier="medium",
+                success_rate=0.87
+            ),
+
+            # Commerce Agent (CrewAI Hybrid Winner)
+            "commerce_agent": AgentCapability(
+                agent_name="commerce_agent",
+                supported_task_types=["commerce", "ecommerce", "payment_gateway", "tax_engine", "fulfillment"],
+                skills=["domain_registration", "payment_processing", "tax_compliance", "fulfillment_automation"],
+                cost_tier="medium",
+                success_rate=0.85
+            ),
+
+            # Content Agent (CrewAI Hybrid Winner)
+            "content_agent": AgentCapability(
+                agent_name="content_agent",
+                supported_task_types=["content", "copywriting", "documentation", "blog", "social_media"],
+                skills=["content_creation", "seo_writing", "technical_writing", "marketing_copy"],
+                cost_tier="cheap",
+                success_rate=0.82
+            ),
+
+            # Email Agent (CrewAI Hybrid Winner)
+            "email_agent": AgentCapability(
+                agent_name="email_agent",
+                supported_task_types=["email", "email_campaign", "newsletter", "transactional_email"],
+                skills=["email_marketing", "campaign_automation", "deliverability", "ab_testing"],
+                cost_tier="cheap",
+                success_rate=0.84
+            ),
+
+            # Legal Agent (LangGraph Winner - kept Genesis)
+            "legal_agent": AgentCapability(
+                agent_name="legal_agent",
+                supported_task_types=["legal", "compliance", "terms_of_service", "privacy_policy", "contracts"],
+                skills=["legal_review", "compliance_check", "contract_generation", "risk_assessment"],
+                cost_tier="expensive",
+                success_rate=0.88
+            ),
+
+            # Maintenance Agent (LangGraph Winner - kept Genesis)
+            "maintenance_agent": AgentCapability(
+                agent_name="maintenance_agent",
+                supported_task_types=["maintenance", "system_health", "updates", "patches", "cleanup"],
+                skills=["system_maintenance", "dependency_updates", "log_cleanup", "health_monitoring"],
+                cost_tier="cheap",
+                success_rate=0.86
+            ),
+
+            # Onboarding Agent (CrewAI Hybrid Winner)
+            "onboarding_agent": AgentCapability(
+                agent_name="onboarding_agent",
+                supported_task_types=["onboarding", "user_activation", "tutorial", "walkthrough"],
+                skills=["user_onboarding", "activation_optimization", "retention_strategies", "tutorial_design"],
+                cost_tier="cheap",
+                success_rate=0.80
+            ),
+
+            # Pricing Agent (CrewAI Hybrid Winner)
+            "pricing_agent": AgentCapability(
+                agent_name="pricing_agent",
+                supported_task_types=["pricing", "pricing_strategy", "competitive_pricing", "tier_design"],
+                skills=["pricing_strategy", "elasticity_analysis", "competitive_analysis", "tier_optimization"],
+                cost_tier="medium",
+                success_rate=0.83
+            ),
+
+            # Reflection Agent (LangGraph Winner - kept Genesis)
+            "reflection_agent": AgentCapability(
+                agent_name="reflection_agent",
+                supported_task_types=["reflection", "self_improvement", "feedback_analysis", "iteration"],
+                skills=["self_reflection", "feedback_processing", "iterative_improvement", "quality_review"],
+                cost_tier="medium",
+                success_rate=0.85
+            ),
+
+            # Research Discovery Agent (CrewAI Hybrid Winner)
+            "research_discovery_agent": AgentCapability(
+                agent_name="research_discovery_agent",
+                supported_task_types=["research", "market_research", "competitive_intelligence", "discovery"],
+                skills=["market_research", "competitive_analysis", "trend_discovery", "web_scraping"],
+                cost_tier="medium",
+                success_rate=0.81
+            ),
+
+            # SE-Darwin Agent (Genesis - Kept as-is)
+            "se_darwin_agent": AgentCapability(
+                agent_name="se_darwin_agent",
+                supported_task_types=["evolution", "self_evolution", "agent_improvement", "multi_agent_evolve"],
+                skills=["self_evolution", "multi_agent_coevolution", "trajectory_learning", "agent_optimization"],
+                cost_tier="expensive",
+                success_rate=0.90,
+                max_concurrent_tasks=2
+            ),
+
+            # SEO Agent (CrewAI Hybrid Winner)
+            "seo_agent": AgentCapability(
+                agent_name="seo_agent",
+                supported_task_types=["seo", "search_optimization", "keyword_research", "link_building"],
+                skills=["technical_seo", "content_optimization", "keyword_research", "backlink_analysis"],
+                cost_tier="cheap",
+                success_rate=0.79
+            ),
+
+            # WaltzRL Conversation Agent (Genesis - Kept as-is)
+            "waltzrl_conversation_agent": AgentCapability(
+                agent_name="waltzrl_conversation_agent",
+                supported_task_types=["conversation", "dialogue", "chat", "user_interaction"],
+                skills=["conversational_ai", "dialogue_management", "context_tracking", "rl_optimization"],
+                cost_tier="medium",
+                success_rate=0.88
+            ),
+
+            # WaltzRL Feedback Agent (Genesis - Kept as-is)
+            "waltzrl_feedback_agent": AgentCapability(
+                agent_name="waltzrl_feedback_agent",
+                supported_task_types=["feedback", "reward_modeling", "preference_learning", "rlhf"],
+                skills=["feedback_processing", "reward_modeling", "preference_learning", "safety_filtering"],
+                cost_tier="medium",
+                success_rate=0.86
+            ),
         }
 
     def _initialize_routing_rules(self) -> List[RoutingRule]:

@@ -1,0 +1,1616 @@
+# Day 2 Bootcamp - Batch 5: 100 Test Scenarios
+# Genesis + 11 Agents: Testing, DevOps, CI/CD & Automation
+# IDs: B5_E01-E25 (Easy), B5_I01-I25 (Intermediate), B5_H01-H25 (Hard), B5_X01-X25 (Extreme)
+
+metadata:
+  version: "5.0"
+  batch: 5
+  total_tests: 100
+  focus: "testing_devops_automation"
+  agents:
+    - genesis_meta
+    - analyst_agent
+    - builder_agent_enhanced
+    - deploy_agent
+    - billing_agent
+    - emergency_error_specialist_agent
+    - marketing_agent
+    - support_agent
+    - onboarding_agent
+    - qa_agent
+    - se_darwin_agent
+    - seo_agent
+
+# =============================================================================
+# EASY TESTS (B5_E01-E25): Solo Agent Tasks - Testing Fundamentals
+# =============================================================================
+easy_tests:
+  # QA Agent - Unit Testing (10 tests)
+  - id: B5_E01
+    name: "Jest Test Setup"
+    difficulty: easy
+    type: solo
+    agent: qa_agent
+    task: |
+      Create Jest configuration for React project.
+    success_criteria:
+      - jest_config: true
+      - coverage_setup: true
+      - transform_config: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B5_E02
+    name: "Write Component Tests"
+    difficulty: easy
+    type: solo
+    agent: qa_agent
+    task: |
+      Write unit tests for a Button component.
+    success_criteria:
+      - render_test: true
+      - click_test: true
+      - props_test: true
+      - snapshot_test: true
+    timeout_seconds: 75
+    reward_weight: 1.0
+
+  - id: B5_E03
+    name: "Create Test Utilities"
+    difficulty: easy
+    type: solo
+    agent: qa_agent
+    task: |
+      Build custom test utilities and render helpers.
+    success_criteria:
+      - custom_render: true
+      - mock_providers: true
+      - test_data: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B5_E04
+    name: "Write Hook Tests"
+    difficulty: easy
+    type: solo
+    agent: qa_agent
+    task: |
+      Create tests for custom React hooks.
+    success_criteria:
+      - hook_wrapper: true
+      - state_tests: true
+      - effect_tests: true
+    timeout_seconds: 75
+    reward_weight: 1.0
+
+  - id: B5_E05
+    name: "Create Mock Functions"
+    difficulty: easy
+    type: solo
+    agent: qa_agent
+    task: |
+      Build mock functions for API calls.
+    success_criteria:
+      - mock_fetch: true
+      - response_mocks: true
+      - error_mocks: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B5_E06
+    name: "Write Async Tests"
+    difficulty: easy
+    type: solo
+    agent: qa_agent
+    task: |
+      Create tests for async operations.
+    success_criteria:
+      - async_await: true
+      - promise_tests: true
+      - timeout_handling: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B5_E07
+    name: "Create Test Fixtures"
+    difficulty: easy
+    type: solo
+    agent: qa_agent
+    task: |
+      Build test data fixtures and factories.
+    success_criteria:
+      - data_factories: true
+      - random_data: true
+      - type_safe: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B5_E08
+    name: "Write Form Tests"
+    difficulty: easy
+    type: solo
+    agent: qa_agent
+    task: |
+      Create tests for form validation logic.
+    success_criteria:
+      - input_tests: true
+      - validation_tests: true
+      - submit_tests: true
+    timeout_seconds: 75
+    reward_weight: 1.0
+
+  - id: B5_E09
+    name: "Create API Test Mocks"
+    difficulty: easy
+    type: solo
+    agent: qa_agent
+    task: |
+      Build MSW handlers for API mocking.
+    success_criteria:
+      - msw_handlers: true
+      - rest_mocks: true
+      - graphql_mocks: true
+    timeout_seconds: 75
+    reward_weight: 1.0
+
+  - id: B5_E10
+    name: "Write State Tests"
+    difficulty: easy
+    type: solo
+    agent: qa_agent
+    task: |
+      Create tests for state management.
+    success_criteria:
+      - reducer_tests: true
+      - action_tests: true
+      - selector_tests: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  # Deploy Agent - CI/CD Configs (10 tests)
+  - id: B5_E11
+    name: "Create GitHub Actions Workflow"
+    difficulty: easy
+    type: solo
+    agent: deploy_agent
+    task: |
+      Build CI workflow for testing on push.
+    success_criteria:
+      - workflow_file: true
+      - test_job: true
+      - node_setup: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B5_E12
+    name: "Build Lint Workflow"
+    difficulty: easy
+    type: solo
+    agent: deploy_agent
+    task: |
+      Create workflow for linting and formatting.
+    success_criteria:
+      - eslint_step: true
+      - prettier_step: true
+      - type_check: true
+    timeout_seconds: 45
+    reward_weight: 1.0
+
+  - id: B5_E13
+    name: "Create Deploy Workflow"
+    difficulty: easy
+    type: solo
+    agent: deploy_agent
+    task: |
+      Build automated deployment workflow.
+    success_criteria:
+      - build_step: true
+      - deploy_step: true
+      - env_secrets: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B5_E14
+    name: "Build Matrix Test Workflow"
+    difficulty: easy
+    type: solo
+    agent: deploy_agent
+    task: |
+      Create test matrix for multiple Node versions.
+    success_criteria:
+      - matrix_strategy: true
+      - multiple_versions: true
+      - parallel_jobs: true
+    timeout_seconds: 45
+    reward_weight: 1.0
+
+  - id: B5_E15
+    name: "Create Cache Workflow"
+    difficulty: easy
+    type: solo
+    agent: deploy_agent
+    task: |
+      Build workflow with dependency caching.
+    success_criteria:
+      - npm_cache: true
+      - cache_key: true
+      - restore_cache: true
+    timeout_seconds: 45
+    reward_weight: 1.0
+
+  - id: B5_E16
+    name: "Build PR Preview Workflow"
+    difficulty: easy
+    type: solo
+    agent: deploy_agent
+    task: |
+      Create preview deployment for PRs.
+    success_criteria:
+      - pr_trigger: true
+      - preview_deploy: true
+      - comment_url: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B5_E17
+    name: "Create Release Workflow"
+    difficulty: easy
+    type: solo
+    agent: deploy_agent
+    task: |
+      Build automated release workflow.
+    success_criteria:
+      - tag_trigger: true
+      - changelog_gen: true
+      - release_create: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B5_E18
+    name: "Build Security Scan Workflow"
+    difficulty: easy
+    type: solo
+    agent: deploy_agent
+    task: |
+      Create security scanning workflow.
+    success_criteria:
+      - dependency_scan: true
+      - code_scan: true
+      - report_output: true
+    timeout_seconds: 45
+    reward_weight: 1.0
+
+  - id: B5_E19
+    name: "Create Docker Build Workflow"
+    difficulty: easy
+    type: solo
+    agent: deploy_agent
+    task: |
+      Build Docker image workflow with push.
+    success_criteria:
+      - docker_build: true
+      - registry_push: true
+      - tag_strategy: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B5_E20
+    name: "Build Scheduled Workflow"
+    difficulty: easy
+    type: solo
+    agent: deploy_agent
+    task: |
+      Create scheduled/cron workflow.
+    success_criteria:
+      - cron_trigger: true
+      - job_execution: true
+      - notification: true
+    timeout_seconds: 45
+    reward_weight: 1.0
+
+  # Builder/Support Agent (5 tests)
+  - id: B5_E21
+    name: "Create Test Documentation"
+    difficulty: easy
+    type: solo
+    agent: support_agent
+    task: |
+      Write testing guidelines documentation.
+    success_criteria:
+      - conventions: true
+      - examples: true
+      - best_practices: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B5_E22
+    name: "Build CI/CD Documentation"
+    difficulty: easy
+    type: solo
+    agent: support_agent
+    task: |
+      Document CI/CD pipeline and workflows.
+    success_criteria:
+      - pipeline_overview: true
+      - job_descriptions: true
+      - troubleshooting: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B5_E23
+    name: "Create Developer Setup Guide"
+    difficulty: easy
+    type: solo
+    agent: support_agent
+    task: |
+      Write local development setup documentation.
+    success_criteria:
+      - prerequisites: true
+      - setup_steps: true
+      - common_issues: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B5_E24
+    name: "Build Test Coverage Badge"
+    difficulty: easy
+    type: solo
+    agent: builder_agent_enhanced
+    task: |
+      Create test coverage badge component.
+    success_criteria:
+      - badge_display: true
+      - coverage_parsing: true
+      - color_coding: true
+    timeout_seconds: 45
+    reward_weight: 1.0
+
+  - id: B5_E25
+    name: "Create Health Check Endpoint"
+    difficulty: easy
+    type: solo
+    agent: builder_agent_enhanced
+    task: |
+      Build health check API endpoint.
+    success_criteria:
+      - status_response: true
+      - dependency_checks: true
+      - metrics_included: true
+    timeout_seconds: 45
+    reward_weight: 1.0
+
+# =============================================================================
+# INTERMEDIATE TESTS (B5_I01-I25): Team Tasks - Testing & DevOps Integration
+# =============================================================================
+intermediate_tests:
+  # QA + Deploy Teams (10 tests)
+  - id: B5_I01
+    name: "E2E Test Pipeline"
+    difficulty: intermediate
+    type: team
+    agents: [qa_agent, deploy_agent]
+    task: |
+      Create E2E test suite with CI integration.
+    success_criteria:
+      - playwright_tests: true
+      - ci_workflow: true
+      - parallel_execution: true
+      - report_artifacts: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B5_I02
+    name: "Visual Regression Testing"
+    difficulty: intermediate
+    type: team
+    agents: [qa_agent, deploy_agent]
+    task: |
+      Build visual regression test system.
+    success_criteria:
+      - screenshot_comparison: true
+      - baseline_management: true
+      - ci_integration: true
+      - diff_reporting: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B5_I03
+    name: "Performance Test Suite"
+    difficulty: intermediate
+    type: team
+    agents: [qa_agent, deploy_agent]
+    task: |
+      Create Lighthouse CI performance testing.
+    success_criteria:
+      - lighthouse_ci: true
+      - budget_enforcement: true
+      - trend_tracking: true
+      - ci_workflow: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B5_I04
+    name: "API Contract Testing"
+    difficulty: intermediate
+    type: team
+    agents: [qa_agent, deploy_agent]
+    task: |
+      Build API contract testing with Pact.
+    success_criteria:
+      - consumer_tests: true
+      - provider_verify: true
+      - pact_broker: true
+      - ci_integration: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B5_I05
+    name: "Accessibility Testing Pipeline"
+    difficulty: intermediate
+    type: team
+    agents: [qa_agent, deploy_agent]
+    task: |
+      Create automated accessibility testing.
+    success_criteria:
+      - axe_integration: true
+      - wcag_checks: true
+      - ci_workflow: true
+      - report_generation: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B5_I06
+    name: "Load Testing Setup"
+    difficulty: intermediate
+    type: team
+    agents: [qa_agent, deploy_agent]
+    task: |
+      Build load testing with k6.
+    success_criteria:
+      - k6_scripts: true
+      - threshold_config: true
+      - ci_integration: true
+      - metrics_dashboard: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B5_I07
+    name: "Mutation Testing"
+    difficulty: intermediate
+    type: team
+    agents: [qa_agent, deploy_agent]
+    task: |
+      Create mutation testing setup.
+    success_criteria:
+      - stryker_config: true
+      - mutant_coverage: true
+      - ci_workflow: true
+      - report_output: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B5_I08
+    name: "Cross-browser Testing"
+    difficulty: intermediate
+    type: team
+    agents: [qa_agent, deploy_agent]
+    task: |
+      Build cross-browser test matrix.
+    success_criteria:
+      - browser_matrix: true
+      - parallel_execution: true
+      - cloud_browsers: true
+      - report_aggregation: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B5_I09
+    name: "Test Data Management"
+    difficulty: intermediate
+    type: team
+    agents: [qa_agent, deploy_agent]
+    task: |
+      Create test data seeding system.
+    success_criteria:
+      - seed_scripts: true
+      - reset_mechanism: true
+      - ci_integration: true
+      - environment_isolation: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B5_I10
+    name: "Code Quality Gates"
+    difficulty: intermediate
+    type: team
+    agents: [qa_agent, deploy_agent]
+    task: |
+      Build quality gate enforcement in CI.
+    success_criteria:
+      - coverage_threshold: true
+      - lint_enforcement: true
+      - type_checking: true
+      - pr_blocking: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  # Builder + Deploy Teams (8 tests)
+  - id: B5_I11
+    name: "Blue-Green Deployment"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent]
+    task: |
+      Create blue-green deployment workflow.
+    success_criteria:
+      - dual_environments: true
+      - traffic_switching: true
+      - rollback_support: true
+      - health_checks: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B5_I12
+    name: "Canary Deployment"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent]
+    task: |
+      Build canary deployment system.
+    success_criteria:
+      - traffic_split: true
+      - metric_monitoring: true
+      - auto_promotion: true
+      - auto_rollback: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B5_I13
+    name: "Feature Flag Integration"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent]
+    task: |
+      Integrate feature flags with deployment.
+    success_criteria:
+      - flag_service: true
+      - deployment_sync: true
+      - gradual_rollout: true
+      - kill_switch: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B5_I14
+    name: "Environment Promotion"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent]
+    task: |
+      Create multi-environment promotion pipeline.
+    success_criteria:
+      - staging_deploy: true
+      - production_deploy: true
+      - approval_gates: true
+      - artifact_promotion: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B5_I15
+    name: "Rollback Automation"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent]
+    task: |
+      Build automated rollback system.
+    success_criteria:
+      - version_tracking: true
+      - quick_rollback: true
+      - database_rollback: true
+      - notification: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B5_I16
+    name: "Secret Management"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent]
+    task: |
+      Create secret management workflow.
+    success_criteria:
+      - vault_integration: true
+      - secret_rotation: true
+      - env_injection: true
+      - audit_logging: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B5_I17
+    name: "Infrastructure as Code"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent]
+    task: |
+      Build Terraform/IaC workflow.
+    success_criteria:
+      - terraform_config: true
+      - plan_review: true
+      - apply_workflow: true
+      - state_management: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B5_I18
+    name: "Container Orchestration"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent]
+    task: |
+      Create Kubernetes deployment configs.
+    success_criteria:
+      - deployment_yaml: true
+      - service_config: true
+      - ingress_setup: true
+      - hpa_config: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  # Emergency/Monitor Teams (7 tests)
+  - id: B5_I19
+    name: "Error Monitoring Setup"
+    difficulty: intermediate
+    type: team
+    agents: [emergency_error_specialist_agent, deploy_agent]
+    task: |
+      Build error monitoring integration.
+    success_criteria:
+      - sentry_setup: true
+      - source_maps: true
+      - alert_rules: true
+      - ci_integration: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B5_I20
+    name: "APM Integration"
+    difficulty: intermediate
+    type: team
+    agents: [emergency_error_specialist_agent, deploy_agent]
+    task: |
+      Create application performance monitoring.
+    success_criteria:
+      - apm_agent: true
+      - trace_collection: true
+      - dashboard_setup: true
+      - alerting: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B5_I21
+    name: "Log Aggregation"
+    difficulty: intermediate
+    type: team
+    agents: [emergency_error_specialist_agent, deploy_agent]
+    task: |
+      Build centralized logging system.
+    success_criteria:
+      - log_shipping: true
+      - structured_logs: true
+      - search_setup: true
+      - retention_policy: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B5_I22
+    name: "Uptime Monitoring"
+    difficulty: intermediate
+    type: team
+    agents: [emergency_error_specialist_agent, deploy_agent]
+    task: |
+      Create uptime monitoring and alerting.
+    success_criteria:
+      - health_checks: true
+      - status_page: true
+      - alert_channels: true
+      - incident_creation: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B5_I23
+    name: "Incident Response Automation"
+    difficulty: intermediate
+    type: team
+    agents: [emergency_error_specialist_agent, deploy_agent]
+    task: |
+      Build automated incident response.
+    success_criteria:
+      - alert_routing: true
+      - runbook_triggers: true
+      - escalation_rules: true
+      - postmortem_template: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B5_I24
+    name: "Chaos Engineering Setup"
+    difficulty: intermediate
+    type: team
+    agents: [emergency_error_specialist_agent, qa_agent]
+    task: |
+      Create chaos engineering experiments.
+    success_criteria:
+      - failure_injection: true
+      - experiment_config: true
+      - rollback_triggers: true
+      - result_analysis: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B5_I25
+    name: "Disaster Recovery Testing"
+    difficulty: intermediate
+    type: team
+    agents: [emergency_error_specialist_agent, deploy_agent]
+    task: |
+      Build disaster recovery test automation.
+    success_criteria:
+      - backup_verification: true
+      - restore_testing: true
+      - failover_test: true
+      - reporting: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+# =============================================================================
+# HARD TESTS (B5_H01-H25): Complex Multi-Agent Tasks
+# =============================================================================
+hard_tests:
+  # Full CI/CD Pipelines (10 tests)
+  - id: B5_H01
+    name: "Complete CI/CD Pipeline"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Build full CI/CD pipeline with all stages.
+    success_criteria:
+      - lint_test: true
+      - unit_tests: true
+      - integration_tests: true
+      - e2e_tests: true
+      - deploy_staging: true
+      - deploy_production: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B5_H02
+    name: "Monorepo CI Pipeline"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Create CI pipeline for monorepo with affected detection.
+    success_criteria:
+      - change_detection: true
+      - parallel_packages: true
+      - dependency_graph: true
+      - incremental_builds: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B5_H03
+    name: "Multi-Environment Pipeline"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Build pipeline with dev/staging/prod environments.
+    success_criteria:
+      - env_configs: true
+      - promotion_workflow: true
+      - approval_gates: true
+      - rollback_support: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B5_H04
+    name: "Mobile CI/CD Pipeline"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Create mobile app CI/CD with app store deploy.
+    success_criteria:
+      - ios_build: true
+      - android_build: true
+      - test_automation: true
+      - store_deploy: true
+      - beta_distribution: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B5_H05
+    name: "Microservices Pipeline"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Build CI/CD for microservices architecture.
+    success_criteria:
+      - per_service_build: true
+      - contract_tests: true
+      - service_mesh: true
+      - progressive_deploy: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B5_H06
+    name: "GitOps Pipeline"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Create GitOps workflow with ArgoCD.
+    success_criteria:
+      - manifest_generation: true
+      - argocd_config: true
+      - sync_automation: true
+      - drift_detection: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B5_H07
+    name: "Database Migration Pipeline"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Build database migration automation.
+    success_criteria:
+      - migration_validation: true
+      - backup_before: true
+      - rollback_scripts: true
+      - version_tracking: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B5_H08
+    name: "Security Pipeline"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent, emergency_error_specialist_agent]
+    task: |
+      Create comprehensive security scanning pipeline.
+    success_criteria:
+      - sast_scanning: true
+      - dependency_audit: true
+      - container_scan: true
+      - secrets_detection: true
+      - compliance_check: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B5_H09
+    name: "Documentation Pipeline"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, support_agent]
+    task: |
+      Build automated documentation generation.
+    success_criteria:
+      - api_docs: true
+      - component_docs: true
+      - changelog_gen: true
+      - version_sync: true
+      - deploy_docs: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B5_H10
+    name: "SDK Release Pipeline"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Create multi-language SDK release pipeline.
+    success_criteria:
+      - version_bump: true
+      - multi_lang_build: true
+      - package_publish: true
+      - docs_update: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  # Test Automation Systems (10 tests)
+  - id: B5_H11
+    name: "Complete Test Suite"
+    difficulty: hard
+    type: team
+    agents: [qa_agent, deploy_agent, builder_agent_enhanced]
+    task: |
+      Build comprehensive test suite with all levels.
+    success_criteria:
+      - unit_tests: true
+      - integration_tests: true
+      - e2e_tests: true
+      - performance_tests: true
+      - coverage_report: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B5_H12
+    name: "API Test Framework"
+    difficulty: hard
+    type: team
+    agents: [qa_agent, deploy_agent, builder_agent_enhanced]
+    task: |
+      Create comprehensive API testing framework.
+    success_criteria:
+      - schema_validation: true
+      - contract_tests: true
+      - load_tests: true
+      - security_tests: true
+      - ci_integration: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B5_H13
+    name: "Test Report Dashboard"
+    difficulty: hard
+    type: team
+    agents: [qa_agent, deploy_agent, analyst_agent]
+    task: |
+      Build test results dashboard with trends.
+    success_criteria:
+      - result_aggregation: true
+      - trend_charts: true
+      - failure_analysis: true
+      - coverage_tracking: true
+      - ci_integration: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B5_H14
+    name: "Test Environment Manager"
+    difficulty: hard
+    type: team
+    agents: [qa_agent, deploy_agent, builder_agent_enhanced]
+    task: |
+      Create on-demand test environment system.
+    success_criteria:
+      - env_provisioning: true
+      - data_seeding: true
+      - cleanup_automation: true
+      - resource_management: true
+      - ci_integration: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B5_H15
+    name: "Flaky Test Detection"
+    difficulty: hard
+    type: team
+    agents: [qa_agent, deploy_agent, analyst_agent]
+    task: |
+      Build flaky test detection and quarantine.
+    success_criteria:
+      - retry_analysis: true
+      - flakiness_score: true
+      - auto_quarantine: true
+      - notification: true
+      - reporting: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B5_H16
+    name: "Test Data Generator"
+    difficulty: hard
+    type: team
+    agents: [qa_agent, builder_agent_enhanced]
+    task: |
+      Create intelligent test data generation.
+    success_criteria:
+      - schema_based: true
+      - edge_cases: true
+      - referential_integrity: true
+      - anonymization: true
+      - api_interface: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B5_H17
+    name: "Cross-Platform Test Suite"
+    difficulty: hard
+    type: team
+    agents: [qa_agent, deploy_agent]
+    task: |
+      Build cross-platform test automation.
+    success_criteria:
+      - web_tests: true
+      - mobile_tests: true
+      - api_tests: true
+      - shared_utilities: true
+      - unified_reporting: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B5_H18
+    name: "Regression Test Selection"
+    difficulty: hard
+    type: team
+    agents: [qa_agent, deploy_agent, se_darwin_agent]
+    task: |
+      Create intelligent test selection system.
+    success_criteria:
+      - change_analysis: true
+      - impact_mapping: true
+      - test_prioritization: true
+      - execution_optimization: true
+      - risk_scoring: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B5_H19
+    name: "Test Automation Framework"
+    difficulty: hard
+    type: team
+    agents: [qa_agent, builder_agent_enhanced]
+    task: |
+      Build reusable test automation framework.
+    success_criteria:
+      - page_objects: true
+      - action_helpers: true
+      - assertion_library: true
+      - reporting: true
+      - documentation: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B5_H20
+    name: "BDD Test System"
+    difficulty: hard
+    type: team
+    agents: [qa_agent, support_agent, builder_agent_enhanced]
+    task: |
+      Create BDD testing with Cucumber/Gherkin.
+    success_criteria:
+      - feature_files: true
+      - step_definitions: true
+      - living_documentation: true
+      - ci_integration: true
+      - reports: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  # Monitoring & Observability (5 tests)
+  - id: B5_H21
+    name: "Observability Stack"
+    difficulty: hard
+    type: team
+    agents: [deploy_agent, emergency_error_specialist_agent, analyst_agent]
+    task: |
+      Build complete observability stack.
+    success_criteria:
+      - metrics_collection: true
+      - log_aggregation: true
+      - trace_collection: true
+      - dashboard_setup: true
+      - alerting: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B5_H22
+    name: "SLO/SLI Monitoring"
+    difficulty: hard
+    type: team
+    agents: [deploy_agent, emergency_error_specialist_agent, analyst_agent]
+    task: |
+      Create SLO/SLI monitoring system.
+    success_criteria:
+      - sli_definition: true
+      - slo_tracking: true
+      - error_budget: true
+      - burn_rate_alerts: true
+      - reporting: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B5_H23
+    name: "Cost Monitoring"
+    difficulty: hard
+    type: team
+    agents: [deploy_agent, analyst_agent, billing_agent]
+    task: |
+      Build cloud cost monitoring and optimization.
+    success_criteria:
+      - cost_tracking: true
+      - budget_alerts: true
+      - optimization_recommendations: true
+      - trend_analysis: true
+      - reporting: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B5_H24
+    name: "Dependency Health Monitor"
+    difficulty: hard
+    type: team
+    agents: [deploy_agent, emergency_error_specialist_agent, qa_agent]
+    task: |
+      Create dependency health monitoring.
+    success_criteria:
+      - version_tracking: true
+      - security_alerts: true
+      - update_automation: true
+      - compatibility_checks: true
+      - reporting: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B5_H25
+    name: "Custom Metrics Platform"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, analyst_agent]
+    task: |
+      Build custom business metrics platform.
+    success_criteria:
+      - metric_collection: true
+      - aggregation_rules: true
+      - dashboard_builder: true
+      - alert_configuration: true
+      - api_access: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+# =============================================================================
+# EXTREME TESTS (B5_X01-X25): Genesis-Led Full DevOps Platforms
+# =============================================================================
+extreme_tests:
+  # Full DevOps Platforms (15 tests)
+  - id: B5_X01
+    name: "Complete DevOps Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, emergency_error_specialist_agent, analyst_agent]
+    task: |
+      Build complete DevOps platform with CI/CD, monitoring, automation.
+    success_criteria:
+      - ci_cd_pipeline: true
+      - test_automation: true
+      - deployment_automation: true
+      - monitoring_stack: true
+      - alerting_system: true
+      - documentation: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B5_X02
+    name: "Enterprise CI/CD Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, emergency_error_specialist_agent]
+    task: |
+      Build enterprise-grade CI/CD platform.
+    success_criteria:
+      - multi_repo_support: true
+      - approval_workflows: true
+      - audit_logging: true
+      - rbac: true
+      - compliance_gates: true
+      - disaster_recovery: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B5_X03
+    name: "Test Automation Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, qa_agent, deploy_agent, builder_agent_enhanced, analyst_agent]
+    task: |
+      Build comprehensive test automation platform.
+    success_criteria:
+      - test_orchestration: true
+      - parallel_execution: true
+      - result_analytics: true
+      - test_data_management: true
+      - reporting_portal: true
+      - ci_integration: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B5_X04
+    name: "Monitoring Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, deploy_agent, emergency_error_specialist_agent, analyst_agent, builder_agent_enhanced]
+    task: |
+      Build full monitoring and observability platform.
+    success_criteria:
+      - infrastructure_monitoring: true
+      - application_monitoring: true
+      - log_management: true
+      - trace_analysis: true
+      - custom_dashboards: true
+      - intelligent_alerting: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B5_X05
+    name: "Incident Management Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, emergency_error_specialist_agent, deploy_agent, support_agent, builder_agent_enhanced]
+    task: |
+      Build incident management and response platform.
+    success_criteria:
+      - incident_creation: true
+      - escalation_automation: true
+      - runbook_integration: true
+      - communication_tools: true
+      - postmortem_workflow: true
+      - analytics: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B5_X06
+    name: "Release Management Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, deploy_agent, qa_agent, builder_agent_enhanced, support_agent]
+    task: |
+      Build release management and tracking platform.
+    success_criteria:
+      - release_planning: true
+      - version_management: true
+      - changelog_automation: true
+      - rollout_tracking: true
+      - feature_flags: true
+      - documentation_sync: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B5_X07
+    name: "Infrastructure Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, deploy_agent, emergency_error_specialist_agent, builder_agent_enhanced]
+    task: |
+      Build infrastructure automation platform.
+    success_criteria:
+      - iac_management: true
+      - environment_provisioning: true
+      - configuration_management: true
+      - cost_optimization: true
+      - compliance_automation: true
+      - disaster_recovery: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B5_X08
+    name: "Security DevOps Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, deploy_agent, qa_agent, emergency_error_specialist_agent, builder_agent_enhanced]
+    task: |
+      Build DevSecOps platform with security automation.
+    success_criteria:
+      - vulnerability_scanning: true
+      - compliance_automation: true
+      - secret_management: true
+      - access_control: true
+      - audit_logging: true
+      - incident_response: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B5_X09
+    name: "Quality Assurance Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, qa_agent, deploy_agent, analyst_agent, builder_agent_enhanced]
+    task: |
+      Build QA management and automation platform.
+    success_criteria:
+      - test_case_management: true
+      - automation_framework: true
+      - execution_orchestration: true
+      - defect_tracking: true
+      - quality_metrics: true
+      - reporting_portal: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B5_X10
+    name: "Developer Portal"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, support_agent, onboarding_agent]
+    task: |
+      Build internal developer portal with tools.
+    success_criteria:
+      - service_catalog: true
+      - documentation_hub: true
+      - template_scaffolding: true
+      - dependency_graph: true
+      - developer_metrics: true
+      - self_service_tools: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B5_X11
+    name: "Performance Engineering Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, qa_agent, deploy_agent, analyst_agent, builder_agent_enhanced]
+    task: |
+      Build performance testing and analysis platform.
+    success_criteria:
+      - load_test_orchestration: true
+      - performance_baselines: true
+      - bottleneck_detection: true
+      - capacity_planning: true
+      - regression_detection: true
+      - reporting: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B5_X12
+    name: "Chaos Engineering Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, emergency_error_specialist_agent, deploy_agent, qa_agent, builder_agent_enhanced]
+    task: |
+      Build chaos engineering experiment platform.
+    success_criteria:
+      - experiment_library: true
+      - controlled_injection: true
+      - blast_radius_control: true
+      - auto_remediation: true
+      - result_analysis: true
+      - gameday_automation: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B5_X13
+    name: "Configuration Management Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, deploy_agent, emergency_error_specialist_agent, builder_agent_enhanced]
+    task: |
+      Build configuration management platform.
+    success_criteria:
+      - config_versioning: true
+      - environment_management: true
+      - feature_toggles: true
+      - secret_rotation: true
+      - audit_trail: true
+      - rollback_support: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B5_X14
+    name: "Container Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, deploy_agent, qa_agent, emergency_error_specialist_agent, builder_agent_enhanced]
+    task: |
+      Build container management and orchestration platform.
+    success_criteria:
+      - registry_management: true
+      - deployment_automation: true
+      - scaling_policies: true
+      - service_mesh: true
+      - security_scanning: true
+      - monitoring: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B5_X15
+    name: "Data Pipeline Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, deploy_agent, analyst_agent, qa_agent, builder_agent_enhanced]
+    task: |
+      Build data pipeline orchestration platform.
+    success_criteria:
+      - pipeline_definition: true
+      - scheduler: true
+      - monitoring: true
+      - error_handling: true
+      - data_quality: true
+      - lineage_tracking: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  # Enterprise DevOps (10 tests)
+  - id: B5_X16
+    name: "Multi-Cloud DevOps Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, deploy_agent, builder_agent_enhanced, emergency_error_specialist_agent]
+    task: |
+      Build multi-cloud DevOps management platform.
+    success_criteria:
+      - multi_cloud_deploy: true
+      - unified_monitoring: true
+      - cost_management: true
+      - compliance_tracking: true
+      - disaster_recovery: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B5_X17
+    name: "Edge Deployment Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, deploy_agent, qa_agent, emergency_error_specialist_agent]
+    task: |
+      Build edge computing deployment platform.
+    success_criteria:
+      - edge_provisioning: true
+      - fleet_management: true
+      - rolling_updates: true
+      - offline_operation: true
+      - monitoring: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B5_X18
+    name: "Serverless DevOps Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, deploy_agent, qa_agent, builder_agent_enhanced]
+    task: |
+      Build serverless application DevOps platform.
+    success_criteria:
+      - function_deployment: true
+      - event_routing: true
+      - cold_start_optimization: true
+      - monitoring: true
+      - local_development: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B5_X19
+    name: "ML Ops Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, deploy_agent, analyst_agent, qa_agent, builder_agent_enhanced]
+    task: |
+      Build machine learning operations platform.
+    success_criteria:
+      - model_versioning: true
+      - training_pipelines: true
+      - model_deployment: true
+      - a_b_testing: true
+      - monitoring: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B5_X20
+    name: "Compliance Automation Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, deploy_agent, emergency_error_specialist_agent, analyst_agent]
+    task: |
+      Build compliance automation and reporting platform.
+    success_criteria:
+      - policy_enforcement: true
+      - control_mapping: true
+      - evidence_collection: true
+      - audit_reporting: true
+      - remediation_workflow: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B5_X21
+    name: "API Gateway Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, deploy_agent, qa_agent, builder_agent_enhanced, emergency_error_specialist_agent]
+    task: |
+      Build API gateway management platform.
+    success_criteria:
+      - api_routing: true
+      - rate_limiting: true
+      - authentication: true
+      - monitoring: true
+      - developer_portal: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B5_X22
+    name: "Service Mesh Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, deploy_agent, emergency_error_specialist_agent, builder_agent_enhanced]
+    task: |
+      Build service mesh management platform.
+    success_criteria:
+      - traffic_management: true
+      - security_policies: true
+      - observability: true
+      - resilience_patterns: true
+      - configuration: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B5_X23
+    name: "Database DevOps Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, deploy_agent, qa_agent, emergency_error_specialist_agent]
+    task: |
+      Build database DevOps automation platform.
+    success_criteria:
+      - schema_versioning: true
+      - migration_automation: true
+      - backup_management: true
+      - performance_monitoring: true
+      - disaster_recovery: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B5_X24
+    name: "Documentation Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, support_agent]
+    task: |
+      Build automated documentation platform.
+    success_criteria:
+      - doc_generation: true
+      - version_management: true
+      - search_functionality: true
+      - api_docs: true
+      - changelog_automation: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B5_X25
+    name: "DevOps Analytics Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, analyst_agent, deploy_agent, builder_agent_enhanced]
+    task: |
+      Build DevOps metrics and analytics platform.
+    success_criteria:
+      - dora_metrics: true
+      - pipeline_analytics: true
+      - quality_metrics: true
+      - cost_analytics: true
+      - predictive_insights: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0

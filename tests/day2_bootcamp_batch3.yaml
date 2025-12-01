@@ -1,0 +1,1632 @@
+# Day 2 Bootcamp - Batch 3: 100 Test Scenarios
+# Genesis + 11 Agents: Mobile, Responsive & Progressive Web Apps
+# IDs: B3_E01-E25 (Easy), B3_I01-I25 (Intermediate), B3_H01-H25 (Hard), B3_X01-X25 (Extreme)
+
+metadata:
+  version: "3.0"
+  batch: 3
+  total_tests: 100
+  focus: "mobile_responsive_pwa"
+  agents:
+    - genesis_meta
+    - analyst_agent
+    - builder_agent_enhanced
+    - deploy_agent
+    - billing_agent
+    - emergency_error_specialist_agent
+    - marketing_agent
+    - support_agent
+    - onboarding_agent
+    - qa_agent
+    - se_darwin_agent
+    - seo_agent
+
+# =============================================================================
+# EASY TESTS (B3_E01-E25): Solo Agent Tasks - Mobile Fundamentals
+# =============================================================================
+easy_tests:
+  # Builder Agent - Mobile Components (10 tests)
+  - id: B3_E01
+    name: "Create Mobile Navigation"
+    difficulty: easy
+    type: solo
+    agent: builder_agent_enhanced
+    task: |
+      Create a mobile-first hamburger navigation menu.
+      Smooth slide-in animation, touch-friendly targets.
+    success_criteria:
+      - hamburger_icon: true
+      - slide_menu: true
+      - touch_friendly: true
+    timeout_seconds: 90
+    reward_weight: 1.0
+
+  - id: B3_E02
+    name: "Build Touch Carousel"
+    difficulty: easy
+    type: solo
+    agent: builder_agent_enhanced
+    task: |
+      Create a touch-swipeable image carousel for mobile.
+      Include dots indicator and smooth transitions.
+    success_criteria:
+      - swipe_support: true
+      - dots_indicator: true
+      - smooth_transition: true
+    timeout_seconds: 90
+    reward_weight: 1.0
+
+  - id: B3_E03
+    name: "Create Bottom Navigation Bar"
+    difficulty: easy
+    type: solo
+    agent: builder_agent_enhanced
+    task: |
+      Build a mobile bottom navigation bar with 5 icons.
+      Active state indication and accessible labels.
+    success_criteria:
+      - bottom_nav: true
+      - active_state: true
+      - icons_labels: true
+    timeout_seconds: 75
+    reward_weight: 1.0
+
+  - id: B3_E04
+    name: "Build Pull-to-Refresh"
+    difficulty: easy
+    type: solo
+    agent: builder_agent_enhanced
+    task: |
+      Create a pull-to-refresh component for mobile lists.
+    success_criteria:
+      - pull_gesture: true
+      - loading_indicator: true
+      - refresh_callback: true
+    timeout_seconds: 90
+    reward_weight: 1.0
+
+  - id: B3_E05
+    name: "Create Floating Action Button"
+    difficulty: easy
+    type: solo
+    agent: builder_agent_enhanced
+    task: |
+      Build a Material Design floating action button with menu.
+    success_criteria:
+      - fab_button: true
+      - expand_menu: true
+      - animation: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B3_E06
+    name: "Build Mobile Card Stack"
+    difficulty: easy
+    type: solo
+    agent: builder_agent_enhanced
+    task: |
+      Create swipeable card stack (like Tinder UI).
+    success_criteria:
+      - card_stack: true
+      - swipe_gestures: true
+      - animation: true
+    timeout_seconds: 90
+    reward_weight: 1.0
+
+  - id: B3_E07
+    name: "Create Loading Skeletons"
+    difficulty: easy
+    type: solo
+    agent: builder_agent_enhanced
+    task: |
+      Build skeleton loading placeholders for mobile content.
+    success_criteria:
+      - skeleton_shapes: true
+      - shimmer_effect: true
+      - responsive: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B3_E08
+    name: "Build Swipe Actions"
+    difficulty: easy
+    type: solo
+    agent: builder_agent_enhanced
+    task: |
+      Create list items with swipe-to-reveal actions.
+    success_criteria:
+      - swipe_reveal: true
+      - action_buttons: true
+      - snap_back: true
+    timeout_seconds: 90
+    reward_weight: 1.0
+
+  - id: B3_E09
+    name: "Create Mobile Toast Notifications"
+    difficulty: easy
+    type: solo
+    agent: builder_agent_enhanced
+    task: |
+      Build toast notification system for mobile feedback.
+    success_criteria:
+      - toast_component: true
+      - auto_dismiss: true
+      - swipe_dismiss: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B3_E10
+    name: "Build Responsive Grid"
+    difficulty: easy
+    type: solo
+    agent: builder_agent_enhanced
+    task: |
+      Create a responsive CSS grid that adapts to screen sizes.
+    success_criteria:
+      - mobile_single: true
+      - tablet_two_col: true
+      - desktop_multi: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  # Deploy Agent - Mobile Configs (5 tests)
+  - id: B3_E11
+    name: "Create PWA Manifest"
+    difficulty: easy
+    type: solo
+    agent: deploy_agent
+    task: |
+      Generate a complete manifest.json for a PWA.
+    success_criteria:
+      - valid_json: true
+      - icons_defined: true
+      - display_standalone: true
+      - theme_colors: true
+    timeout_seconds: 45
+    reward_weight: 1.0
+
+  - id: B3_E12
+    name: "Generate Service Worker Shell"
+    difficulty: easy
+    type: solo
+    agent: deploy_agent
+    task: |
+      Create basic service worker with caching strategy.
+    success_criteria:
+      - install_event: true
+      - fetch_handler: true
+      - cache_strategy: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B3_E13
+    name: "Create Mobile Meta Tags"
+    difficulty: easy
+    type: solo
+    agent: deploy_agent
+    task: |
+      Generate mobile-optimized HTML meta tags.
+    success_criteria:
+      - viewport_meta: true
+      - apple_meta: true
+      - theme_color: true
+    timeout_seconds: 30
+    reward_weight: 1.0
+
+  - id: B3_E14
+    name: "Build Mobile Build Config"
+    difficulty: easy
+    type: solo
+    agent: deploy_agent
+    task: |
+      Create Next.js config optimized for mobile performance.
+    success_criteria:
+      - image_optimization: true
+      - font_optimization: true
+      - bundle_analysis: true
+    timeout_seconds: 45
+    reward_weight: 1.0
+
+  - id: B3_E15
+    name: "Generate Icon Set"
+    difficulty: easy
+    type: solo
+    agent: deploy_agent
+    task: |
+      Create PWA icon configuration with all required sizes.
+    success_criteria:
+      - multiple_sizes: true
+      - purpose_defined: true
+      - format_correct: true
+    timeout_seconds: 45
+    reward_weight: 1.0
+
+  # QA Agent - Mobile Testing (5 tests)
+  - id: B3_E16
+    name: "Write Touch Event Tests"
+    difficulty: easy
+    type: solo
+    agent: qa_agent
+    task: |
+      Write tests for touch event handling (tap, swipe, pinch).
+    success_criteria:
+      - tap_tests: true
+      - swipe_tests: true
+      - mock_touches: true
+    timeout_seconds: 75
+    reward_weight: 1.0
+
+  - id: B3_E17
+    name: "Create Viewport Tests"
+    difficulty: easy
+    type: solo
+    agent: qa_agent
+    task: |
+      Write tests for responsive breakpoint behavior.
+    success_criteria:
+      - mobile_tests: true
+      - tablet_tests: true
+      - desktop_tests: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B3_E18
+    name: "Build Offline Test Suite"
+    difficulty: easy
+    type: solo
+    agent: qa_agent
+    task: |
+      Write tests for offline functionality.
+    success_criteria:
+      - offline_mock: true
+      - cache_tests: true
+      - fallback_tests: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B3_E19
+    name: "Create Performance Test Config"
+    difficulty: easy
+    type: solo
+    agent: qa_agent
+    task: |
+      Set up Lighthouse CI configuration for mobile performance.
+    success_criteria:
+      - lighthouse_config: true
+      - mobile_emulation: true
+      - thresholds: true
+    timeout_seconds: 45
+    reward_weight: 1.0
+
+  - id: B3_E20
+    name: "Write Gesture Recognition Tests"
+    difficulty: easy
+    type: solo
+    agent: qa_agent
+    task: |
+      Create tests for gesture recognition components.
+    success_criteria:
+      - gesture_mocks: true
+      - direction_tests: true
+      - velocity_tests: true
+    timeout_seconds: 75
+    reward_weight: 1.0
+
+  # SEO/Marketing Agent (5 tests)
+  - id: B3_E21
+    name: "Create Mobile SEO Checklist"
+    difficulty: easy
+    type: solo
+    agent: seo_agent
+    task: |
+      Generate mobile SEO optimization checklist.
+    success_criteria:
+      - mobile_first: true
+      - core_web_vitals: true
+      - structured_data: true
+    timeout_seconds: 45
+    reward_weight: 1.0
+
+  - id: B3_E22
+    name: "Write App Store Description"
+    difficulty: easy
+    type: solo
+    agent: marketing_agent
+    task: |
+      Write PWA promotional description for app stores.
+    success_criteria:
+      - compelling_headline: true
+      - feature_bullets: true
+      - call_to_action: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B3_E23
+    name: "Create Mobile Landing Copy"
+    difficulty: easy
+    type: solo
+    agent: marketing_agent
+    task: |
+      Write mobile-optimized landing page copy (short, punchy).
+    success_criteria:
+      - short_headlines: true
+      - scannable_text: true
+      - clear_cta: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B3_E24
+    name: "Generate App Screenshots Guide"
+    difficulty: easy
+    type: solo
+    agent: marketing_agent
+    task: |
+      Create guide for app store screenshot requirements.
+    success_criteria:
+      - size_specs: true
+      - content_guide: true
+      - best_practices: true
+    timeout_seconds: 45
+    reward_weight: 1.0
+
+  - id: B3_E25
+    name: "Write Push Notification Templates"
+    difficulty: easy
+    type: solo
+    agent: marketing_agent
+    task: |
+      Create 5 push notification templates for engagement.
+    success_criteria:
+      - five_templates: true
+      - action_text: true
+      - personalization: true
+    timeout_seconds: 45
+    reward_weight: 1.0
+
+# =============================================================================
+# INTERMEDIATE TESTS (B3_I01-I25): Team Tasks - Mobile Features
+# =============================================================================
+intermediate_tests:
+  # Builder + Deploy Teams (8 tests)
+  - id: B3_I01
+    name: "PWA with Offline Mode"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent]
+    task: |
+      Create a PWA with full offline functionality.
+      Include service worker and cache management.
+    success_criteria:
+      - pwa_manifest: true
+      - service_worker: true
+      - offline_page: true
+      - cache_strategy: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B3_I02
+    name: "Mobile-First Dashboard"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent]
+    task: |
+      Build a mobile-first responsive dashboard.
+      Collapsible sidebar, touch-optimized controls.
+    success_criteria:
+      - mobile_first: true
+      - collapsible_nav: true
+      - touch_controls: true
+      - deploy_config: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B3_I03
+    name: "Mobile App Shell"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent]
+    task: |
+      Create app shell architecture for fast loading.
+    success_criteria:
+      - shell_html: true
+      - instant_load: true
+      - skeleton_ui: true
+      - sw_precache: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B3_I04
+    name: "Responsive Email Templates"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent]
+    task: |
+      Create mobile-responsive email template set.
+    success_criteria:
+      - mobile_layout: true
+      - email_clients: true
+      - inline_styles: true
+      - test_config: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B3_I05
+    name: "Install Banner Component"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent]
+    task: |
+      Create PWA install prompt with smart timing.
+    success_criteria:
+      - install_banner: true
+      - beforeinstallprompt: true
+      - dismiss_logic: true
+      - analytics_tracking: true
+    timeout_seconds: 150
+    reward_weight: 1.5
+
+  - id: B3_I06
+    name: "Push Notification System"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent]
+    task: |
+      Implement web push notification subscription flow.
+    success_criteria:
+      - permission_prompt: true
+      - subscription_logic: true
+      - notification_display: true
+      - backend_integration: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B3_I07
+    name: "Mobile Image Gallery"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent]
+    task: |
+      Create touch-optimized image gallery with lazy loading.
+    success_criteria:
+      - lazy_loading: true
+      - pinch_zoom: true
+      - swipe_navigation: true
+      - optimized_images: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B3_I08
+    name: "Mobile Form Wizard"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent]
+    task: |
+      Create multi-step mobile form with autosave.
+    success_criteria:
+      - step_indicator: true
+      - autosave: true
+      - touch_friendly: true
+      - validation: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  # Builder + QA Teams (8 tests)
+  - id: B3_I09
+    name: "Responsive Navigation with Tests"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, qa_agent]
+    task: |
+      Build responsive navigation with comprehensive tests.
+    success_criteria:
+      - responsive_nav: true
+      - breakpoint_tests: true
+      - accessibility: true
+      - animation_tests: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B3_I10
+    name: "Touch Gesture Library"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, qa_agent]
+    task: |
+      Create reusable touch gesture utilities with tests.
+    success_criteria:
+      - gesture_hooks: true
+      - multi_touch: true
+      - unit_tests: true
+      - integration_tests: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B3_I11
+    name: "Mobile Modal System"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, qa_agent]
+    task: |
+      Build mobile-optimized modal system with tests.
+    success_criteria:
+      - full_screen_mobile: true
+      - swipe_dismiss: true
+      - focus_management: true
+      - tests: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B3_I12
+    name: "Virtual List Component"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, qa_agent]
+    task: |
+      Create virtualized list for mobile performance.
+    success_criteria:
+      - virtualization: true
+      - smooth_scroll: true
+      - dynamic_height: true
+      - performance_tests: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B3_I13
+    name: "Mobile Date Picker"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, qa_agent]
+    task: |
+      Build touch-friendly date picker component.
+    success_criteria:
+      - touch_calendar: true
+      - swipe_months: true
+      - accessibility: true
+      - tests: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B3_I14
+    name: "Offline Data Sync"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, qa_agent]
+    task: |
+      Create offline-first data sync component.
+    success_criteria:
+      - local_storage: true
+      - sync_queue: true
+      - conflict_resolution: true
+      - tests: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B3_I15
+    name: "Mobile Search Component"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, qa_agent]
+    task: |
+      Build mobile search with voice input support.
+    success_criteria:
+      - voice_input: true
+      - autocomplete: true
+      - recent_searches: true
+      - tests: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B3_I16
+    name: "Biometric Auth UI"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, qa_agent]
+    task: |
+      Create WebAuthn biometric authentication UI.
+    success_criteria:
+      - webauthn_flow: true
+      - fallback_ui: true
+      - error_handling: true
+      - tests: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  # SEO/Marketing Teams (5 tests)
+  - id: B3_I17
+    name: "Mobile Landing Page SEO"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, seo_agent]
+    task: |
+      Create mobile landing page with full SEO optimization.
+    success_criteria:
+      - mobile_first: true
+      - core_web_vitals: true
+      - structured_data: true
+      - meta_tags: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B3_I18
+    name: "App Launch Campaign Page"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, marketing_agent]
+    task: |
+      Create mobile app launch landing page.
+    success_criteria:
+      - app_preview: true
+      - store_badges: true
+      - feature_highlights: true
+      - social_proof: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B3_I19
+    name: "Mobile Conversion Page"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, marketing_agent]
+    task: |
+      Build mobile-optimized conversion page.
+    success_criteria:
+      - thumb_zone_cta: true
+      - minimal_form: true
+      - trust_signals: true
+      - fast_loading: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B3_I20
+    name: "PWA Store Listing"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, marketing_agent]
+    task: |
+      Create PWA store listing assets and copy.
+    success_criteria:
+      - screenshots: true
+      - description: true
+      - feature_graphic: true
+      - categories: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  # Support Teams (5 tests)
+  - id: B3_I21
+    name: "Mobile Help Center"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, support_agent]
+    task: |
+      Create mobile-optimized help center layout.
+    success_criteria:
+      - touch_friendly: true
+      - search_prominent: true
+      - collapsible_sections: true
+      - contact_options: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B3_I22
+    name: "In-App Support Chat"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, support_agent]
+    task: |
+      Build mobile in-app support chat widget.
+    success_criteria:
+      - chat_bubble: true
+      - keyboard_handling: true
+      - attachment_support: true
+      - history_persistence: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B3_I23
+    name: "Mobile Onboarding Slides"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, onboarding_agent]
+    task: |
+      Create app onboarding carousel with skip option.
+    success_criteria:
+      - swipe_slides: true
+      - skip_button: true
+      - progress_dots: true
+      - last_slide_cta: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B3_I24
+    name: "Feature Discovery Tooltips"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, onboarding_agent]
+    task: |
+      Create contextual feature discovery system.
+    success_criteria:
+      - spotlight_overlay: true
+      - touch_to_dismiss: true
+      - sequence_logic: true
+      - completion_tracking: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B3_I25
+    name: "Mobile Feedback Form"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, support_agent]
+    task: |
+      Build mobile feedback/bug report form.
+    success_criteria:
+      - screenshot_capture: true
+      - device_info: true
+      - rating_input: true
+      - submit_flow: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+# =============================================================================
+# HARD TESTS (B3_H01-H25): Complex Multi-Agent Tasks
+# =============================================================================
+hard_tests:
+  # Full PWA Features (10 tests)
+  - id: B3_H01
+    name: "Complete PWA with Sync"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Build full PWA with background sync and push notifications.
+    success_criteria:
+      - pwa_complete: true
+      - background_sync: true
+      - push_notifications: true
+      - offline_first: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B3_H02
+    name: "Mobile E-commerce Shell"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent, seo_agent]
+    task: |
+      Create mobile-first e-commerce app shell.
+    success_criteria:
+      - product_browse: true
+      - cart_persistence: true
+      - checkout_flow: true
+      - seo_optimized: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B3_H03
+    name: "Social Feed PWA"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Build social feed with infinite scroll and caching.
+    success_criteria:
+      - feed_virtualization: true
+      - image_caching: true
+      - pull_refresh: true
+      - share_api: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B3_H04
+    name: "Mobile Dashboard Suite"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent, analyst_agent]
+    task: |
+      Create mobile analytics dashboard with charts.
+    success_criteria:
+      - touch_charts: true
+      - data_export: true
+      - offline_data: true
+      - responsive_layout: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B3_H05
+    name: "Mobile Chat Application"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent, support_agent]
+    task: |
+      Build mobile chat app with real-time features.
+    success_criteria:
+      - real_time: true
+      - typing_indicator: true
+      - media_sharing: true
+      - notification_integration: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B3_H06
+    name: "Mobile Camera Integration"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Create camera integration for photo/video capture.
+    success_criteria:
+      - camera_access: true
+      - photo_capture: true
+      - video_recording: true
+      - gallery_integration: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B3_H07
+    name: "Location-Based Features"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Build location-aware features with maps integration.
+    success_criteria:
+      - geolocation: true
+      - map_display: true
+      - location_tracking: true
+      - geofencing: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B3_H08
+    name: "Mobile Payment Flow"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent, billing_agent]
+    task: |
+      Create mobile payment flow with Apple/Google Pay.
+    success_criteria:
+      - payment_request_api: true
+      - apple_pay: true
+      - google_pay: true
+      - fallback_form: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B3_H09
+    name: "Mobile File Manager"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Build mobile file browser with upload/download.
+    success_criteria:
+      - file_browser: true
+      - upload_progress: true
+      - download_manager: true
+      - offline_access: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B3_H10
+    name: "Mobile Audio Player"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Create mobile audio player with background playback.
+    success_criteria:
+      - media_session: true
+      - background_audio: true
+      - lock_screen: true
+      - playlist_support: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  # Advanced Mobile Features (10 tests)
+  - id: B3_H11
+    name: "Mobile Video Player"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Build mobile video player with adaptive streaming.
+    success_criteria:
+      - adaptive_bitrate: true
+      - picture_in_picture: true
+      - full_screen: true
+      - subtitle_support: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B3_H12
+    name: "Mobile QR Scanner"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Create QR code scanner with camera integration.
+    success_criteria:
+      - camera_scan: true
+      - qr_decode: true
+      - history_storage: true
+      - action_handling: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B3_H13
+    name: "Mobile Drawing Canvas"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Build touch drawing canvas with tools.
+    success_criteria:
+      - touch_drawing: true
+      - tool_palette: true
+      - undo_redo: true
+      - export_image: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B3_H14
+    name: "Mobile Document Scanner"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Create document scanner with edge detection.
+    success_criteria:
+      - camera_capture: true
+      - edge_detection: true
+      - perspective_correction: true
+      - pdf_export: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B3_H15
+    name: "Mobile Notes App"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Build mobile notes app with rich text and sync.
+    success_criteria:
+      - rich_text: true
+      - folder_organization: true
+      - search_notes: true
+      - sync_capability: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B3_H16
+    name: "Mobile Task Manager"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent, onboarding_agent]
+    task: |
+      Create mobile task manager with reminders.
+    success_criteria:
+      - task_lists: true
+      - due_dates: true
+      - notifications: true
+      - recurring_tasks: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B3_H17
+    name: "Mobile Calendar"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Build mobile calendar with event management.
+    success_criteria:
+      - month_view: true
+      - week_view: true
+      - event_creation: true
+      - reminder_integration: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B3_H18
+    name: "Mobile Contacts Manager"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Create contacts app with import/export.
+    success_criteria:
+      - contact_list: true
+      - search_filter: true
+      - vcard_import: true
+      - share_contact: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B3_H19
+    name: "Mobile Expense Tracker"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent, billing_agent]
+    task: |
+      Build expense tracking app with receipt scanning.
+    success_criteria:
+      - expense_entry: true
+      - receipt_scan: true
+      - category_management: true
+      - reports: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B3_H20
+    name: "Mobile Health Tracker"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Create health tracking app with charts.
+    success_criteria:
+      - data_entry: true
+      - chart_visualization: true
+      - goal_tracking: true
+      - export_data: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  # Performance & Optimization (5 tests)
+  - id: B3_H21
+    name: "Performance Optimized App"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Create app optimized for Core Web Vitals.
+    success_criteria:
+      - lcp_optimized: true
+      - fid_optimized: true
+      - cls_optimized: true
+      - lighthouse_90: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B3_H22
+    name: "Image Optimization Pipeline"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Build image optimization with responsive images.
+    success_criteria:
+      - responsive_images: true
+      - lazy_loading: true
+      - webp_support: true
+      - cdn_integration: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B3_H23
+    name: "Bundle Optimization"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Optimize JavaScript bundle for mobile.
+    success_criteria:
+      - code_splitting: true
+      - tree_shaking: true
+      - dynamic_imports: true
+      - bundle_analysis: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B3_H24
+    name: "Caching Strategy Suite"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Implement comprehensive caching strategies.
+    success_criteria:
+      - cache_first: true
+      - network_first: true
+      - stale_while_revalidate: true
+      - cache_invalidation: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B3_H25
+    name: "Progressive Loading"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Create progressive content loading system.
+    success_criteria:
+      - skeleton_loading: true
+      - progressive_images: true
+      - infinite_scroll: true
+      - prefetching: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+# =============================================================================
+# EXTREME TESTS (B3_X01-X25): Genesis-Led Full Mobile Platforms
+# =============================================================================
+extreme_tests:
+  # Full Mobile Apps (15 tests)
+  - id: B3_X01
+    name: "Complete Social Media PWA"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, seo_agent, marketing_agent, support_agent]
+    task: |
+      Build complete social media PWA with feed, profiles, messaging.
+    success_criteria:
+      - user_profiles: true
+      - post_creation: true
+      - news_feed: true
+      - direct_messaging: true
+      - push_notifications: true
+      - offline_support: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B3_X02
+    name: "Mobile E-commerce Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, billing_agent, seo_agent, support_agent]
+    task: |
+      Build full mobile e-commerce platform as PWA.
+    success_criteria:
+      - product_catalog: true
+      - cart_checkout: true
+      - payment_integration: true
+      - order_tracking: true
+      - offline_browse: true
+      - push_notifications: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B3_X03
+    name: "Mobile Banking App"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, billing_agent, emergency_error_specialist_agent]
+    task: |
+      Build secure mobile banking application.
+    success_criteria:
+      - account_dashboard: true
+      - transaction_history: true
+      - transfer_money: true
+      - biometric_auth: true
+      - security_features: true
+      - offline_balance: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B3_X04
+    name: "Mobile Learning Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, onboarding_agent, support_agent]
+    task: |
+      Build mobile learning platform with courses.
+    success_criteria:
+      - course_catalog: true
+      - video_player: true
+      - quiz_system: true
+      - progress_tracking: true
+      - offline_courses: true
+      - certificates: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B3_X05
+    name: "Mobile Healthcare App"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, support_agent, emergency_error_specialist_agent]
+    task: |
+      Build mobile healthcare application.
+    success_criteria:
+      - appointment_booking: true
+      - health_records: true
+      - medication_reminders: true
+      - doctor_chat: true
+      - emergency_contacts: true
+      - offline_records: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B3_X06
+    name: "Mobile Fitness Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, analyst_agent, support_agent]
+    task: |
+      Build comprehensive fitness tracking platform.
+    success_criteria:
+      - workout_tracking: true
+      - exercise_library: true
+      - progress_charts: true
+      - social_features: true
+      - wearable_sync: true
+      - offline_workouts: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B3_X07
+    name: "Mobile Food Delivery App"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, billing_agent, support_agent]
+    task: |
+      Build food delivery platform with real-time tracking.
+    success_criteria:
+      - restaurant_browse: true
+      - menu_ordering: true
+      - cart_checkout: true
+      - live_tracking: true
+      - payment_processing: true
+      - order_history: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B3_X08
+    name: "Mobile Travel App"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, billing_agent, seo_agent]
+    task: |
+      Build travel booking and planning application.
+    success_criteria:
+      - flight_search: true
+      - hotel_booking: true
+      - trip_planning: true
+      - itinerary_view: true
+      - offline_access: true
+      - booking_management: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B3_X09
+    name: "Mobile News Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, seo_agent, marketing_agent]
+    task: |
+      Build mobile news platform with personalization.
+    success_criteria:
+      - article_feed: true
+      - category_filtering: true
+      - saved_articles: true
+      - push_breaking_news: true
+      - offline_reading: true
+      - share_features: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B3_X10
+    name: "Mobile Music Streaming"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, billing_agent]
+    task: |
+      Build music streaming application.
+    success_criteria:
+      - music_browse: true
+      - playlist_creation: true
+      - audio_player: true
+      - offline_playback: true
+      - background_audio: true
+      - subscription_tiers: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B3_X11
+    name: "Mobile Podcast Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, seo_agent]
+    task: |
+      Build podcast discovery and listening platform.
+    success_criteria:
+      - podcast_directory: true
+      - episode_player: true
+      - subscription_feed: true
+      - offline_episodes: true
+      - playback_sync: true
+      - discovery_features: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B3_X12
+    name: "Mobile Real Estate App"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, seo_agent, marketing_agent]
+    task: |
+      Build real estate listing and search platform.
+    success_criteria:
+      - property_search: true
+      - map_integration: true
+      - property_details: true
+      - saved_listings: true
+      - agent_contact: true
+      - virtual_tours: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B3_X13
+    name: "Mobile Event Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, billing_agent, marketing_agent]
+    task: |
+      Build event discovery and ticketing platform.
+    success_criteria:
+      - event_discovery: true
+      - ticket_purchase: true
+      - calendar_sync: true
+      - check_in_qr: true
+      - event_reminders: true
+      - social_sharing: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B3_X14
+    name: "Mobile Marketplace App"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, billing_agent, support_agent]
+    task: |
+      Build peer-to-peer marketplace application.
+    success_criteria:
+      - listing_creation: true
+      - search_browse: true
+      - messaging_system: true
+      - payment_escrow: true
+      - ratings_reviews: true
+      - location_based: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B3_X15
+    name: "Mobile Dating App"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, support_agent, onboarding_agent]
+    task: |
+      Build dating/social connection application.
+    success_criteria:
+      - profile_creation: true
+      - matching_algorithm: true
+      - swipe_interface: true
+      - messaging: true
+      - location_features: true
+      - privacy_controls: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  # Enterprise Mobile (5 tests)
+  - id: B3_X16
+    name: "Mobile CRM Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, analyst_agent, support_agent]
+    task: |
+      Build mobile CRM for sales teams.
+    success_criteria:
+      - contact_management: true
+      - deal_tracking: true
+      - activity_logging: true
+      - offline_access: true
+      - reports_dashboard: true
+      - team_collaboration: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B3_X17
+    name: "Mobile Project Management"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, support_agent, onboarding_agent]
+    task: |
+      Build mobile project management application.
+    success_criteria:
+      - task_boards: true
+      - team_assignments: true
+      - file_sharing: true
+      - time_tracking: true
+      - notifications: true
+      - offline_tasks: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B3_X18
+    name: "Mobile HR Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, support_agent]
+    task: |
+      Build mobile HR self-service platform.
+    success_criteria:
+      - leave_requests: true
+      - time_attendance: true
+      - payslip_view: true
+      - directory_search: true
+      - announcements: true
+      - expense_claims: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B3_X19
+    name: "Mobile Inventory System"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, analyst_agent]
+    task: |
+      Build mobile inventory management system.
+    success_criteria:
+      - barcode_scanning: true
+      - stock_management: true
+      - order_processing: true
+      - alerts_low_stock: true
+      - reports: true
+      - offline_sync: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B3_X20
+    name: "Mobile Field Service App"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, support_agent, emergency_error_specialist_agent]
+    task: |
+      Build field service management application.
+    success_criteria:
+      - job_dispatch: true
+      - route_optimization: true
+      - service_forms: true
+      - photo_capture: true
+      - signature_capture: true
+      - offline_work: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  # Specialized Mobile (5 tests)
+  - id: B3_X21
+    name: "Mobile AR Experience"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Build AR product visualization experience.
+    success_criteria:
+      - camera_ar: true
+      - model_placement: true
+      - interaction_gestures: true
+      - screenshot_share: true
+      - product_info: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B3_X22
+    name: "Mobile IoT Dashboard"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, analyst_agent]
+    task: |
+      Build IoT device control and monitoring app.
+    success_criteria:
+      - device_list: true
+      - real_time_data: true
+      - device_control: true
+      - alerts_notifications: true
+      - analytics: true
+      - offline_commands: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B3_X23
+    name: "Mobile Wallet App"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, billing_agent, emergency_error_specialist_agent]
+    task: |
+      Build digital wallet with payment features.
+    success_criteria:
+      - balance_display: true
+      - send_money: true
+      - request_money: true
+      - transaction_history: true
+      - qr_payments: true
+      - security_features: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B3_X24
+    name: "Mobile Survey Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, analyst_agent, marketing_agent]
+    task: |
+      Build mobile survey and feedback platform.
+    success_criteria:
+      - survey_creation: true
+      - response_collection: true
+      - offline_surveys: true
+      - analytics_dashboard: true
+      - export_results: true
+      - branching_logic: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B3_X25
+    name: "Mobile Conference App"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, marketing_agent, support_agent]
+    task: |
+      Build conference/event companion application.
+    success_criteria:
+      - schedule_view: true
+      - speaker_profiles: true
+      - session_booking: true
+      - networking_features: true
+      - live_polling: true
+      - offline_schedule: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0

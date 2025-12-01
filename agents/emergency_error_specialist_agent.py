@@ -18,12 +18,18 @@ Capabilities:
 import logging
 import re
 import json
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional, Tuple, Union
 from dataclasses import dataclass
 from datetime import datetime
 
-from infrastructure.standard_integration_mixin import StandardIntegrationMixin
+from infrastructure.standard_integration_mixin import StandardIntegrationMixin, darwin_evolved
 from infrastructure.load_env import load_genesis_env
+
+# Import MemoryOS for error history and pattern memory
+from infrastructure.memory_os_mongodb_adapter import (
+    create_genesis_memory_mongodb
+)
+import os
 
 load_genesis_env()
 
@@ -72,7 +78,26 @@ class EmergencyErrorSpecialistAgent(StandardIntegrationMixin):
         # Note: _load_error_patterns is now async, but called from __init__
         # We'll load patterns synchronously here and enhance them async later
         self.error_patterns = {}  # Will be loaded async on first use
+
+        # Initialize MemoryOS for error history and pattern memory
+        self.memory = None  # Lazy initialization
+
         logger.info("Emergency Error Specialist Agent initialized")
+
+    async def _init_memory(self):
+        """Initialize MemoryOS MongoDB backend for Error diagnosis memory."""
+        try:
+            self.memory = create_genesis_memory_mongodb(
+                mongodb_uri=os.getenv("MONGODB_URI", "mongodb://localhost:27017/"),
+                database_name="genesis_memory_emergency",
+                short_term_capacity=20,   # Recent errors
+                mid_term_capacity=1000,   # Historical error data
+                long_term_knowledge_capacity=500  # Error patterns, fix strategies
+            )
+            logger.info("[OK] MemoryOS initialized for EmergencyErrorSpecialistAgent")
+        except Exception as e:
+            logger.warning(f"[EmergencyErrorSpecialistAgent] Failed to initialize MemoryOS: {e}. Memory features disabled.")
+            self.memory = None
     
     def _get_system_instruction(self) -> str:
         """System instruction for emergency error specialist"""
@@ -707,22 +732,29 @@ Return JSON with:
     
     async def validate_fix(
         self,
-        diagnosis: ErrorDiagnosis,
+        diagnosis: Union[ErrorDiagnosis, Dict[str, Any]],
         original_error: str
     ) -> bool:
         """
         Validate that fix resolves the error with LLM enhancement.
-        
+
         Args:
-            diagnosis: Error diagnosis
+            diagnosis: Error diagnosis (ErrorDiagnosis object or dict)
             original_error: Original error message
-            
+
         Returns:
             True if fix is valid
         """
+        # Handle both ErrorDiagnosis objects and dicts
+        if isinstance(diagnosis, dict):
+            error_type = diagnosis.get('error_type', 'unknown')
+            recommended_fix = diagnosis.get('recommended_fix', '')
+        else:
+            error_type = diagnosis.error_type
+            recommended_fix = diagnosis.recommended_fix
+
         # Basic validation - check if fix addresses error type
-        error_type = diagnosis.error_type
-        fix = diagnosis.recommended_fix.lower()
+        fix = recommended_fix.lower() if recommended_fix else ''
         
         # Simple validation logic
         is_valid = False
@@ -827,8 +859,6 @@ Return JSON with:
             logger.warning(f"LLM error summary analysis failed: {e}")
         
         return base_summary
-            "status": "ready"
-        }
 
 
 def get_emergency_error_specialist_agent(business_id: str = "emergency") -> EmergencyErrorSpecialistAgent:

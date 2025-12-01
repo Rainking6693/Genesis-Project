@@ -1,0 +1,147 @@
+# RL configuration for Day 1: Genesis Meta Agent bootcamp
+# HARDCORE ENTERPRISE MODE - Genesis must EARN every point
+
+meta_agent_id: "genesis_meta"
+day: 1
+
+# Enterprise difficulty settings
+enterprise:
+  enabled: true
+  min_tests_required: 7
+  max_tests_for_full_credit: 20
+  difficulty_multiplier: 0.7  # 30% harder than base
+  baseline_target: 0.4  # Starting point should be around here
+
+r1:
+  enabled: true
+  environment_id: "GenesisMetaCoachEnv"
+  max_episodes: 100  # More episodes for harder training
+  max_steps_per_episode: 24  # More steps allowed
+  gamma: 0.99
+  learning_rate: 1e-5  # Lower LR for stability
+  batch_size: 16
+
+  # Tasks for R1 to train Genesis on:
+  tasks:
+    - id: "scenario_design"
+      description: "Design clear, evaluable training scenarios for agents."
+      min_tests: 10
+      required_dimensions: ["correctness", "completeness", "clarity", "security"]
+    - id: "artifact_evaluation"
+      description: "Score sample artifacts and provide structured feedback."
+      min_tests: 12
+      required_dimensions: ["accuracy", "consistency", "actionability", "coverage"]
+    - id: "rubric_construction"
+      description: "Write success criteria for business-relevant tasks."
+      min_tests: 15
+      required_dimensions: ["measurability", "completeness", "clarity", "relevance", "testability"]
+    - id: "code_generation"
+      description: "Generate production-quality code with tests."
+      min_tests: 20
+      required_dimensions: ["correctness", "efficiency", "security", "maintainability", "testability"]
+
+  # ENTERPRISE REWARD WEIGHTS - Much harder to earn
+  reward_weights:
+    # Core quality (must exceed enterprise thresholds)
+    correctness: 1.5           # Higher weight - most important
+    clarity: 0.8               # Enterprise documentation standards
+    structure: 0.7             # Structured output required
+    stability: 0.9             # 95% consistency threshold
+    efficiency: 0.4            # Cost optimization
+
+    # Execution rewards (require actual passing tests)
+    execution_success: 1.2     # HIGH weight - must pass 7+ tests
+    runtime_efficiency: 0.5    # SLA requirements
+    error_free: 0.8            # Zero tolerance for errors
+
+    # Enterprise bonus rewards
+    test_coverage: 0.4         # 80%+ coverage required
+    edge_cases: 0.3            # All edge cases tested
+    security: 0.5              # Security checks mandatory
+
+lightning:
+  enabled: true
+  algorithm: "LightningRL"
+  max_iterations: 30  # More iterations
+  learning_rate: 1e-5
+  prompt_opt_steps: 15
+
+  objectives:
+    - "improve_consistency_of_scores"
+    - "increase_rubric_completeness"
+    - "reduce_hallucinated_criteria"
+    - "enforce_structured_output"
+    - "maximize_test_coverage"
+
+  # ENTERPRISE optimization weights:
+  optimization_weights:
+    rubric_alignment: 1.2      # Must cover all dimensions
+    score_stability: 1.0       # 95% consistency required
+    feedback_quality: 0.9      # Actionable feedback only
+    brevity_without_loss: 0.5  # Efficient but complete
+    test_generation: 0.8       # Must generate valid tests
+
+# Enterprise test scenarios (Genesis must pass these)
+enterprise_tests:
+  scenario_design:
+    - name: "test_scenario_has_clear_objective"
+      weight: 1.0
+    - name: "test_scenario_has_success_criteria"
+      weight: 1.0
+    - name: "test_scenario_has_evaluation_rubric"
+      weight: 1.5
+    - name: "test_scenario_has_edge_cases"
+      weight: 1.2
+    - name: "test_scenario_is_measurable"
+      weight: 1.0
+    - name: "test_scenario_has_time_bounds"
+      weight: 0.8
+    - name: "test_scenario_has_resource_limits"
+      weight: 0.8
+
+  artifact_evaluation:
+    - name: "test_evaluation_has_numeric_scores"
+      weight: 1.5
+    - name: "test_evaluation_has_rubric_mapping"
+      weight: 1.2
+    - name: "test_evaluation_has_actionable_feedback"
+      weight: 1.0
+    - name: "test_evaluation_has_improvement_suggestions"
+      weight: 1.0
+    - name: "test_evaluation_covers_all_dimensions"
+      weight: 1.5
+    - name: "test_evaluation_is_consistent"
+      weight: 1.2
+    - name: "test_evaluation_handles_edge_cases"
+      weight: 1.0
+    - name: "test_evaluation_has_confidence_scores"
+      weight: 0.8
+
+  code_generation:
+    - name: "test_code_compiles"
+      weight: 2.0
+    - name: "test_code_passes_unit_tests"
+      weight: 2.0
+    - name: "test_code_has_no_security_vulnerabilities"
+      weight: 1.5
+    - name: "test_code_follows_style_guide"
+      weight: 0.8
+    - name: "test_code_has_documentation"
+      weight: 0.6
+    - name: "test_code_handles_errors"
+      weight: 1.2
+    - name: "test_code_has_type_hints"
+      weight: 0.5
+    - name: "test_code_is_efficient"
+      weight: 1.0
+    - name: "test_code_has_edge_case_handling"
+      weight: 1.2
+    - name: "test_code_is_maintainable"
+      weight: 0.8
+
+logging:
+  acontext_space: "Genesis-Training"
+  r1_block_prefix: "/rl/genesis/day1/r1/"
+  lightning_block_prefix: "/rl/genesis/day1/lightning/"
+  summary_block_path: "/summaries/day1_rl_summary.md"
+  log_enterprise_breakdown: true  # Log detailed reward breakdown

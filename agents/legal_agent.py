@@ -38,7 +38,7 @@ from infrastructure.memory_os_mongodb_adapter import (
 )
 
 # Import StandardIntegrationMixin for ALL 283 integrations
-from infrastructure.standard_integration_mixin import StandardIntegrationMixin
+from infrastructure.standard_integration_mixin import StandardIntegrationMixin, darwin_evolved
 
 logger = logging.getLogger(__name__)
 
@@ -77,16 +77,26 @@ class LegalAgent(StandardIntegrationMixin):
     async def initialize(self):
         # Initialize memory (now async)
         await self._init_memory()
-        
-        cred = AzureCliCredential()
-        client = AzureAIAgentClient(async_credential=cred)
-        self.agent = ChatAgent(
-            chat_client=client,
-            instructions="""You are the world\'s premier Legal specialist - recognized globally for innovative, cost-effective, and exceptional results. You deliver elegant, efficient, and reliable outcomes every time.""",
-            name="legal-agent",
-            tools=[self.generate_document, self.review_contract, self.check_compliance, self.create_privacy_policy, self.track_legal_deadlines, self.parse_contract_image]
-        )
-        print(f"⚖️ Legal Agent initialized for business: {self.business_id}")
+
+        # Azure Agent Framework is optional - use direct LLM if not available
+        try:
+            from azure.identity.aio import AzureCliCredential
+            from agent_framework import ChatAgent
+            from agent_framework.azure import AzureAIAgentClient
+
+            cred = AzureCliCredential()
+            client = AzureAIAgentClient(async_credential=cred)
+            self.agent = ChatAgent(
+                chat_client=client,
+                instructions="""You are the world\'s premier Legal specialist - recognized globally for innovative, cost-effective, and exceptional results. You deliver elegant, efficient, and reliable outcomes every time.""",
+                name="legal-agent",
+                tools=[self.generate_document, self.review_contract, self.check_compliance, self.create_privacy_policy, self.track_legal_deadlines, self.parse_contract_image]
+            )
+            logger.info(f"Legal Agent initialized with Azure Agent Framework")
+        except (ImportError, Exception) as e:
+            self.agent = None
+            logger.info(f"Legal Agent initialized (standalone mode) - Azure: {e}")
+        print(f"[LEGAL] Legal Agent initialized for business: {self.business_id}")
         print(f"   - MemoryOS MongoDB backend enabled (49% F1 improvement)\n")
 
     async def _init_memory(self):

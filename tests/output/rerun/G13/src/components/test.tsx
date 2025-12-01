@@ -1,0 +1,287 @@
+import React, { useState, useEffect } from 'react';
+
+interface Test {
+  id: string;
+  name: string;
+  description: string;
+  status: 'pending' | 'running' | 'completed' | 'failed';
+  createdAt: Date;
+}
+
+interface WriteTestsProps {
+  // Define any props the component needs
+}
+
+const WriteTests: React.FC<WriteTestsProps> = () => {
+  const [tests, setTests] = useState<Test[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [newTestName, setNewTestName] = useState<string>('');
+  const [newTestDescription, setNewTestDescription] = useState<string>('');
+
+  useEffect(() => {
+    const fetchTests = async () => {
+      try {
+        // Simulate API call
+        setTimeout(() => {
+          const mockTests: Test[] = [
+            { id: '1', name: 'Test 1', description: 'Description 1', status: 'completed', createdAt: new Date() },
+            { id: '2', name: 'Test 2', description: 'Description 2', status: 'running', createdAt: new Date() },
+          ];
+          setTests(mockTests);
+          setLoading(false);
+        }, 500);
+      } catch (err: any) {
+        setError(err.message || 'Failed to fetch tests.');
+        setLoading(false);
+      }
+    };
+
+    fetchTests();
+  }, []);
+
+  const handleCreateTest = async () => {
+    try {
+      setLoading(true);
+      // Simulate API call to create a test
+      setTimeout(() => {
+        const newTest: Test = {
+          id: Math.random().toString(36).substring(7), // Generate a random ID
+          name: newTestName,
+          description: newTestDescription,
+          status: 'pending',
+          createdAt: new Date(),
+        };
+        setTests([...tests, newTest]);
+        setNewTestName('');
+        setNewTestDescription('');
+        setLoading(false);
+      }, 500);
+    } catch (err: any) {
+      setError(err.message || 'Failed to create test.');
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-48">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-gray-900"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-red-500">Error: {error}</div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Write Tests</h1>
+
+      {/* Create Test Form */}
+      <div className="mb-4">
+        <label htmlFor="testName" className="block text-gray-700 text-sm font-bold mb-2">
+          Test Name:
+        </label>
+        <input
+          type="text"
+          id="testName"
+          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          placeholder="Enter test name"
+          value={newTestName}
+          onChange={(e) => setNewTestName(e.target.value)}
+          aria-label="Test Name"
+        />
+
+        <label htmlFor="testDescription" className="block text-gray-700 text-sm font-bold mt-2 mb-2">
+          Test Description:
+        </label>
+        <textarea
+          id="testDescription"
+          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          placeholder="Enter test description"
+          value={newTestDescription}
+          onChange={(e) => setNewTestDescription(e.target.value)}
+          aria-label="Test Description"
+        />
+
+        <button
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-4"
+          onClick={handleCreateTest}
+        >
+          Create Test
+        </button>
+      </div>
+
+      {/* Test List */}
+      <div>
+        <h2 className="text-xl font-semibold mb-2">Existing Tests</h2>
+        {tests.length > 0 ? (
+          <ul className="divide-y divide-gray-200">
+            {tests.map((test) => (
+              <li key={test.id} className="py-4">
+                <div className="flex justify-between">
+                  <div className="font-bold">{test.name}</div>
+                  <div className="text-sm text-gray-500">{test.status}</div>
+                </div>
+                <div className="text-gray-700">{test.description}</div>
+                <div className="text-xs text-gray-400">Created: {test.createdAt.toLocaleDateString()}</div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No tests found.</p>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default WriteTests;
+
+import React, { useState, useEffect } from 'react';
+
+interface Test {
+  id: string;
+  name: string;
+  description: string;
+  status: 'pending' | 'running' | 'completed' | 'failed';
+  createdAt: Date;
+}
+
+interface WriteTestsProps {
+  // Define any props the component needs
+}
+
+const WriteTests: React.FC<WriteTestsProps> = () => {
+  const [tests, setTests] = useState<Test[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [newTestName, setNewTestName] = useState<string>('');
+  const [newTestDescription, setNewTestDescription] = useState<string>('');
+
+  useEffect(() => {
+    const fetchTests = async () => {
+      try {
+        // Simulate API call
+        setTimeout(() => {
+          const mockTests: Test[] = [
+            { id: '1', name: 'Test 1', description: 'Description 1', status: 'completed', createdAt: new Date() },
+            { id: '2', name: 'Test 2', description: 'Description 2', status: 'running', createdAt: new Date() },
+          ];
+          setTests(mockTests);
+          setLoading(false);
+        }, 500);
+      } catch (err: any) {
+        setError(err.message || 'Failed to fetch tests.');
+        setLoading(false);
+      }
+    };
+
+    fetchTests();
+  }, []);
+
+  const handleCreateTest = async () => {
+    try {
+      setLoading(true);
+      // Simulate API call to create a test
+      setTimeout(() => {
+        const newTest: Test = {
+          id: Math.random().toString(36).substring(7), // Generate a random ID
+          name: newTestName,
+          description: newTestDescription,
+          status: 'pending',
+          createdAt: new Date(),
+        };
+        setTests([...tests, newTest]);
+        setNewTestName('');
+        setNewTestDescription('');
+        setLoading(false);
+      }, 500);
+    } catch (err: any) {
+      setError(err.message || 'Failed to create test.');
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-48">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-gray-900"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-red-500">Error: {error}</div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Write Tests</h1>
+
+      {/* Create Test Form */}
+      <div className="mb-4">
+        <label htmlFor="testName" className="block text-gray-700 text-sm font-bold mb-2">
+          Test Name:
+        </label>
+        <input
+          type="text"
+          id="testName"
+          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          placeholder="Enter test name"
+          value={newTestName}
+          onChange={(e) => setNewTestName(e.target.value)}
+          aria-label="Test Name"
+        />
+
+        <label htmlFor="testDescription" className="block text-gray-700 text-sm font-bold mt-2 mb-2">
+          Test Description:
+        </label>
+        <textarea
+          id="testDescription"
+          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          placeholder="Enter test description"
+          value={newTestDescription}
+          onChange={(e) => setNewTestDescription(e.target.value)}
+          aria-label="Test Description"
+        />
+
+        <button
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-4"
+          onClick={handleCreateTest}
+        >
+          Create Test
+        </button>
+      </div>
+
+      {/* Test List */}
+      <div>
+        <h2 className="text-xl font-semibold mb-2">Existing Tests</h2>
+        {tests.length > 0 ? (
+          <ul className="divide-y divide-gray-200">
+            {tests.map((test) => (
+              <li key={test.id} className="py-4">
+                <div className="flex justify-between">
+                  <div className="font-bold">{test.name}</div>
+                  <div className="text-sm text-gray-500">{test.status}</div>
+                </div>
+                <div className="text-gray-700">{test.description}</div>
+                <div className="text-xs text-gray-400">Created: {test.createdAt.toLocaleDateString()}</div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No tests found.</p>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default WriteTests;

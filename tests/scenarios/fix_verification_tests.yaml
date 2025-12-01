@@ -1,0 +1,160 @@
+# Tests to verify fixes for E11, M08, M19, H03, H05, H07
+# These tests failed due to async/await and parameter issues
+
+metadata:
+  version: "1.0"
+  description: "Verification tests for bug fixes"
+  se_darwin_enabled: true
+
+easy_tests:
+  # E11 - Fixed: billing_agent.get_subscription_status missing await
+  - id: E11
+    name: "Billing subscription status"
+    difficulty: easy
+    agents: [genesis_meta, billing_agent, se_darwin_agent]
+    task: "Check subscription status"
+    method: get_subscription_status
+    inputs:
+      customer_id: "CUST-001"
+
+medium_tests:
+  # M08 - Fixed: emergency_error_specialist_agent.validate_fix dict handling
+  - id: M08
+    name: "Emergency full diagnosis and fix"
+    difficulty: medium
+    agents: [genesis_meta, emergency_error_specialist_agent, se_darwin_agent]
+    task: "Diagnose and fix database error"
+    workflow:
+      - method: diagnose_error
+        inputs:
+          error_context:
+            error_message: "Connection pool exhausted"
+            error_type: "database_connection"
+            component_name: "postgresql_pool"
+      - method: fix_database_error
+        inputs:
+          error: "Connection pool exhausted"
+          context: {database_type: "postgresql", pool_size: 10}
+      - method: validate_fix
+        inputs:
+          diagnosis: {error_type: "database_connection", root_cause: "pool_exhaustion", recommended_fix: "increase_pool_size"}
+          original_error: "Connection pool exhausted"
+
+  # M19 - Fixed: billing_agent.get_payment_history missing await
+  - id: M19
+    name: "Support + Billing coordination"
+    difficulty: medium
+    agents: [genesis_meta, support_agent, billing_agent, se_darwin_agent]
+    task: "Handle billing-related support"
+    workflow:
+      - agent: support_agent
+        method: create_ticket
+        inputs:
+          customer_id: "CUST-003"
+          issue_description: "Overcharged on last invoice"
+          priority: "high"
+          category: "billing"
+      - agent: billing_agent
+        method: get_payment_history
+        inputs:
+          customer_id: "CUST-003"
+          limit: 5
+      - agent: billing_agent
+        method: issue_refund
+        inputs:
+          transaction_id: "TXN-OVERPAY"
+          amount: 10.00
+          reason: "Billing correction"
+
+hard_tests:
+  # H03 - Fixed: security_agent.run_comprehensive_audit target_systems alias
+  - id: H03
+    name: "Enterprise security audit"
+    difficulty: hard
+    agents: [genesis_meta, security_agent, emergency_error_specialist_agent, qa_agent, deploy_agent, se_darwin_agent]
+    task: "Complete security audit and remediation"
+    workflow:
+      - agent: security_agent
+        method: run_comprehensive_audit
+        inputs:
+          target_systems: ["api", "database", "frontend"]
+          audit_scope: "full"
+          severity_threshold: "medium"
+      - agent: security_agent
+        method: check_dependencies
+        inputs:
+          project_path: "."
+          package_manager: "npm"
+      - agent: emergency_error_specialist_agent
+        method: diagnose_error
+        inputs:
+          error_context:
+            error_message: "Potential SQL injection vulnerability"
+            error_type: "security"
+            component_name: "api_endpoint"
+      - agent: qa_agent
+        method: test_functionality
+        inputs:
+          test_type: "security"
+          component_name: "api"
+          test_cases: ["sql_injection", "xss", "csrf"]
+
+  # H05 - Fixed: billing_agent.get_subscription_status missing await
+  - id: H05
+    name: "Customer success automation"
+    difficulty: hard
+    agents: [genesis_meta, support_agent, onboarding_agent, billing_agent, analyst_agent, se_darwin_agent]
+    task: "Automate customer success workflow"
+    workflow:
+      - agent: onboarding_agent
+        method: create_onboarding_plan
+        inputs:
+          user_type: "enterprise"
+          company_size: "500+"
+          use_cases: ["full_platform"]
+      - agent: support_agent
+        method: remember_customer_fact
+        inputs:
+          customer_id: "ENT-CUST-001"
+          fact_category: "success_plan"
+          fact_content: "High-touch enterprise customer"
+      - agent: analyst_agent
+        method: analyze_metrics
+        inputs:
+          metric_names: ["product_usage", "feature_adoption", "nps_score"]
+          time_period: "30d"
+          granularity: "daily"
+      - agent: billing_agent
+        method: get_subscription_status
+        inputs:
+          customer_id: "ENT-CUST-001"
+
+  # H07 - Fixed: security_agent.run_comprehensive_audit target_systems alias
+  - id: H07
+    name: "Legal compliance automation"
+    difficulty: hard
+    agents: [genesis_meta, legal_agent, security_agent, content_agent, analyst_agent, maintenance_agent, se_darwin_agent]
+    task: "Automate compliance workflow"
+    workflow:
+      - agent: legal_agent
+        method: assess_compliance
+        inputs:
+          system_description: "SaaS platform handling PII"
+          regulation_set: ["GDPR", "CCPA"]
+      - agent: security_agent
+        method: run_comprehensive_audit
+        inputs:
+          target_systems: ["data_storage", "api"]
+          audit_scope: "compliance"
+          severity_threshold: "low"
+      - agent: legal_agent
+        method: generate_legal_document
+        inputs:
+          document_type: "privacy_policy"
+          parameters: {company_name: "TechCorp", jurisdiction: "EU"}
+      - agent: content_agent
+        method: generate_content
+        inputs:
+          content_type: "compliance_guide"
+          topic: "Data protection best practices"
+          target_audience: "developers"

@@ -1,0 +1,46 @@
+# Tests to verify security_agent.run_comprehensive_audit fix
+# Testing audit_scope and severity_threshold parameters
+
+metadata:
+  version: "1.0"
+  description: "Verification tests for security agent parameter fix"
+  se_darwin_enabled: true
+
+hard_tests:
+  # H03 - Re-test with audit_scope and severity_threshold
+  - id: H03
+    name: "Enterprise security audit"
+    difficulty: hard
+    agents: [genesis_meta, security_agent, emergency_error_specialist_agent, qa_agent, deploy_agent, se_darwin_agent]
+    task: "Complete security audit and remediation"
+    workflow:
+      - agent: security_agent
+        method: run_comprehensive_audit
+        inputs:
+          target_systems: ["api", "database", "frontend"]
+          audit_scope: "full"
+          severity_threshold: "medium"
+      - agent: security_agent
+        method: check_dependencies
+        inputs:
+          project_path: "."
+          package_manager: "npm"
+
+  # H07 - Re-test with audit_scope and severity_threshold
+  - id: H07
+    name: "Legal compliance automation"
+    difficulty: hard
+    agents: [genesis_meta, legal_agent, security_agent, content_agent, analyst_agent, maintenance_agent, se_darwin_agent]
+    task: "Automate compliance workflow"
+    workflow:
+      - agent: legal_agent
+        method: assess_compliance
+        inputs:
+          system_description: "SaaS platform handling PII"
+          regulation_set: ["GDPR", "CCPA"]
+      - agent: security_agent
+        method: run_comprehensive_audit
+        inputs:
+          target_systems: ["data_storage", "api"]
+          audit_scope: "compliance"
+          severity_threshold: "low"

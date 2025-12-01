@@ -43,7 +43,12 @@ from infrastructure.ap2_connector import (
 )
 
 # Import StandardIntegrationMixin for ALL 283 integrations
-from infrastructure.standard_integration_mixin import StandardIntegrationMixin
+from infrastructure.standard_integration_mixin import StandardIntegrationMixin, darwin_evolved
+
+# Import MemoryOS for domain history and registration memory
+from infrastructure.memory_os_mongodb_adapter import (
+    create_genesis_memory_mongodb
+)
 
 load_genesis_env()
 logger = logging.getLogger(__name__)
@@ -127,10 +132,28 @@ class DomainNameAgent(StandardIntegrationMixin):
         self.total_monthly_cost = 0.0
         self.registered_domains: List[Dict] = []
 
+        # Initialize MemoryOS for domain history
+        self.memory = None  # Lazy initialization
+
         logger.info(
             f"DomainNameAgent initialized (threshold=${cost_alert_threshold}, "
             f"preferred_tlds={self.preferred_tlds}, ap2_consent={'enabled' if enable_ap2_consent else 'disabled'})"
         )
+
+    async def _init_memory(self):
+        """Initialize MemoryOS MongoDB backend for Domain memory."""
+        try:
+            self.memory = create_genesis_memory_mongodb(
+                mongodb_uri=os.getenv("MONGODB_URI", "mongodb://localhost:27017/"),
+                database_name="genesis_memory_domain",
+                short_term_capacity=10,   # Recent domain registrations
+                mid_term_capacity=300,    # Historical domain data
+                long_term_knowledge_capacity=100  # Domain patterns, naming insights
+            )
+            logger.info("[OK] MemoryOS initialized for DomainNameAgent")
+        except Exception as e:
+            logger.warning(f"[DomainNameAgent] Failed to initialize MemoryOS: {e}. Memory features disabled.")
+            self.memory = None
 
     async def generate_domain_candidates(
         self,

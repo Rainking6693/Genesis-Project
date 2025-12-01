@@ -99,8 +99,10 @@ class BenchmarkRunner:
     """
 
     def __init__(self):
-        """Initialize benchmark runner with sandbox"""
-        self.sandbox = get_sandbox()
+        """Initialize benchmark runner with optional sandbox"""
+        self.sandbox = get_sandbox()  # Returns None if Docker unavailable
+        if self.sandbox is None:
+            logger.warning("BenchmarkRunner initialized without Docker sandbox - code execution will be simulated")
         self.benchmarks_dir = Path("benchmarks")
         self.benchmarks_dir.mkdir(exist_ok=True)
 

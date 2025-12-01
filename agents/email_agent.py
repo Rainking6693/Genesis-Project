@@ -36,7 +36,12 @@ from infrastructure.x402_vendor_cache import get_x402_vendor_cache
 from infrastructure.x402_client import get_x402_client, X402PaymentError
 
 # Import StandardIntegrationMixin for ALL 283 integrations
-from infrastructure.standard_integration_mixin import StandardIntegrationMixin
+from infrastructure.standard_integration_mixin import StandardIntegrationMixin, darwin_evolved
+
+# Import MemoryOS for email campaign history and subscriber memory
+from infrastructure.memory_os_mongodb_adapter import (
+    create_genesis_memory_mongodb
+)
 
 logger = logging.getLogger(__name__)
 
@@ -80,8 +85,26 @@ class EmailAgent(StandardIntegrationMixin):
         self.vendor_cache = get_x402_vendor_cache()
         self.x402_client = get_x402_client()
 
+        # Initialize MemoryOS for email campaign history
+        self.memory = None  # Lazy initialization
+
         logger.info(f"EmailAgent v4.1 initialized with DAAO + TUMIX + AP2 for business: {business_id}")
         self._start_ap2_loop()
+
+    async def _init_memory(self):
+        """Initialize MemoryOS MongoDB backend for Email campaign memory."""
+        try:
+            self.memory = create_genesis_memory_mongodb(
+                mongodb_uri=os.getenv("MONGODB_URI", "mongodb://localhost:27017/"),
+                database_name="genesis_memory_email",
+                short_term_capacity=10,   # Recent campaigns
+                mid_term_capacity=500,    # Historical campaign data
+                long_term_knowledge_capacity=200  # Email strategies, subscriber insights
+            )
+            logger.info("[OK] MemoryOS initialized for EmailAgent")
+        except Exception as e:
+            logger.warning(f"[EmailAgent] Failed to initialize MemoryOS: {e}. Memory features disabled.")
+            self.memory = None
 
     def _generate_ap2_secret(self) -> str:
         """Generate AP2 secret for signature verification"""
@@ -240,15 +263,25 @@ Return JSON with:
         logger.info(f"Email audit: {action} {service} ${price} [{status}]")
 
     async def initialize(self):
-        cred = AzureCliCredential()
-        client = AzureAIAgentClient(async_credential=cred)
-        self.agent = ChatAgent(
-            chat_client=client,
-            instructions="""You are the world\'s premier Email specialist - recognized globally for innovative, cost-effective, and exceptional results. You deliver elegant, efficient, and reliable outcomes every time.""",
-            name="email-agent",
-            tools=[self.create_campaign, self.send_email, self.segment_audience, self.track_campaign_metrics, self.optimize_deliverability, self.validate_emails, self.setup_automation]
-        )
-        print(f"✉️ Email Agent v4.1 initialized for business: {self.business_id}")
+        # Azure Agent Framework is optional - use direct LLM if not available
+        try:
+            from azure.identity.aio import AzureCliCredential
+            from agent_framework import ChatAgent
+            from agent_framework.azure import AzureAIAgentClient
+
+            cred = AzureCliCredential()
+            client = AzureAIAgentClient(async_credential=cred)
+            self.agent = ChatAgent(
+                chat_client=client,
+                instructions="""You are the world\'s premier Email specialist - recognized globally for innovative, cost-effective, and exceptional results. You deliver elegant, efficient, and reliable outcomes every time.""",
+                name="email-agent",
+                tools=[self.create_campaign, self.send_email, self.segment_audience, self.track_campaign_metrics, self.optimize_deliverability, self.validate_emails, self.setup_automation]
+            )
+            logger.info(f"Email Agent initialized with Azure Agent Framework")
+        except (ImportError, Exception) as e:
+            self.agent = None
+            logger.info(f"Email Agent initialized (standalone mode) - Azure: {e}")
+        print(f"[EMAIL] Email Agent v4.1 initialized for business: {self.business_id}")
 
     async def create_campaign(self, campaign_name: str, subject_line: str, target_segment: str) -> str:
         """Create a new email campaign"""

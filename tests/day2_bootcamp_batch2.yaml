@@ -1,0 +1,1645 @@
+# Day 2 Bootcamp - Batch 2: 100 Test Scenarios
+# Genesis + 11 Agents: Advanced Website Building & Operations
+# IDs: B2_E01-E25 (Easy), B2_I01-I25 (Intermediate), B2_H01-H25 (Hard), B2_X01-X25 (Extreme)
+
+metadata:
+  version: "2.0"
+  batch: 2
+  total_tests: 100
+  focus: "advanced_website_operations"
+  agents:
+    - genesis_meta
+    - analyst_agent
+    - builder_agent_enhanced
+    - deploy_agent
+    - billing_agent
+    - emergency_error_specialist_agent
+    - marketing_agent
+    - support_agent
+    - onboarding_agent
+    - qa_agent
+    - se_darwin_agent
+    - seo_agent
+
+squads:
+  growth_squad:
+    agents: [analyst_agent, marketing_agent, seo_agent, se_darwin_agent]
+    focus: "market_analysis_and_growth"
+
+  delivery_squad:
+    agents: [builder_agent_enhanced, deploy_agent, emergency_error_specialist_agent, qa_agent]
+    focus: "build_deploy_quality"
+
+  customer_squad:
+    agents: [onboarding_agent, support_agent, billing_agent]
+    focus: "customer_lifecycle"
+
+# =============================================================================
+# EASY TESTS (B2_E01-E25): Solo Agent Tasks - Website Fundamentals
+# =============================================================================
+easy_tests:
+  # Builder Agent Solo - UI Components (7 tests)
+  - id: B2_E01
+    name: "Create Testimonial Section"
+    difficulty: easy
+    type: solo
+    agent: builder_agent_enhanced
+    task: |
+      Create a testimonials section with 3 customer reviews.
+      Include: avatar, name, company, star rating, quote.
+    success_criteria:
+      - testimonial_cards: true
+      - avatar_images: true
+      - star_ratings: true
+    timeout_seconds: 90
+    reward_weight: 1.0
+
+  - id: B2_E02
+    name: "Build Pricing Cards"
+    difficulty: easy
+    type: solo
+    agent: builder_agent_enhanced
+    task: |
+      Create 3 pricing tier cards (Basic, Pro, Enterprise).
+      Include: price, features list, CTA button.
+    success_criteria:
+      - three_tiers: true
+      - price_display: true
+      - feature_lists: true
+      - cta_buttons: true
+    timeout_seconds: 90
+    reward_weight: 1.0
+
+  - id: B2_E03
+    name: "Create FAQ Accordion"
+    difficulty: easy
+    type: solo
+    agent: builder_agent_enhanced
+    task: |
+      Build an FAQ section with expandable accordion items.
+      At least 5 questions with answers.
+    success_criteria:
+      - accordion_functionality: true
+      - min_five_items: true
+      - accessible: true
+    timeout_seconds: 90
+    reward_weight: 1.0
+
+  - id: B2_E04
+    name: "Build Team Members Section"
+    difficulty: easy
+    type: solo
+    agent: builder_agent_enhanced
+    task: |
+      Create a team section displaying 4 team members.
+      Include: photo, name, role, social links.
+    success_criteria:
+      - team_cards: true
+      - member_info: true
+      - social_links: true
+    timeout_seconds: 90
+    reward_weight: 1.0
+
+  - id: B2_E05
+    name: "Create Newsletter Signup"
+    difficulty: easy
+    type: solo
+    agent: builder_agent_enhanced
+    task: |
+      Build a newsletter signup form with email validation.
+      Include: input field, submit button, success message.
+    success_criteria:
+      - email_input: true
+      - validation: true
+      - success_feedback: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B2_E06
+    name: "Build Features Grid"
+    difficulty: easy
+    type: solo
+    agent: builder_agent_enhanced
+    task: |
+      Create a 6-item features grid with icons and descriptions.
+    success_criteria:
+      - grid_layout: true
+      - icons_present: true
+      - descriptions: true
+    timeout_seconds: 75
+    reward_weight: 1.0
+
+  - id: B2_E07
+    name: "Create Video Embed Section"
+    difficulty: easy
+    type: solo
+    agent: builder_agent_enhanced
+    task: |
+      Build a section with responsive YouTube video embed and description.
+    success_criteria:
+      - responsive_embed: true
+      - aspect_ratio: true
+      - description_text: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  # Deploy Agent Solo (5 tests)
+  - id: B2_E08
+    name: "Create Docker Compose File"
+    difficulty: easy
+    type: solo
+    agent: deploy_agent
+    task: |
+      Create a docker-compose.yml for a Node.js app with MongoDB.
+    success_criteria:
+      - valid_yaml: true
+      - node_service: true
+      - mongo_service: true
+      - network_config: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B2_E09
+    name: "Generate Environment Template"
+    difficulty: easy
+    type: solo
+    agent: deploy_agent
+    task: |
+      Create a .env.example file with common environment variables.
+    success_criteria:
+      - env_format: true
+      - common_vars: true
+      - documentation: true
+    timeout_seconds: 45
+    reward_weight: 1.0
+
+  - id: B2_E10
+    name: "Create Vercel Config"
+    difficulty: easy
+    type: solo
+    agent: deploy_agent
+    task: |
+      Create vercel.json configuration for a Next.js app.
+    success_criteria:
+      - valid_json: true
+      - build_config: true
+      - routes_config: true
+    timeout_seconds: 45
+    reward_weight: 1.0
+
+  - id: B2_E11
+    name: "Generate Dockerfile"
+    difficulty: easy
+    type: solo
+    agent: deploy_agent
+    task: |
+      Create a multi-stage Dockerfile for a React application.
+    success_criteria:
+      - multi_stage: true
+      - build_stage: true
+      - production_stage: true
+      - optimized_size: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B2_E12
+    name: "Create Railway Config"
+    difficulty: easy
+    type: solo
+    agent: deploy_agent
+    task: |
+      Create a railway.json configuration for deployment.
+    success_criteria:
+      - valid_json: true
+      - build_command: true
+      - start_command: true
+    timeout_seconds: 45
+    reward_weight: 1.0
+
+  # SEO Agent Solo (4 tests)
+  - id: B2_E13
+    name: "Generate Meta Tags"
+    difficulty: easy
+    type: solo
+    agent: seo_agent
+    task: |
+      Create comprehensive meta tags for a SaaS landing page.
+    success_criteria:
+      - title_tag: true
+      - description_tag: true
+      - og_tags: true
+      - twitter_tags: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B2_E14
+    name: "Create Robots.txt"
+    difficulty: easy
+    type: solo
+    agent: seo_agent
+    task: |
+      Generate robots.txt with appropriate rules for a business website.
+    success_criteria:
+      - valid_format: true
+      - user_agent_rules: true
+      - sitemap_reference: true
+    timeout_seconds: 30
+    reward_weight: 1.0
+
+  - id: B2_E15
+    name: "Generate Sitemap XML"
+    difficulty: easy
+    type: solo
+    agent: seo_agent
+    task: |
+      Create a sitemap.xml for a 10-page website.
+    success_criteria:
+      - valid_xml: true
+      - url_entries: true
+      - lastmod_dates: true
+      - priority_values: true
+    timeout_seconds: 45
+    reward_weight: 1.0
+
+  - id: B2_E16
+    name: "Create Structured Data"
+    difficulty: easy
+    type: solo
+    agent: seo_agent
+    task: |
+      Generate JSON-LD structured data for a local business.
+    success_criteria:
+      - valid_jsonld: true
+      - organization_schema: true
+      - local_business_info: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  # QA Agent Solo (4 tests)
+  - id: B2_E17
+    name: "Write Unit Test for Button"
+    difficulty: easy
+    type: solo
+    agent: qa_agent
+    task: |
+      Write Jest unit tests for a Button component.
+    success_criteria:
+      - test_file: true
+      - render_test: true
+      - click_test: true
+      - props_test: true
+    timeout_seconds: 75
+    reward_weight: 1.0
+
+  - id: B2_E18
+    name: "Create Test Config"
+    difficulty: easy
+    type: solo
+    agent: qa_agent
+    task: |
+      Create a Jest configuration file for a React project.
+    success_criteria:
+      - valid_config: true
+      - coverage_settings: true
+      - transform_rules: true
+    timeout_seconds: 45
+    reward_weight: 1.0
+
+  - id: B2_E19
+    name: "Write Form Validation Tests"
+    difficulty: easy
+    type: solo
+    agent: qa_agent
+    task: |
+      Write tests for email and password validation functions.
+    success_criteria:
+      - valid_tests: true
+      - edge_cases: true
+      - error_cases: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B2_E20
+    name: "Create Test Utilities"
+    difficulty: easy
+    type: solo
+    agent: qa_agent
+    task: |
+      Create test utility functions for rendering with providers.
+    success_criteria:
+      - render_with_providers: true
+      - mock_helpers: true
+      - exports: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  # Support Agent Solo (3 tests)
+  - id: B2_E21
+    name: "Create Help Article"
+    difficulty: easy
+    type: solo
+    agent: support_agent
+    task: |
+      Write a help article explaining how to reset password.
+    success_criteria:
+      - clear_steps: true
+      - screenshots_placeholders: true
+      - troubleshooting: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B2_E22
+    name: "Generate FAQ Content"
+    difficulty: easy
+    type: solo
+    agent: support_agent
+    task: |
+      Create 10 frequently asked questions with answers for a SaaS product.
+    success_criteria:
+      - ten_questions: true
+      - helpful_answers: true
+      - categorized: true
+    timeout_seconds: 90
+    reward_weight: 1.0
+
+  - id: B2_E23
+    name: "Create Onboarding Checklist"
+    difficulty: easy
+    type: solo
+    agent: support_agent
+    task: |
+      Generate a new user onboarding checklist with 8 steps.
+    success_criteria:
+      - checklist_format: true
+      - clear_steps: true
+      - completion_tracking: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  # Marketing Agent Solo (2 tests)
+  - id: B2_E24
+    name: "Write Product Description"
+    difficulty: easy
+    type: solo
+    agent: marketing_agent
+    task: |
+      Write compelling product description for a project management tool.
+    success_criteria:
+      - headline: true
+      - value_proposition: true
+      - features_benefits: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B2_E25
+    name: "Create CTA Copy"
+    difficulty: easy
+    type: solo
+    agent: marketing_agent
+    task: |
+      Write 5 different call-to-action variations for signup buttons.
+    success_criteria:
+      - five_variations: true
+      - action_oriented: true
+      - benefit_focused: true
+    timeout_seconds: 45
+    reward_weight: 1.0
+
+# =============================================================================
+# INTERMEDIATE TESTS (B2_I01-I25): Team Tasks - Multi-Agent Coordination
+# =============================================================================
+intermediate_tests:
+  # Builder + Deploy Teams (6 tests)
+  - id: B2_I01
+    name: "Build and Deploy Blog"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent]
+    task: |
+      Create a static blog with 3 posts and deploy configuration.
+      Include: post listing, individual post pages, navigation.
+    success_criteria:
+      - blog_structure: true
+      - post_pages: true
+      - deploy_ready: true
+      - responsive: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B2_I02
+    name: "Create Portfolio Site"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent]
+    task: |
+      Build a developer portfolio site with projects section.
+      Include deploy configuration for Netlify.
+    success_criteria:
+      - portfolio_layout: true
+      - projects_grid: true
+      - netlify_config: true
+      - responsive: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B2_I03
+    name: "Build Admin Dashboard Shell"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent]
+    task: |
+      Create an admin dashboard layout with sidebar navigation.
+      Include Docker configuration.
+    success_criteria:
+      - sidebar_nav: true
+      - header_bar: true
+      - content_area: true
+      - docker_config: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B2_I04
+    name: "Create Documentation Site"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent]
+    task: |
+      Build a documentation site structure with navigation.
+    success_criteria:
+      - doc_structure: true
+      - search_placeholder: true
+      - nav_sidebar: true
+      - deploy_config: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B2_I05
+    name: "Build Event Landing Page"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent]
+    task: |
+      Create a conference landing page with schedule and speakers.
+    success_criteria:
+      - hero_section: true
+      - schedule_table: true
+      - speakers_grid: true
+      - registration_form: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B2_I06
+    name: "Create Product Hunt Style Page"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent]
+    task: |
+      Build a product launch page optimized for Product Hunt.
+    success_criteria:
+      - launch_hero: true
+      - product_demo: true
+      - social_proof: true
+      - cta_prominent: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  # Builder + QA Teams (5 tests)
+  - id: B2_I07
+    name: "Build and Test Login Page"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, qa_agent]
+    task: |
+      Create a login page with form validation and write tests.
+    success_criteria:
+      - login_form: true
+      - validation: true
+      - unit_tests: true
+      - a11y_compliant: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B2_I08
+    name: "Build and Test Search Component"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, qa_agent]
+    task: |
+      Create a search component with autocomplete and tests.
+    success_criteria:
+      - search_input: true
+      - autocomplete: true
+      - debounce: true
+      - test_coverage: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B2_I09
+    name: "Build and Test Modal Component"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, qa_agent]
+    task: |
+      Create a reusable modal component with accessibility and tests.
+    success_criteria:
+      - modal_component: true
+      - focus_trap: true
+      - escape_close: true
+      - tests: true
+    timeout_seconds: 150
+    reward_weight: 1.5
+
+  - id: B2_I10
+    name: "Build and Test Dropdown"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, qa_agent]
+    task: |
+      Create a dropdown menu component with keyboard navigation and tests.
+    success_criteria:
+      - dropdown_menu: true
+      - keyboard_nav: true
+      - aria_attributes: true
+      - test_coverage: true
+    timeout_seconds: 150
+    reward_weight: 1.5
+
+  - id: B2_I11
+    name: "Build and Test Tabs Component"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, qa_agent]
+    task: |
+      Create a tabbed interface component with tests.
+    success_criteria:
+      - tabs_component: true
+      - panel_switching: true
+      - keyboard_support: true
+      - tests: true
+    timeout_seconds: 150
+    reward_weight: 1.5
+
+  # SEO + Builder Teams (4 tests)
+  - id: B2_I12
+    name: "SEO-Optimized Landing Page"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, seo_agent]
+    task: |
+      Create a landing page with full SEO optimization.
+    success_criteria:
+      - semantic_html: true
+      - meta_tags: true
+      - structured_data: true
+      - heading_hierarchy: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B2_I13
+    name: "SEO Blog Post Template"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, seo_agent]
+    task: |
+      Create a blog post template with SEO best practices.
+    success_criteria:
+      - article_schema: true
+      - meta_template: true
+      - image_optimization: true
+      - internal_linking: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B2_I14
+    name: "Product Page SEO"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, seo_agent]
+    task: |
+      Create a product page with e-commerce SEO optimization.
+    success_criteria:
+      - product_schema: true
+      - review_schema: true
+      - breadcrumbs: true
+      - meta_optimized: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B2_I15
+    name: "Local Business Page SEO"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, seo_agent]
+    task: |
+      Create a local business page with local SEO optimization.
+    success_criteria:
+      - local_schema: true
+      - nap_consistent: true
+      - map_embed: true
+      - reviews_section: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  # Marketing + Builder Teams (4 tests)
+  - id: B2_I16
+    name: "Lead Magnet Landing Page"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, marketing_agent]
+    task: |
+      Create a lead magnet download page with compelling copy.
+    success_criteria:
+      - headline_copy: true
+      - benefit_bullets: true
+      - form_capture: true
+      - social_proof: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B2_I17
+    name: "Webinar Registration Page"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, marketing_agent]
+    task: |
+      Create a webinar registration page with countdown.
+    success_criteria:
+      - countdown_timer: true
+      - speaker_bio: true
+      - agenda_list: true
+      - registration_form: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B2_I18
+    name: "Case Study Page"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, marketing_agent]
+    task: |
+      Create a case study page template with results metrics.
+    success_criteria:
+      - client_overview: true
+      - challenge_section: true
+      - solution_section: true
+      - results_metrics: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B2_I19
+    name: "Comparison Page"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, marketing_agent]
+    task: |
+      Create a product comparison page (Us vs Competitors).
+    success_criteria:
+      - comparison_table: true
+      - feature_highlights: true
+      - cta_strategic: true
+      - trust_elements: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  # Support + Builder Teams (4 tests)
+  - id: B2_I20
+    name: "Help Center Layout"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, support_agent]
+    task: |
+      Create a help center layout with categories and search.
+    success_criteria:
+      - category_grid: true
+      - search_bar: true
+      - popular_articles: true
+      - contact_option: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B2_I21
+    name: "Knowledge Base Article"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, support_agent]
+    task: |
+      Create a knowledge base article template with navigation.
+    success_criteria:
+      - article_layout: true
+      - table_of_contents: true
+      - related_articles: true
+      - feedback_widget: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B2_I22
+    name: "Status Page"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, support_agent]
+    task: |
+      Create a service status page with component status.
+    success_criteria:
+      - overall_status: true
+      - component_list: true
+      - incident_history: true
+      - subscribe_option: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B2_I23
+    name: "Contact Support Page"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, support_agent]
+    task: |
+      Create a contact support page with ticket form.
+    success_criteria:
+      - contact_form: true
+      - category_select: true
+      - priority_select: true
+      - self_help_links: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  # Billing + Builder Teams (2 tests)
+  - id: B2_I24
+    name: "Billing Dashboard"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, billing_agent]
+    task: |
+      Create a billing dashboard showing subscription status.
+    success_criteria:
+      - current_plan: true
+      - usage_display: true
+      - payment_method: true
+      - invoice_history: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B2_I25
+    name: "Upgrade Flow Page"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, billing_agent]
+    task: |
+      Create a plan upgrade page with comparison.
+    success_criteria:
+      - plan_comparison: true
+      - feature_diff: true
+      - proration_info: true
+      - confirm_upgrade: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+# =============================================================================
+# HARD TESTS (B2_H01-H25): Complex Multi-Agent Tasks
+# =============================================================================
+hard_tests:
+  # Full Stack Teams (8 tests)
+  - id: B2_H01
+    name: "SaaS Dashboard with Analytics"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent, analyst_agent]
+    task: |
+      Create a SaaS dashboard with charts, metrics, and analytics.
+      Include deployment configuration and tests.
+    success_criteria:
+      - dashboard_layout: true
+      - chart_components: true
+      - metrics_cards: true
+      - deploy_config: true
+      - test_coverage: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B2_H02
+    name: "User Management System"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent, support_agent]
+    task: |
+      Create user management with roles, permissions display.
+      Include tests and help documentation.
+    success_criteria:
+      - user_list: true
+      - role_badges: true
+      - permission_matrix: true
+      - tests: true
+      - help_docs: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B2_H03
+    name: "Notification Center"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Build a notification center with preferences and history.
+    success_criteria:
+      - notification_list: true
+      - read_unread: true
+      - preferences_panel: true
+      - real_time_ready: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B2_H04
+    name: "Settings Panel Suite"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent, billing_agent]
+    task: |
+      Create comprehensive settings panel with profile, security, billing.
+    success_criteria:
+      - profile_settings: true
+      - security_settings: true
+      - billing_section: true
+      - notification_prefs: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B2_H05
+    name: "API Documentation Portal"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent, seo_agent]
+    task: |
+      Create an API documentation portal with code examples.
+    success_criteria:
+      - endpoint_docs: true
+      - code_examples: true
+      - try_it_feature: true
+      - search_function: true
+      - seo_optimized: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B2_H06
+    name: "Onboarding Flow"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent, onboarding_agent]
+    task: |
+      Create a multi-step onboarding wizard with progress tracking.
+    success_criteria:
+      - wizard_steps: true
+      - progress_bar: true
+      - skip_option: true
+      - completion_celebration: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B2_H07
+    name: "File Upload System"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent, emergency_error_specialist_agent]
+    task: |
+      Create a file upload system with drag-drop and validation.
+    success_criteria:
+      - drag_drop: true
+      - file_validation: true
+      - progress_indicator: true
+      - error_handling: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B2_H08
+    name: "Data Table with Export"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent, analyst_agent]
+    task: |
+      Create a data table with sorting, filtering, and export.
+    success_criteria:
+      - sortable_columns: true
+      - filter_options: true
+      - pagination: true
+      - export_csv: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  # E-commerce Teams (5 tests)
+  - id: B2_H09
+    name: "Product Catalog System"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, seo_agent, qa_agent]
+    task: |
+      Create product catalog with categories, filters, and search.
+    success_criteria:
+      - category_nav: true
+      - filter_sidebar: true
+      - product_grid: true
+      - search_results: true
+      - seo_optimized: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B2_H10
+    name: "Shopping Cart System"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent, billing_agent]
+    task: |
+      Create shopping cart with quantity, discounts, and summary.
+    success_criteria:
+      - cart_items: true
+      - quantity_update: true
+      - discount_codes: true
+      - order_summary: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B2_H11
+    name: "Order Tracking Page"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent, support_agent]
+    task: |
+      Create order tracking page with timeline and updates.
+    success_criteria:
+      - order_status: true
+      - timeline_view: true
+      - delivery_estimate: true
+      - support_link: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B2_H12
+    name: "Review and Rating System"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent, seo_agent]
+    task: |
+      Create review system with ratings, photos, and filtering.
+    success_criteria:
+      - review_form: true
+      - star_rating: true
+      - photo_upload: true
+      - review_list: true
+      - filter_sort: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B2_H13
+    name: "Wishlist Feature"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Create wishlist feature with sharing and notifications.
+    success_criteria:
+      - wishlist_add: true
+      - wishlist_view: true
+      - share_option: true
+      - price_alert: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  # Content Teams (5 tests)
+  - id: B2_H14
+    name: "Blog CMS Interface"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent, seo_agent]
+    task: |
+      Create blog CMS interface with editor and preview.
+    success_criteria:
+      - post_editor: true
+      - preview_mode: true
+      - category_tags: true
+      - seo_settings: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B2_H15
+    name: "Media Library"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Create media library with upload, organize, and search.
+    success_criteria:
+      - media_grid: true
+      - folder_organization: true
+      - search_filter: true
+      - bulk_actions: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B2_H16
+    name: "Page Builder Interface"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Create drag-drop page builder with block components.
+    success_criteria:
+      - block_palette: true
+      - drag_drop: true
+      - block_settings: true
+      - preview_mode: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B2_H17
+    name: "Form Builder"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent, analyst_agent]
+    task: |
+      Create form builder with field types and logic.
+    success_criteria:
+      - field_types: true
+      - drag_reorder: true
+      - conditional_logic: true
+      - preview_form: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B2_H18
+    name: "Email Template Builder"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent, marketing_agent]
+    task: |
+      Create email template builder with drag-drop blocks.
+    success_criteria:
+      - block_editor: true
+      - template_preview: true
+      - variables_support: true
+      - responsive_email: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  # Communication Teams (4 tests)
+  - id: B2_H19
+    name: "Chat Interface"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent, support_agent]
+    task: |
+      Create chat interface with messages, typing indicator.
+    success_criteria:
+      - message_list: true
+      - input_area: true
+      - typing_indicator: true
+      - emoji_picker: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B2_H20
+    name: "Comment System"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Create threaded comment system with replies and reactions.
+    success_criteria:
+      - comment_form: true
+      - threaded_replies: true
+      - reactions: true
+      - moderation_ui: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B2_H21
+    name: "Activity Feed"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Create activity feed with filtering and infinite scroll.
+    success_criteria:
+      - activity_items: true
+      - filter_by_type: true
+      - infinite_scroll: true
+      - time_grouping: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B2_H22
+    name: "Announcement System"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent, marketing_agent]
+    task: |
+      Create announcement banner system with targeting.
+    success_criteria:
+      - banner_display: true
+      - dismiss_option: true
+      - target_rules: true
+      - schedule_display: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  # Integration Teams (3 tests)
+  - id: B2_H23
+    name: "OAuth Integration UI"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent, emergency_error_specialist_agent]
+    task: |
+      Create OAuth integration UI with provider connections.
+    success_criteria:
+      - provider_list: true
+      - connect_flow: true
+      - disconnect_option: true
+      - error_handling: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B2_H24
+    name: "Webhook Management"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Create webhook management interface with logs.
+    success_criteria:
+      - webhook_list: true
+      - create_webhook: true
+      - event_selection: true
+      - delivery_logs: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B2_H25
+    name: "API Key Management"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent, emergency_error_specialist_agent]
+    task: |
+      Create API key management with scopes and rotation.
+    success_criteria:
+      - key_list: true
+      - create_key: true
+      - scope_selection: true
+      - key_rotation: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+# =============================================================================
+# EXTREME TESTS (B2_X01-X25): Genesis-Led Full Platform Builds
+# =============================================================================
+extreme_tests:
+  # Full SaaS Platforms (8 tests)
+  - id: B2_X01
+    name: "Complete CRM Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, seo_agent, billing_agent, support_agent]
+    task: |
+      Build a complete CRM platform with contacts, deals, pipeline, and reporting.
+    success_criteria:
+      - contact_management: true
+      - deal_pipeline: true
+      - activity_tracking: true
+      - reporting_dashboard: true
+      - test_coverage: true
+      - deploy_ready: true
+      - seo_optimized: true
+      - help_docs: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B2_X02
+    name: "Project Management Suite"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, billing_agent, support_agent, onboarding_agent]
+    task: |
+      Build project management suite with boards, tasks, timeline.
+    success_criteria:
+      - project_boards: true
+      - task_management: true
+      - timeline_view: true
+      - team_collaboration: true
+      - billing_integration: true
+      - test_coverage: true
+      - onboarding_flow: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B2_X03
+    name: "HR Management System"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, billing_agent, support_agent]
+    task: |
+      Build HR system with employee profiles, time-off, performance.
+    success_criteria:
+      - employee_directory: true
+      - time_off_system: true
+      - performance_reviews: true
+      - org_chart: true
+      - payroll_integration: true
+      - test_coverage: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B2_X04
+    name: "Customer Support Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, support_agent, billing_agent, analyst_agent]
+    task: |
+      Build support platform with tickets, knowledge base, live chat.
+    success_criteria:
+      - ticket_system: true
+      - knowledge_base: true
+      - live_chat: true
+      - agent_dashboard: true
+      - analytics: true
+      - test_coverage: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B2_X05
+    name: "Booking Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, billing_agent, seo_agent, marketing_agent]
+    task: |
+      Build booking platform with calendar, availability, payments.
+    success_criteria:
+      - calendar_view: true
+      - availability_management: true
+      - booking_flow: true
+      - payment_processing: true
+      - reminders: true
+      - seo_optimized: true
+      - test_coverage: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B2_X06
+    name: "Learning Management System"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, billing_agent, onboarding_agent]
+    task: |
+      Build LMS with courses, lessons, quizzes, certificates.
+    success_criteria:
+      - course_catalog: true
+      - lesson_player: true
+      - quiz_system: true
+      - progress_tracking: true
+      - certificates: true
+      - test_coverage: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B2_X07
+    name: "Survey Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, analyst_agent, marketing_agent]
+    task: |
+      Build survey platform with builder, distribution, analytics.
+    success_criteria:
+      - survey_builder: true
+      - question_types: true
+      - distribution_options: true
+      - response_analytics: true
+      - export_reports: true
+      - test_coverage: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B2_X08
+    name: "Event Management Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, billing_agent, marketing_agent, seo_agent]
+    task: |
+      Build event platform with registration, ticketing, check-in.
+    success_criteria:
+      - event_creation: true
+      - ticket_types: true
+      - registration_flow: true
+      - check_in_system: true
+      - attendee_management: true
+      - marketing_tools: true
+      - test_coverage: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  # Full E-commerce Platforms (5 tests)
+  - id: B2_X09
+    name: "Multi-vendor Marketplace"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, billing_agent, support_agent, seo_agent]
+    task: |
+      Build marketplace with vendor stores, split payments, reviews.
+    success_criteria:
+      - vendor_dashboard: true
+      - product_listings: true
+      - split_payments: true
+      - review_system: true
+      - search_filters: true
+      - test_coverage: true
+      - seo_optimized: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B2_X10
+    name: "Subscription Box Service"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, billing_agent, marketing_agent]
+    task: |
+      Build subscription box service with customization and recurring billing.
+    success_criteria:
+      - box_customization: true
+      - subscription_plans: true
+      - recurring_billing: true
+      - delivery_management: true
+      - customer_preferences: true
+      - test_coverage: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B2_X11
+    name: "Digital Downloads Store"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, billing_agent, seo_agent]
+    task: |
+      Build digital product store with secure downloads, licensing.
+    success_criteria:
+      - product_catalog: true
+      - secure_downloads: true
+      - license_management: true
+      - purchase_flow: true
+      - download_limits: true
+      - test_coverage: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B2_X12
+    name: "Auction Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, billing_agent, support_agent]
+    task: |
+      Build auction platform with bidding, reserves, auto-bid.
+    success_criteria:
+      - listing_creation: true
+      - bidding_system: true
+      - auto_bid: true
+      - reserve_prices: true
+      - winner_notification: true
+      - test_coverage: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B2_X13
+    name: "Rental Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, billing_agent, support_agent, seo_agent]
+    task: |
+      Build rental platform with availability, deposits, reviews.
+    success_criteria:
+      - item_listings: true
+      - availability_calendar: true
+      - booking_system: true
+      - deposit_handling: true
+      - damage_reports: true
+      - test_coverage: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  # Content Platforms (5 tests)
+  - id: B2_X14
+    name: "Video Streaming Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, billing_agent, seo_agent]
+    task: |
+      Build video platform with upload, player, subscriptions.
+    success_criteria:
+      - video_upload: true
+      - player_component: true
+      - playlist_feature: true
+      - subscription_tiers: true
+      - recommendations: true
+      - test_coverage: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B2_X15
+    name: "Podcast Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, seo_agent, marketing_agent]
+    task: |
+      Build podcast platform with hosting, distribution, analytics.
+    success_criteria:
+      - episode_upload: true
+      - rss_generation: true
+      - player_embed: true
+      - analytics_dashboard: true
+      - distribution_settings: true
+      - test_coverage: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B2_X16
+    name: "Newsletter Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, marketing_agent, analyst_agent]
+    task: |
+      Build newsletter platform with editor, subscribers, analytics.
+    success_criteria:
+      - newsletter_editor: true
+      - subscriber_management: true
+      - send_scheduling: true
+      - analytics_tracking: true
+      - archive_pages: true
+      - test_coverage: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B2_X17
+    name: "Documentation Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, seo_agent, support_agent]
+    task: |
+      Build documentation platform with versioning, search, API docs.
+    success_criteria:
+      - doc_editor: true
+      - version_management: true
+      - search_function: true
+      - api_reference: true
+      - changelog: true
+      - test_coverage: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B2_X18
+    name: "Portfolio Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, seo_agent, marketing_agent]
+    task: |
+      Build portfolio platform for creatives with projects, testimonials.
+    success_criteria:
+      - project_showcase: true
+      - bio_section: true
+      - testimonials: true
+      - contact_form: true
+      - seo_optimized: true
+      - test_coverage: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  # Community Platforms (4 tests)
+  - id: B2_X19
+    name: "Forum Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, support_agent, seo_agent]
+    task: |
+      Build forum with categories, threads, moderation, reputation.
+    success_criteria:
+      - category_structure: true
+      - thread_posts: true
+      - moderation_tools: true
+      - reputation_system: true
+      - search_feature: true
+      - test_coverage: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B2_X20
+    name: "Social Network"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, support_agent, onboarding_agent]
+    task: |
+      Build social network with profiles, posts, connections, feed.
+    success_criteria:
+      - user_profiles: true
+      - post_creation: true
+      - connections: true
+      - news_feed: true
+      - notifications: true
+      - test_coverage: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B2_X21
+    name: "Q&A Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, seo_agent, support_agent]
+    task: |
+      Build Q&A platform with questions, answers, voting, badges.
+    success_criteria:
+      - question_post: true
+      - answer_system: true
+      - voting: true
+      - badge_system: true
+      - search_feature: true
+      - test_coverage: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B2_X22
+    name: "Job Board Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, billing_agent, seo_agent]
+    task: |
+      Build job board with listings, applications, employer dashboard.
+    success_criteria:
+      - job_listings: true
+      - application_system: true
+      - employer_dashboard: true
+      - resume_upload: true
+      - search_filters: true
+      - test_coverage: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  # Analytics & Tools (3 tests)
+  - id: B2_X23
+    name: "Analytics Dashboard Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, analyst_agent, billing_agent]
+    task: |
+      Build analytics platform with dashboards, reports, integrations.
+    success_criteria:
+      - dashboard_builder: true
+      - chart_library: true
+      - report_generator: true
+      - data_connections: true
+      - scheduled_reports: true
+      - test_coverage: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B2_X24
+    name: "Workflow Automation Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, billing_agent, emergency_error_specialist_agent]
+    task: |
+      Build automation platform with triggers, actions, workflows.
+    success_criteria:
+      - workflow_builder: true
+      - trigger_types: true
+      - action_types: true
+      - execution_logs: true
+      - error_handling: true
+      - test_coverage: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B2_X25
+    name: "Integration Hub Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, support_agent, emergency_error_specialist_agent]
+    task: |
+      Build integration hub with connectors, data sync, monitoring.
+    success_criteria:
+      - connector_catalog: true
+      - auth_management: true
+      - data_mapping: true
+      - sync_scheduling: true
+      - monitoring_alerts: true
+      - test_coverage: true
+    timeout_seconds: 600
+    reward_weight: 5.0

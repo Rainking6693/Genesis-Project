@@ -59,7 +59,7 @@ from infrastructure.x402_vendor_cache import get_x402_vendor_cache
 from infrastructure.x402_client import get_x402_client, X402PaymentError
 
 # Import StandardIntegrationMixin for ALL 283 integrations
-from infrastructure.standard_integration_mixin import StandardIntegrationMixin
+from infrastructure.standard_integration_mixin import StandardIntegrationMixin, darwin_evolved
 
 logger = logging.getLogger(__name__)
 
@@ -136,25 +136,35 @@ class SupportAgent(StandardIntegrationMixin):
         # Initialize memory (now async)
         await self._init_memory()
         await self._init_memori_toolset()
-        
-        cred = AzureCliCredential()
-        client = AzureAIAgentClient(async_credential=cred)
-        self.agent = ChatAgent(
-            chat_client=client,
-            instructions="""You are the world\'s premier Support specialist - recognized globally for innovative, cost-effective, and exceptional results. You deliver elegant, efficient, and reliable outcomes every time.""",
-            name="support-agent",
-            tools=[
-                self.create_ticket,
-                self.respond_to_ticket,
-                self.escalate_ticket,
-                self.search_knowledge_base,
-                self.generate_support_report,
-                self.process_ticket_image,
-                self.reproduce_customer_issue,
-                self.remember_customer_fact,
-                self.recall_customer_facts,
-            ]
-        )
+
+        # Azure Agent Framework is optional - use direct LLM if not available
+        try:
+            from azure.identity.aio import AzureCliCredential
+            from agent_framework import ChatAgent
+            from agent_framework.azure import AzureAIAgentClient
+
+            cred = AzureCliCredential()
+            client = AzureAIAgentClient(async_credential=cred)
+            self.agent = ChatAgent(
+                chat_client=client,
+                instructions="""You are the world\'s premier Support specialist - recognized globally for innovative, cost-effective, and exceptional results. You deliver elegant, efficient, and reliable outcomes every time.""",
+                name="support-agent",
+                tools=[
+                    self.create_ticket,
+                    self.respond_to_ticket,
+                    self.escalate_ticket,
+                    self.search_knowledge_base,
+                    self.generate_support_report,
+                    self.process_ticket_image,
+                    self.reproduce_customer_issue,
+                    self.remember_customer_fact,
+                    self.recall_customer_facts,
+                ]
+            )
+            logger.info(f"Support Agent initialized with Azure Agent Framework")
+        except (ImportError, Exception) as e:
+            self.agent = None
+            logger.info(f"Support Agent initialized (standalone mode) - Azure: {e}")
 
         # Initialize OpenEnv for customer issue reproduction
         self.browser_env = EnvRegistry.make("playwright")
@@ -174,7 +184,7 @@ class SupportAgent(StandardIntegrationMixin):
             max_episodes=8  # Support: moderate learning
         )
 
-        print(f"💬 Support Agent initialized for business: {self.business_id}")
+        print(f"[SUPPORT] Support Agent initialized for business: {self.business_id}")
         print(f"   - OpenEnv issue reproduction enabled (Playwright)")
         print(f"   - MemoryOS MongoDB backend enabled (49% F1 improvement)\n")
 
@@ -1321,9 +1331,9 @@ Return JSON with:
             "timestamp": datetime.utcnow().isoformat(),
             "metadata": metadata or {},
         }
-        signature = await self._sign_payload(payload)
+        signature = self._execute_ap2_coro(self._sign_payload(payload))
         payload["signature"] = signature
-        if not await self._verify_signature(payload, signature):
+        if not self._execute_ap2_coro(self._verify_signature(payload, signature)):
             raise RuntimeError("SupportAgent AP2 signature verification failed.")
 
         self._monthly_spend += amount

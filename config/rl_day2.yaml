@@ -1,0 +1,148 @@
+day: 2
+
+agents:
+  genesis_meta:
+    r1_enabled: true
+    lightning_enabled: true
+    reward_profile: "meta_coach"
+
+  analyst_agent:
+    r1_enabled: true
+    lightning_enabled: true
+    reward_profile: "analysis"
+
+  builder_agent_enhanced:
+    r1_enabled: true
+    lightning_enabled: true
+    reward_profile: "dev"
+
+  deploy_agent:
+    r1_enabled: true
+    lightning_enabled: true
+    reward_profile: "deploy"
+
+  billing_agent:
+    r1_enabled: false
+    lightning_enabled: true
+    reward_profile: "finance"
+
+  emergency_error_specialist_agent:
+    r1_enabled: true
+    lightning_enabled: true
+    reward_profile: "incident"
+
+  marketing_agent:
+    r1_enabled: false
+    lightning_enabled: true
+    reward_profile: "marketing"
+
+  support_agent:
+    r1_enabled: false
+    lightning_enabled: true
+    reward_profile: "support"
+
+  onboarding_agent:
+    r1_enabled: false
+    lightning_enabled: true
+    reward_profile: "onboarding"
+
+  qa_agent:
+    r1_enabled: true
+    lightning_enabled: true
+    reward_profile: "qa"
+
+  se_darwin_agent:
+    r1_enabled: true
+    lightning_enabled: true
+    reward_profile: "search_dev"
+
+  seo_agent:
+    r1_enabled: false
+    lightning_enabled: true
+    reward_profile: "seo"
+
+reward_profiles:
+  meta_coach:
+    correctness: 1.0
+    clarity: 0.9
+    structure: 0.8
+    stability: 0.8
+    efficiency: 0.4
+
+  analysis:
+    correctness: 1.0
+    clarity: 0.8
+    structure: 0.7
+    stability: 0.7
+    efficiency: 0.3
+
+  dev:
+    correctness: 1.0       # tests passing, compile, etc
+    clarity: 0.5
+    structure: 0.7
+    stability: 0.7
+    efficiency: 0.5
+
+  deploy:
+    correctness: 1.0       # deployment works
+    clarity: 0.4
+    structure: 0.6
+    stability: 0.8
+    efficiency: 0.5
+
+  finance:
+    correctness: 1.0
+    clarity: 0.8
+    structure: 0.8
+    stability: 0.8
+    efficiency: 0.3
+
+  incident:
+    correctness: 1.0       # bug/incident resolved
+    clarity: 0.6
+    structure: 0.7
+    stability: 0.7
+    efficiency: 0.6        # fast resolution matters
+
+  marketing:
+    correctness: 0.7       # on-brief
+    clarity: 0.8
+    structure: 0.7
+    stability: 0.7
+    efficiency: 0.4
+
+  support:
+    correctness: 0.9
+    clarity: 0.8
+    structure: 0.7
+    stability: 0.8
+    efficiency: 0.3
+
+  onboarding:
+    correctness: 0.9
+    clarity: 0.9
+    structure: 0.8
+    stability: 0.7
+    efficiency: 0.3
+
+  qa:
+    correctness: 1.0       # bugs found / test coverage
+    clarity: 0.7
+    structure: 0.7
+    stability: 0.8
+    efficiency: 0.4
+
+  search_dev:
+    correctness: 1.0       # search works / ranking quality
+    clarity: 0.6
+    structure: 0.7
+    stability: 0.7
+    efficiency: 0.5
+
+logging:
+  acontext_space: "Genesis-Training"
+  base_path: "/day2/"
+  single_agent_path: "/artifacts/day2/single_agents/"
+  squad_path: "/artifacts/day2/squads/"
+  dev_path: "/artifacts/day2/dev/"
+  summary_block_path: "/summaries/day2_summary.md"

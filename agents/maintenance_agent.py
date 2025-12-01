@@ -25,7 +25,13 @@ from infrastructure.tumix_termination import (
     TerminationDecision
 )
 # Import StandardIntegrationMixin
-from infrastructure.standard_integration_mixin import StandardIntegrationMixin
+from infrastructure.standard_integration_mixin import StandardIntegrationMixin, darwin_evolved
+
+# Import MemoryOS for maintenance history and system state memory
+from infrastructure.memory_os_mongodb_adapter import (
+    create_genesis_memory_mongodb
+)
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -51,18 +57,46 @@ class MaintenanceAgent(StandardIntegrationMixin):
         # Track refinement sessions for metrics
         self.refinement_history: List[List[RefinementResult]] = []
 
+        # Initialize MemoryOS for maintenance history
+        self.memory = None  # Lazy initialization
+
         logger.info(f"{{agent_name}} v4.0 initialized with DAAO + TUMIX for business: {{business_id}}")
 
+    async def _init_memory(self):
+        """Initialize MemoryOS MongoDB backend for Maintenance memory."""
+        try:
+            self.memory = create_genesis_memory_mongodb(
+                mongodb_uri=os.getenv("MONGODB_URI", "mongodb://localhost:27017/"),
+                database_name="genesis_memory_maintenance",
+                short_term_capacity=10,   # Recent maintenance tasks
+                mid_term_capacity=500,    # Historical maintenance data
+                long_term_knowledge_capacity=200  # Maintenance patterns, system insights
+            )
+            logger.info("[OK] MemoryOS initialized for MaintenanceAgent")
+        except Exception as e:
+            logger.warning(f"[MaintenanceAgent] Failed to initialize MemoryOS: {e}. Memory features disabled.")
+            self.memory = None
+
     async def initialize(self):
-        cred = AzureCliCredential()
-        client = AzureAIAgentClient(async_credential=cred)
-        self.agent = ChatAgent(
-            chat_client=client,
-            instructions="""You are the world\'s premier Maintenance specialist - recognized globally for innovative, cost-effective, and exceptional results. You deliver elegant, efficient, and reliable outcomes every time.""",
-            name="maintenance-agent",
-            tools=[self.check_system_health, self.perform_maintenance, self.monitor_resources, self.manage_backups, self.generate_uptime_report]
-        )
-        print(f"🔧 Maintenance Agent initialized for business: {self.business_id}\n")
+        # Azure Agent Framework is optional - use direct LLM if not available
+        try:
+            from azure.identity.aio import AzureCliCredential
+            from agent_framework import ChatAgent
+            from agent_framework.azure import AzureAIAgentClient
+
+            cred = AzureCliCredential()
+            client = AzureAIAgentClient(async_credential=cred)
+            self.agent = ChatAgent(
+                chat_client=client,
+                instructions="""You are the world\'s premier Maintenance specialist - recognized globally for innovative, cost-effective, and exceptional results. You deliver elegant, efficient, and reliable outcomes every time.""",
+                name="maintenance-agent",
+                tools=[self.check_system_health, self.perform_maintenance, self.monitor_resources, self.manage_backups, self.generate_uptime_report]
+            )
+            logger.info(f"Maintenance Agent initialized with Azure Agent Framework")
+        except (ImportError, Exception) as e:
+            self.agent = None
+            logger.info(f"Maintenance Agent initialized (standalone mode) - Azure: {e}")
+        print(f"[MAINTENANCE] Maintenance Agent initialized for business: {self.business_id}\n")
 
     async def check_system_health(self, components: List[str]) -> str:
         """Check health status of system components with LLM analysis."""

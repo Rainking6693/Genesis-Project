@@ -51,7 +51,7 @@ from infrastructure.tumix_termination import (
 # from infrastructure.genesis_discord import GenesisDiscord, fire_and_forget
 
 # Import StandardIntegrationMixin for ALL 283 integrations
-from infrastructure.standard_integration_mixin import StandardIntegrationMixin
+from infrastructure.standard_integration_mixin import StandardIntegrationMixin, darwin_evolved
 from infrastructure.smart_tool_router import SmartToolRouterMixin
 from infrastructure.mcp_chrome_devtools_client import ChromeDevToolsMCPClient
 
@@ -584,8 +584,12 @@ Return a JSON object with:
         return status
 
     async def initialize(self):
-        # Try Azure initialization, fall back to basic initialization if not available
+        # Azure Agent Framework is optional - use direct LLM if not available
         try:
+            from azure.identity.aio import AzureCliCredential
+            from agent_framework import ChatAgent
+            from agent_framework.azure import AzureAIAgentClient
+
             cred = AzureCliCredential()
             client = AzureAIAgentClient(async_credential=cred)
             self.agent = ChatAgent(
@@ -594,10 +598,10 @@ Return a JSON object with:
                 name="billing-agent",
                 tools=[self.process_payment, self.generate_invoice, self.manage_subscription, self.issue_refund, self.generate_revenue_report]
             )
-        except (NameError, ImportError) as e:
-            # Azure components not available, use basic initialization
-            logger.debug(f"Azure components not available: {e}. Using basic initialization.")
-            self.agent = None  # Agent will use StandardIntegrationMixin methods directly
+            logger.info(f"Billing Agent initialized with Azure Agent Framework")
+        except (ImportError, Exception) as e:
+            self.agent = None
+            logger.info(f"Billing Agent initialized (standalone mode) - Azure: {e}")
 
         logger.info(f"💰 Billing Agent initialized for business: {self.business_id}")
     
@@ -990,7 +994,7 @@ Include: total_revenue, total_transactions, average_transaction_value, revenue_b
             JSON string with payment history
         """
         query = {'customer_id': customer_id} if customer_id else {}
-        payments = self._get_records('payments', query)
+        payments = await self._get_records('payments', query)
 
         # Sort by date descending and limit
         sorted_payments = sorted(
@@ -1167,7 +1171,7 @@ Return JSON with:
         Returns:
             JSON string with subscription info
         """
-        subscriptions = self._get_records('subscriptions', {'customer_id': customer_id})
+        subscriptions = await self._get_records('subscriptions', {'customer_id': customer_id})
 
         # Get most recent subscription
         active_sub = None

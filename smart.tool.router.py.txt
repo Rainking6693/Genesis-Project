@@ -1,0 +1,77 @@
+"""
+SmartToolRouter (safe stub)
+
+Provides a minimal, non-breaking interface so agents can:
+- Load a "brain" checkpoint if present
+- Choose between VOIX / MCP / fallback in a simple heuristic
+- Run tasks via a single run_task entrypoint
+
+Designed to degrade gracefully when optional deps are missing.
+"""
+
+import json
+import os
+from pathlib import Path
+from typing import Any, Dict, Optional
+
+try:
+    from infrastructure.browser_automation.hybrid_automation import HybridAutomation
+except Exception:
+    HybridAutomation = None  # type: ignore
+
+try:
+    from infrastructure.mcp_chrome_devtools_client import ChromeDevToolsMCPClient
+except Exception:
+    ChromeDevToolsMCPClient = None  # type: ignore
+
+
+class SmartToolRouter:
+    """Lightweight mixin for tool selection and brain loading."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.brain: Optional[Dict[str, Any]] = None
+        # Lazily created helpers
+        self._voix = None
+        self._mcp = None
+
+    def load_brain(self, checkpoint_path: str = "checkpoints/latest_god_mode.json") -> None:
+        """Load optional DreamGym brain; no-op if absent."""
+        path = Path(checkpoint_path)
+        if not path.exists():
+            return
+        try:
+            self.brain = json.loads(path.read_text())
+        except Exception:
+            self.brain = None
+
+    async def run_task(self, goal: str, url: Optional[str] = None, params: Optional[Dict[str, Any]] = None):
+        """
+        Minimal router:
+        - If VOIX available and url provided, try VOIX.
+        - Else if MCP available, use MCP navigate/snapshot.
+        - Else return a stub response.
+        """
+        params = params or {}
+
+        # VOIX path
+        if HybridAutomation and url:
+            self._voix = self._voix or HybridAutomation(agent_role=getattr(self, "agent_type", "agent"), use_llm_selection=False)
+            try:
+                result = await self._voix.navigate_and_act(url=url, action_description=goal, parameters=params)
+                return {"method": "voix", "result": result}
+            except Exception as e:
+                return {"method": "voix", "error": str(e)}
+
+        # MCP path
+        if ChromeDevToolsMCPClient:
+            self._mcp = self._mcp or ChromeDevToolsMCPClient(agent_name=getattr(self, "agent_type", "agent"))
+            try:
+                nav = await self._mcp.navigate(url or "about:blank")
+                snap = await self._mcp.get_snapshot()
+                return {"method": "mcp", "navigate": nav, "snapshot": snap}
+            except Exception as e:
+                return {"method": "mcp", "error": str(e)}
+
+        # Fallback stub
+        return {"method": "stub", "goal": goal, "message": "No automation tools available in offline mode"}

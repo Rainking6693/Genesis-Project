@@ -6,12 +6,133 @@ Uses lazy initialization to avoid startup overhead.
 
 CRITICAL: This file implements the complete integration inventory from Explore agent's analysis.
 Every single integration must be accessible via properties with lazy loading.
+
+SE-DARWIN INTEGRATION (NEW):
+All agents automatically get SE-Darwin evolution capabilities via:
+- evolve_with_darwin(): Evolve any output using SE-Darwin
+- should_evolve(): Check if evolution should be attempted
+- @darwin_evolved decorator: Auto-evolve method outputs
 """
 
+import asyncio
+import functools
 import logging
-from typing import Optional, Any, Dict, List
+import sys
+from pathlib import Path
+from typing import Optional, Any, Dict, List, Callable, TypeVar, Union
 
 logger = logging.getLogger(__name__)
+
+# Type variable for decorator
+T = TypeVar('T')
+
+
+def darwin_evolved(
+    task_description: Optional[str] = None,
+    complexity: float = 0.5,
+    min_improvement: float = 0.1
+) -> Callable:
+    """
+    Decorator that automatically evolves agent method outputs using SE-Darwin.
+
+    Usage:
+        @darwin_evolved(task_description="Generate marketing content", complexity=0.7)
+        async def generate_content(self, ...):
+            return content
+
+    Args:
+        task_description: Description for SE-Darwin (uses method name if None)
+        complexity: Task complexity (0.0-1.0) - higher = more likely to evolve
+        min_improvement: Minimum improvement threshold to accept evolution
+
+    Returns:
+        Decorator function
+    """
+    def decorator(func: Callable[..., T]) -> Callable[..., T]:
+        @functools.wraps(func)
+        async def async_wrapper(self, *args, **kwargs):
+            # Get original output
+            result = await func(self, *args, **kwargs)
+
+            # Skip if no SE-Darwin integration or low complexity
+            if not hasattr(self, 'should_evolve') or not self.should_evolve(complexity):
+                return result
+
+            # Get task description
+            desc = task_description or f"{func.__name__} output"
+
+            try:
+                # Evolve the output
+                evolution = await self.evolve_with_darwin(
+                    task_description=desc,
+                    initial_output=result,
+                    agent_name=getattr(self, 'agent_name', func.__name__),
+                    min_improvement_threshold=min_improvement
+                )
+
+                if evolution.get("used_darwin"):
+                    evolved = evolution.get("evolved_output", result)
+                    score = evolution.get("improvement_score", 0)
+                    logger.info(f"[SE-Darwin] {func.__name__} evolved: +{score:.0%}")
+
+                    # If result is a dict, add evolution metadata
+                    if isinstance(result, dict):
+                        result["se_darwin_evolution"] = {
+                            "improved": True,
+                            "score": score,
+                            "iterations": evolution.get("iterations", 0)
+                        }
+                    elif isinstance(evolved, str) and evolved != result:
+                        result = evolved
+
+            except Exception as e:
+                logger.debug(f"[SE-Darwin] Evolution skipped for {func.__name__}: {e}")
+
+            return result
+
+        @functools.wraps(func)
+        def sync_wrapper(self, *args, **kwargs):
+            # For sync functions, run async evolution in event loop
+            result = func(self, *args, **kwargs)
+
+            if not hasattr(self, 'should_evolve') or not self.should_evolve(complexity):
+                return result
+
+            # Try to run async evolution
+            try:
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    # Can't block, return original
+                    return result
+
+                desc = task_description or f"{func.__name__} output"
+                evolution = loop.run_until_complete(
+                    self.evolve_with_darwin(
+                        task_description=desc,
+                        initial_output=result,
+                        agent_name=getattr(self, 'agent_name', func.__name__),
+                        min_improvement_threshold=min_improvement
+                    )
+                )
+
+                if evolution.get("used_darwin") and isinstance(result, dict):
+                    result["se_darwin_evolution"] = {
+                        "improved": True,
+                        "score": evolution.get("improvement_score", 0),
+                        "iterations": evolution.get("iterations", 0)
+                    }
+
+            except Exception as e:
+                logger.debug(f"[SE-Darwin] Sync evolution skipped: {e}")
+
+            return result
+
+        # Return appropriate wrapper based on function type
+        if asyncio.iscoroutinefunction(func):
+            return async_wrapper
+        return sync_wrapper
+
+    return decorator
 
 
 class StandardIntegrationMixin:
@@ -173,15 +294,18 @@ class StandardIntegrationMixin:
     @property
     def trajectory_pool(self):
         """Integration #271: Learning trajectory storage"""
-        return self._get_integration('trajectory_pool', lambda: __import__('infrastructure.trajectory_pool', fromlist=['get_trajectory_pool']).get_trajectory_pool())
+        # FIX: get_trajectory_pool requires agent_name argument
+        agent_name = getattr(self, 'agent_name', None) or getattr(self, 'name', 'genesis_meta_agent')
+        return self._get_integration('trajectory_pool', lambda: __import__('infrastructure.trajectory_pool', fromlist=['get_trajectory_pool']).get_trajectory_pool(agent_name=agent_name))
 
     @property
     def se_darwin(self):
         """Integration #202: Self-improvement via evolution"""
         if 'se_darwin' not in self._integrations:
             try:
-                from infrastructure.darwin_orchestration_bridge import SEDarwinAgent
-                self._integrations['se_darwin'] = SEDarwinAgent()
+                from agents.se_darwin_agent import SEDarwinAgent
+                agent_name = getattr(self, 'agent_name', None) or getattr(self, 'name', 'genesis_agent')
+                self._integrations['se_darwin'] = SEDarwinAgent(agent_name=agent_name)
             except Exception as e:
                 logger.warning(f"se_darwin unavailable: {e}")
                 self._integration_failed['se_darwin'] = str(e)
@@ -1086,11 +1210,12 @@ class StandardIntegrationMixin:
 
     @property
     def metrics_collector(self):
-        """Integration #148: Cost metrics"""
+        """Integration #148: Cost metrics (DeepEyesV2 baseline metrics)"""
         if 'metrics_collector' not in self._integrations:
             try:
-                from infrastructure.payments.metrics_collector import MetricsCollector
-                self._integrations['metrics_collector'] = MetricsCollector()
+                # FIX: Use DeepEyesV2 baseline metrics collector for tool reliability tracking
+                from infrastructure.tool_reliability.baseline_metrics import get_baseline_metrics_collector
+                self._integrations['metrics_collector'] = get_baseline_metrics_collector()
             except Exception as e:
                 logger.warning(f"metrics_collector unavailable: {e}")
                 self._integration_failed['metrics_collector'] = str(e)
@@ -2875,6 +3000,19 @@ class StandardIntegrationMixin:
                 self._integrations['a2a_memori_bridge'] = None
         return self._integrations['a2a_memori_bridge']
 
+    @property
+    def acontext_client(self):
+        """Integration #322: Acontext external memory system"""
+        if 'acontext_client' not in self._integrations:
+            try:
+                from src.integrations.acontext_client import AcontextClient
+                self._integrations['acontext_client'] = AcontextClient()
+            except Exception as e:
+                logger.warning(f"acontext_client unavailable: {e}")
+                self._integration_failed['acontext_client'] = str(e)
+                self._integrations['acontext_client'] = None
+        return self._integrations['acontext_client']
+
 
     @property
     def aatc_system(self):
@@ -4577,8 +4715,8 @@ class StandardIntegrationMixin:
         """Integration #337: Llm Client"""
         if 'llm_client' not in self._integrations:
             try:
-                from infrastructure.llm_client import LlmClient
-                self._integrations['llm_client'] = LlmClient()
+                from infrastructure.llm_client import LLMClient
+                self._integrations['llm_client'] = LLMClient()
             except Exception as e:
                 logger.warning(f"llm_client unavailable: {e}")
                 self._integration_failed['llm_client'] = str(e)
@@ -5288,11 +5426,12 @@ class StandardIntegrationMixin:
 
     @property
     def rl_refinement(self):
-        """Integration #388: Rl Refinement"""
+        """Integration #388: RL Refinement (DeepEyesV2)"""
         if 'rl_refinement' not in self._integrations:
             try:
-                from infrastructure.tool_reliability.rl_refinement import RlRefinement
-                self._integrations['rl_refinement'] = RlRefinement()
+                # FIX: Class name is RLRefinement not RlRefinement (case sensitivity)
+                from infrastructure.tool_reliability.rl_refinement import RLRefinement
+                self._integrations['rl_refinement'] = RLRefinement()
             except Exception as e:
                 logger.warning(f"rl_refinement unavailable: {e}")
                 self._integration_failed['rl_refinement'] = str(e)
@@ -5540,11 +5679,12 @@ class StandardIntegrationMixin:
 
     @property
     def self_questioning(self):
-        """Integration #406: Self Questioning"""
+        """Integration #406: Self Questioning (AgentEvolver)"""
         if 'self_questioning' not in self._integrations:
             try:
-                from infrastructure.agentevolver.self_questioning import SelfQuestioning
-                self._integrations['self_questioning'] = SelfQuestioning()
+                # FIX: Class name is SelfQuestioningModule not SelfQuestioning
+                from infrastructure.agentevolver.self_questioning import SelfQuestioningModule
+                self._integrations['self_questioning'] = SelfQuestioningModule()
             except Exception as e:
                 logger.warning(f"self_questioning unavailable: {e}")
                 self._integration_failed['self_questioning'] = str(e)
@@ -6001,6 +6141,88 @@ class StandardIntegrationMixin:
 
 
     @property
+    def supabase_pgvector(self):
+        """Integration #438a: Supabase + pgvector (optional, safe stub)."""
+        if 'supabase_pgvector' not in self._integrations:
+            try:
+                from infrastructure.supabase_pgvector import get_supabase_pgvector_client
+                self._integrations['supabase_pgvector'] = get_supabase_pgvector_client()
+            except Exception as e:
+                logger.warning(f"supabase_pgvector unavailable: {e}")
+                self._integration_failed['supabase_pgvector'] = str(e)
+                self._integrations['supabase_pgvector'] = None
+        return self._integrations['supabase_pgvector']
+
+
+    def _ensure_external_path(self, folder_name: str) -> None:
+        """Add external/<folder_name> to sys.path if present."""
+        try:
+            base = Path(__file__).resolve().parent.parent
+            ext_path = base / "external" / folder_name
+            if ext_path.exists():
+                ext_str = str(ext_path)
+                if ext_str not in sys.path:
+                    sys.path.append(ext_str)
+        except Exception as e:  # pragma: no cover - defensive
+            logger.debug(f"Could not add external path {folder_name}: {e}")
+
+    @property
+    def agent_r1(self):
+        """Integration #438b: Agent-R1 (optional, external)."""
+        if 'agent_r1' not in self._integrations:
+            try:
+                self._ensure_external_path("Agent-R1")
+                import agent_r1  # type: ignore
+                self._integrations['agent_r1'] = agent_r1
+            except Exception as e:
+                logger.warning(f"Agent-R1 unavailable: {e}")
+                self._integration_failed['agent_r1'] = str(e)
+                self._integrations['agent_r1'] = None
+        return self._integrations['agent_r1']
+
+    @property
+    def acontext(self):
+        """Integration #438c: Acontext (optional, external)."""
+        if 'acontext' not in self._integrations:
+            try:
+                self._ensure_external_path("Acontext")
+                import acontext  # type: ignore
+                self._integrations['acontext'] = acontext
+            except Exception as e:
+                logger.warning(f"Acontext unavailable: {e}")
+                self._integration_failed['acontext'] = str(e)
+                self._integrations['acontext'] = None
+        return self._integrations['acontext']
+
+    @property
+    def agent_lightning(self):
+        """Integration #438d: agent-lightning (optional, external)."""
+        if 'agent_lightning' not in self._integrations:
+            try:
+                self._ensure_external_path("agent-lightning")
+                import agent_lightning  # type: ignore
+                self._integrations['agent_lightning'] = agent_lightning
+            except Exception as e:
+                logger.warning(f"agent-lightning unavailable: {e}")
+                self._integration_failed['agent_lightning'] = str(e)
+                self._integrations['agent_lightning'] = None
+        return self._integrations['agent_lightning']
+
+    @property
+    def langgraph_store(self):
+        """Integration #438e: LangGraph convenience store (optional)."""
+        if 'langgraph_store' not in self._integrations:
+            try:
+                from infrastructure.langgraph_store import LangGraphStore
+                self._integrations['langgraph_store'] = LangGraphStore
+            except Exception as e:
+                logger.warning(f"langgraph_store unavailable: {e}")
+                self._integration_failed['langgraph_store'] = str(e)
+                self._integrations['langgraph_store'] = None
+        return self._integrations['langgraph_store']
+
+
+    @property
     def vercel_client(self):
         """Integration #439: Vercel Client"""
         if 'vercel_client' not in self._integrations:
@@ -6327,3 +6549,205 @@ class StandardIntegrationMixin:
     def list_failed_integrations(self) -> Dict[str, str]:
         """List all failed integrations with error messages"""
         return dict(self._integration_failed)
+
+    # ==================== SE-DARWIN INTEGRATION HELPERS ====================
+
+    async def evolve_with_darwin(
+        self,
+        task_description: str,
+        initial_output: Any,
+        agent_name: Optional[str] = None,
+        min_improvement_threshold: float = 0.1,
+        max_iterations: int = 3
+    ) -> Dict[str, Any]:
+        """
+        Evolve an agent's output using SE-Darwin for continuous improvement.
+
+        This is the standard method ALL agents should use to optimize their outputs.
+        SE-Darwin analyzes the output and suggests improvements through evolution.
+
+        Args:
+            task_description: Description of the task being performed
+            initial_output: The agent's initial output to optimize
+            agent_name: Name of the calling agent (for trajectory tracking)
+            min_improvement_threshold: Minimum improvement score to accept evolution
+            max_iterations: Maximum evolution iterations
+
+        Returns:
+            Dict containing:
+                - evolved_output: The optimized output
+                - improvement_score: How much SE-Darwin improved it (0.0-1.0)
+                - iterations: Number of evolution iterations used
+                - trajectory_id: ID for tracking in trajectory pool
+                - used_darwin: Whether SE-Darwin was actually used
+        """
+        result = {
+            "evolved_output": initial_output,
+            "improvement_score": 0.0,
+            "iterations": 0,
+            "trajectory_id": None,
+            "used_darwin": False
+        }
+
+        # Check if SE-Darwin is available
+        if not self.se_darwin:
+            logger.debug("SE-Darwin not available, returning original output")
+            return result
+
+        agent_name = agent_name or getattr(self, 'agent_name', 'unknown_agent')
+
+        try:
+            # Prepare context for evolution
+            context = {
+                "agent": agent_name,
+                "task": task_description,
+                "initial_output_preview": str(initial_output)[:500] if initial_output else None
+            }
+
+            # Run SE-Darwin evolution
+            evolution_result = await self.se_darwin.evolve_solution(
+                problem_description=f"Optimize output for: {task_description}",
+                context=context
+            )
+
+            if evolution_result and isinstance(evolution_result, dict):
+                # Extract improvement metrics
+                final_score = evolution_result.get("final_score", 0.0)
+                iterations_used = evolution_result.get("iterations", 0)
+                best_trajectory = evolution_result.get("best_trajectory")
+
+                # Only use evolved output if it meets threshold
+                if final_score >= min_improvement_threshold and best_trajectory:
+                    result["evolved_output"] = best_trajectory.get("solution", initial_output)
+                    result["improvement_score"] = final_score
+                    result["iterations"] = iterations_used
+                    result["trajectory_id"] = best_trajectory.get("id")
+                    result["used_darwin"] = True
+
+                    logger.info(
+                        f"[{agent_name}] SE-Darwin improved output: "
+                        f"score={final_score:.2f}, iterations={iterations_used}"
+                    )
+
+                    # Store in trajectory pool for future learning
+                    if self.trajectory_pool:
+                        try:
+                            await self._store_trajectory(
+                                agent_name=agent_name,
+                                task=task_description,
+                                trajectory=best_trajectory,
+                                score=final_score
+                            )
+                        except Exception as e:
+                            logger.debug(f"Failed to store trajectory: {e}")
+
+        except Exception as e:
+            logger.warning(f"[{agent_name}] SE-Darwin evolution failed: {e}")
+            # Return original output on failure
+
+        return result
+
+    async def _store_trajectory(
+        self,
+        agent_name: str,
+        task: str,
+        trajectory: Dict[str, Any],
+        score: float
+    ) -> None:
+        """Store a successful trajectory for future learning."""
+        if not self.trajectory_pool:
+            return
+
+        try:
+            from infrastructure.trajectory_pool import Trajectory
+
+            traj = Trajectory(
+                task_description=task,
+                agent_name=agent_name,
+                solution=trajectory.get("solution", ""),
+                reward=score,
+                metadata={
+                    "source": "agent_evolution",
+                    "evolved": True
+                }
+            )
+            await self.trajectory_pool.add_trajectory(traj)
+        except Exception as e:
+            logger.debug(f"Trajectory storage failed: {e}")
+
+    def should_evolve(self, task_complexity: float = 0.5) -> bool:
+        """
+        Determine if SE-Darwin evolution should be used for a task.
+
+        Simple heuristic: evolve for complex tasks, skip for trivial ones.
+
+        Args:
+            task_complexity: Estimated task complexity (0.0-1.0)
+
+        Returns:
+            True if evolution should be attempted
+        """
+        # Skip evolution for very simple tasks
+        if task_complexity < 0.3:
+            return False
+
+        # Always evolve for complex tasks
+        if task_complexity > 0.7:
+            return True
+
+        # For medium complexity, check if SE-Darwin is available
+        return self.se_darwin is not None
+
+    # ==================== TASK ROUTING ====================
+
+    async def route_task(self, task_description: str, priority: float = 0.5):
+        """
+        Route task to appropriate model using DAAO cost-aware routing.
+
+        This default implementation provides basic task routing for all agents.
+        Agents can override this method for specialized routing logic.
+
+        Args:
+            task_description: Description of the task to route
+            priority: Task priority (0.0-1.0)
+
+        Returns:
+            RoutingDecision with model selection and cost estimate
+        """
+        from datetime import datetime
+
+        # Get agent name for logging
+        agent_name = getattr(self, 'agent_name', None) or getattr(self, 'name', 'unknown_agent')
+
+        # Build task dict for router
+        task = {
+            'id': f'{agent_name}-{datetime.now().strftime("%Y%m%d%H%M%S")}',
+            'description': task_description,
+            'priority': priority,
+            'required_tools': []
+        }
+
+        # Use DAAO router if available
+        if self.daao_router:
+            decision = self.daao_router.route_task(task, budget_conscious=True)
+
+            logger.info(
+                f"Task routed: {decision.reasoning}",
+                extra={
+                    'agent': agent_name,
+                    'model': decision.model,
+                    'difficulty': decision.difficulty.value if hasattr(decision.difficulty, 'value') else decision.difficulty,
+                    'estimated_cost': decision.estimated_cost
+                }
+            )
+
+            return decision
+
+        # Fallback: return a mock routing decision
+        from infrastructure.daao_router import RoutingDecision, DifficultyLevel
+        return RoutingDecision(
+            model="local-llm",
+            difficulty=DifficultyLevel.SIMPLE,
+            estimated_cost=0.001,
+            reasoning=f"Default routing for {agent_name}: no DAAO router available"
+        )

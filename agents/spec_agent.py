@@ -44,7 +44,13 @@ from dataclasses import dataclass
 # from azure.identity.aio import AzureCliCredential  # Commented out - missing module
 
 # Genesis infrastructure
-from infrastructure.standard_integration_mixin import StandardIntegrationMixin
+from infrastructure.standard_integration_mixin import StandardIntegrationMixin, darwin_evolved
+
+# Import MemoryOS for spec history and pattern memory
+from infrastructure.memory_os_mongodb_adapter import (
+    create_genesis_memory_mongodb
+)
+import os
 
 # Infrastructure imports
 from infrastructure.reasoning_bank import (
@@ -159,6 +165,9 @@ class SpecAgent(StandardIntegrationMixin):
         # Track refinement history for TUMIX
         self.refinement_history: List[List[RefinementResult]] = []
 
+        # Initialize MemoryOS for spec history
+        self.memory = None  # Lazy initialization
+
         # Performance tracking
         self.stats = {
             "specs_created": 0,
@@ -173,9 +182,29 @@ class SpecAgent(StandardIntegrationMixin):
         logger.info(f"  Max reflection attempts: {max_reflection_attempts}")
         logger.info(f"  DAAO + TUMIX: Enabled for cost optimization")
 
+    async def _init_memory(self):
+        """Initialize MemoryOS MongoDB backend for Spec memory."""
+        try:
+            self.memory = create_genesis_memory_mongodb(
+                mongodb_uri=os.getenv("MONGODB_URI", "mongodb://localhost:27017/"),
+                database_name="genesis_memory_spec",
+                short_term_capacity=10,   # Recent specs
+                mid_term_capacity=500,    # Historical spec data
+                long_term_knowledge_capacity=300  # Spec patterns, template strategies
+            )
+            logger.info("[OK] MemoryOS initialized for SpecAgent")
+        except Exception as e:
+            logger.warning(f"[SpecAgent] Failed to initialize MemoryOS: {e}. Memory features disabled.")
+            self.memory = None
+
     async def initialize(self):
         """Initialize Azure credentials and Agent Framework agent"""
+        # Azure Agent Framework is optional - use direct LLM if not available
         try:
+            from azure.identity.aio import AzureCliCredential
+            from agent_framework import ChatAgent
+            from agent_framework.azure import AzureAIAgentClient
+
             self.credential = AzureCliCredential()
             client = AzureAIAgentClient(async_credential=self.credential)
 
@@ -228,7 +257,13 @@ Be thorough. Specifications should be 500-1000 lines when detailed.""",
             )
 
             logger.info(f"Agent Framework initialized: {self.agent_id}")
-
+            logger.info(f"Spec Agent initialized with Azure Agent Framework")
+        except (ImportError, Exception) as e:
+            self.agent = None
+            logger.info(f"Spec Agent initialized (standalone mode) - Azure: {e}")
+            # Re-raise only if it's not an Azure initialization error
+            if not isinstance(e, (ImportError, AttributeError, NameError)):
+                raise
         except Exception as e:
             logger.error(f"Failed to initialize SpecAgent: {e}")
             raise

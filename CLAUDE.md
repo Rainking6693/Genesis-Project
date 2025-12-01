@@ -304,3 +304,4 @@ Priority: MEDIUM, Annual savings: $20-30K
 - **Deployment:** GitHub Pages, Railway, Render, Fly.io
 - **Git Branch:** main
 - always use Context7 MCP
+- always use catalog-search MCP

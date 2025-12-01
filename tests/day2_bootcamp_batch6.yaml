@@ -1,0 +1,1643 @@
+# Day 2 Bootcamp - Batch 6: 100 Test Scenarios
+# Genesis + 11 Agents: Business Operations, Marketing, Growth & Analytics
+# IDs: B6_E01-E25 (Easy), B6_I01-I25 (Intermediate), B6_H01-H25 (Hard), B6_X01-X25 (Extreme)
+
+metadata:
+  version: "6.0"
+  batch: 6
+  total_tests: 100
+  focus: "business_marketing_growth"
+  agents:
+    - genesis_meta
+    - analyst_agent
+    - builder_agent_enhanced
+    - deploy_agent
+    - billing_agent
+    - emergency_error_specialist_agent
+    - marketing_agent
+    - support_agent
+    - onboarding_agent
+    - qa_agent
+    - se_darwin_agent
+    - seo_agent
+
+# =============================================================================
+# EASY TESTS (B6_E01-E25): Solo Agent Tasks - Marketing & Business Basics
+# =============================================================================
+easy_tests:
+  # Marketing Agent (10 tests)
+  - id: B6_E01
+    name: "Write Landing Page Copy"
+    difficulty: easy
+    type: solo
+    agent: marketing_agent
+    task: |
+      Write compelling landing page copy for a SaaS product.
+    success_criteria:
+      - headline: true
+      - subheadline: true
+      - value_proposition: true
+      - cta_copy: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B6_E02
+    name: "Create Email Campaign"
+    difficulty: easy
+    type: solo
+    agent: marketing_agent
+    task: |
+      Write a 5-email nurture sequence for new signups.
+    success_criteria:
+      - welcome_email: true
+      - value_emails: true
+      - conversion_email: true
+      - personalization: true
+    timeout_seconds: 90
+    reward_weight: 1.0
+
+  - id: B6_E03
+    name: "Write Blog Post Outline"
+    difficulty: easy
+    type: solo
+    agent: marketing_agent
+    task: |
+      Create an SEO-optimized blog post outline.
+    success_criteria:
+      - title_options: true
+      - section_headers: true
+      - key_points: true
+      - cta_placement: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B6_E04
+    name: "Create Social Media Posts"
+    difficulty: easy
+    type: solo
+    agent: marketing_agent
+    task: |
+      Write 10 social media posts for product launch.
+    success_criteria:
+      - ten_posts: true
+      - hashtags: true
+      - platform_optimized: true
+      - engagement_hooks: true
+    timeout_seconds: 75
+    reward_weight: 1.0
+
+  - id: B6_E05
+    name: "Write Ad Copy Variations"
+    difficulty: easy
+    type: solo
+    agent: marketing_agent
+    task: |
+      Create 5 Google Ads copy variations.
+    success_criteria:
+      - five_variations: true
+      - headlines: true
+      - descriptions: true
+      - call_to_actions: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B6_E06
+    name: "Create Value Proposition"
+    difficulty: easy
+    type: solo
+    agent: marketing_agent
+    task: |
+      Develop clear value proposition for product.
+    success_criteria:
+      - problem_statement: true
+      - solution: true
+      - differentiators: true
+      - proof_points: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B6_E07
+    name: "Write Press Release"
+    difficulty: easy
+    type: solo
+    agent: marketing_agent
+    task: |
+      Write a product launch press release.
+    success_criteria:
+      - headline: true
+      - lead_paragraph: true
+      - body_content: true
+      - boilerplate: true
+    timeout_seconds: 75
+    reward_weight: 1.0
+
+  - id: B6_E08
+    name: "Create Customer Testimonial Template"
+    difficulty: easy
+    type: solo
+    agent: marketing_agent
+    task: |
+      Design testimonial collection template.
+    success_criteria:
+      - questions: true
+      - format_guide: true
+      - consent_language: true
+    timeout_seconds: 45
+    reward_weight: 1.0
+
+  - id: B6_E09
+    name: "Write Product Description"
+    difficulty: easy
+    type: solo
+    agent: marketing_agent
+    task: |
+      Create product description for e-commerce listing.
+    success_criteria:
+      - features: true
+      - benefits: true
+      - specifications: true
+      - seo_keywords: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B6_E10
+    name: "Create Referral Program Copy"
+    difficulty: easy
+    type: solo
+    agent: marketing_agent
+    task: |
+      Write copy for referral program landing page.
+    success_criteria:
+      - program_explanation: true
+      - rewards_details: true
+      - how_it_works: true
+      - cta: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  # SEO Agent (5 tests)
+  - id: B6_E11
+    name: "Create SEO Keyword List"
+    difficulty: easy
+    type: solo
+    agent: seo_agent
+    task: |
+      Generate keyword research for SaaS product.
+    success_criteria:
+      - primary_keywords: true
+      - secondary_keywords: true
+      - long_tail: true
+      - search_volume: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B6_E12
+    name: "Write SEO Title Tags"
+    difficulty: easy
+    type: solo
+    agent: seo_agent
+    task: |
+      Create optimized title tags for 10 pages.
+    success_criteria:
+      - ten_titles: true
+      - keyword_included: true
+      - character_limit: true
+      - compelling: true
+    timeout_seconds: 45
+    reward_weight: 1.0
+
+  - id: B6_E13
+    name: "Create Meta Descriptions"
+    difficulty: easy
+    type: solo
+    agent: seo_agent
+    task: |
+      Write meta descriptions for 10 pages.
+    success_criteria:
+      - ten_descriptions: true
+      - keyword_included: true
+      - call_to_action: true
+      - character_limit: true
+    timeout_seconds: 45
+    reward_weight: 1.0
+
+  - id: B6_E14
+    name: "Build Internal Link Strategy"
+    difficulty: easy
+    type: solo
+    agent: seo_agent
+    task: |
+      Create internal linking plan for website.
+    success_criteria:
+      - pillar_pages: true
+      - link_mapping: true
+      - anchor_text: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B6_E15
+    name: "Create Content Calendar"
+    difficulty: easy
+    type: solo
+    agent: seo_agent
+    task: |
+      Build SEO content calendar for 3 months.
+    success_criteria:
+      - topic_schedule: true
+      - keyword_targets: true
+      - content_types: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  # Analyst Agent (5 tests)
+  - id: B6_E16
+    name: "Create KPI Dashboard Template"
+    difficulty: easy
+    type: solo
+    agent: analyst_agent
+    task: |
+      Design KPI dashboard for SaaS business.
+    success_criteria:
+      - revenue_metrics: true
+      - growth_metrics: true
+      - engagement_metrics: true
+      - layout: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B6_E17
+    name: "Define Success Metrics"
+    difficulty: easy
+    type: solo
+    agent: analyst_agent
+    task: |
+      Create success metrics framework for product launch.
+    success_criteria:
+      - primary_metrics: true
+      - secondary_metrics: true
+      - measurement_plan: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B6_E18
+    name: "Create Cohort Analysis Template"
+    difficulty: easy
+    type: solo
+    agent: analyst_agent
+    task: |
+      Build cohort analysis template for retention.
+    success_criteria:
+      - cohort_definition: true
+      - time_buckets: true
+      - visualization: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B6_E19
+    name: "Design A/B Test Framework"
+    difficulty: easy
+    type: solo
+    agent: analyst_agent
+    task: |
+      Create A/B testing framework and guidelines.
+    success_criteria:
+      - hypothesis_template: true
+      - sample_size_calc: true
+      - success_criteria: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B6_E20
+    name: "Build Funnel Analysis Template"
+    difficulty: easy
+    type: solo
+    agent: analyst_agent
+    task: |
+      Create conversion funnel analysis template.
+    success_criteria:
+      - funnel_stages: true
+      - drop_off_tracking: true
+      - visualization: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  # Support/Billing Agent (5 tests)
+  - id: B6_E21
+    name: "Create Pricing Page Copy"
+    difficulty: easy
+    type: solo
+    agent: billing_agent
+    task: |
+      Write pricing page content with tier comparison.
+    success_criteria:
+      - tier_descriptions: true
+      - feature_comparison: true
+      - value_highlight: true
+      - faq_content: true
+    timeout_seconds: 75
+    reward_weight: 1.0
+
+  - id: B6_E22
+    name: "Write Cancellation Flow Copy"
+    difficulty: easy
+    type: solo
+    agent: support_agent
+    task: |
+      Create cancellation flow with retention offers.
+    success_criteria:
+      - reason_collection: true
+      - retention_offer: true
+      - confirmation: true
+      - feedback_request: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B6_E23
+    name: "Create Upgrade Prompts"
+    difficulty: easy
+    type: solo
+    agent: billing_agent
+    task: |
+      Write upgrade prompts for different triggers.
+    success_criteria:
+      - usage_limit: true
+      - feature_gate: true
+      - value_proposition: true
+      - cta: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B6_E24
+    name: "Build Customer Success Checklist"
+    difficulty: easy
+    type: solo
+    agent: support_agent
+    task: |
+      Create customer success onboarding checklist.
+    success_criteria:
+      - milestone_tasks: true
+      - success_criteria: true
+      - support_resources: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B6_E25
+    name: "Write Trial Expiration Emails"
+    difficulty: easy
+    type: solo
+    agent: marketing_agent
+    task: |
+      Create trial expiration email sequence.
+    success_criteria:
+      - reminder_emails: true
+      - urgency: true
+      - value_recap: true
+      - conversion_cta: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+# =============================================================================
+# INTERMEDIATE TESTS (B6_I01-I25): Team Tasks - Marketing & Business Integration
+# =============================================================================
+intermediate_tests:
+  # Marketing + Builder Teams (8 tests)
+  - id: B6_I01
+    name: "Landing Page with Analytics"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, marketing_agent]
+    task: |
+      Build landing page with conversion tracking.
+    success_criteria:
+      - landing_page: true
+      - analytics_setup: true
+      - conversion_tracking: true
+      - ab_test_ready: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B6_I02
+    name: "Email Template System"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, marketing_agent]
+    task: |
+      Create email template system with personalization.
+    success_criteria:
+      - template_builder: true
+      - variable_support: true
+      - preview_feature: true
+      - mobile_responsive: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B6_I03
+    name: "Lead Capture System"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, marketing_agent]
+    task: |
+      Build lead capture with scoring and routing.
+    success_criteria:
+      - capture_form: true
+      - lead_scoring: true
+      - routing_rules: true
+      - integration_ready: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B6_I04
+    name: "Referral Program UI"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, marketing_agent]
+    task: |
+      Create referral program interface.
+    success_criteria:
+      - referral_dashboard: true
+      - invite_mechanism: true
+      - tracking_display: true
+      - reward_status: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B6_I05
+    name: "Social Proof Widget"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, marketing_agent]
+    task: |
+      Build social proof notification widget.
+    success_criteria:
+      - notification_display: true
+      - activity_feed: true
+      - customization: true
+      - performance_optimized: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B6_I06
+    name: "Exit Intent Popup"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, marketing_agent]
+    task: |
+      Create exit intent popup with offers.
+    success_criteria:
+      - exit_detection: true
+      - popup_display: true
+      - offer_variants: true
+      - tracking: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B6_I07
+    name: "Content Hub Page"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, marketing_agent]
+    task: |
+      Build content hub with categories and search.
+    success_criteria:
+      - category_nav: true
+      - content_grid: true
+      - search_filter: true
+      - featured_content: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B6_I08
+    name: "Webinar Registration Page"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, marketing_agent]
+    task: |
+      Create webinar registration with reminder system.
+    success_criteria:
+      - registration_form: true
+      - calendar_integration: true
+      - reminder_emails: true
+      - recording_access: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  # SEO + Builder Teams (5 tests)
+  - id: B6_I09
+    name: "SEO-Optimized Blog"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, seo_agent]
+    task: |
+      Build blog with SEO best practices.
+    success_criteria:
+      - schema_markup: true
+      - meta_system: true
+      - sitemap_gen: true
+      - performance_optimized: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B6_I10
+    name: "SEO Landing Page Template"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, seo_agent]
+    task: |
+      Create SEO-optimized landing page template.
+    success_criteria:
+      - semantic_html: true
+      - schema_markup: true
+      - core_web_vitals: true
+      - meta_template: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B6_I11
+    name: "Knowledge Base with SEO"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, seo_agent]
+    task: |
+      Build knowledge base optimized for search.
+    success_criteria:
+      - faq_schema: true
+      - breadcrumbs: true
+      - internal_linking: true
+      - search_optimization: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B6_I12
+    name: "Product Collection Pages"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, seo_agent]
+    task: |
+      Create product collection pages with SEO.
+    success_criteria:
+      - category_pages: true
+      - filter_friendly_urls: true
+      - product_schema: true
+      - pagination_seo: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B6_I13
+    name: "Local SEO Pages"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, seo_agent]
+    task: |
+      Build location-based pages with local SEO.
+    success_criteria:
+      - location_pages: true
+      - local_schema: true
+      - map_integration: true
+      - contact_info: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  # Analytics + Builder Teams (6 tests)
+  - id: B6_I14
+    name: "Analytics Dashboard"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, analyst_agent]
+    task: |
+      Create business analytics dashboard.
+    success_criteria:
+      - metric_cards: true
+      - chart_components: true
+      - date_filtering: true
+      - export_feature: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B6_I15
+    name: "Conversion Tracking System"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, analyst_agent]
+    task: |
+      Build conversion tracking and attribution.
+    success_criteria:
+      - event_tracking: true
+      - attribution_model: true
+      - goal_tracking: true
+      - reporting: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B6_I16
+    name: "User Behavior Tracking"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, analyst_agent]
+    task: |
+      Create user behavior tracking system.
+    success_criteria:
+      - page_tracking: true
+      - event_tracking: true
+      - session_recording: true
+      - heatmap_integration: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B6_I17
+    name: "Revenue Dashboard"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, analyst_agent]
+    task: |
+      Build revenue and MRR tracking dashboard.
+    success_criteria:
+      - mrr_tracking: true
+      - churn_metrics: true
+      - ltv_calculation: true
+      - forecasting: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B6_I18
+    name: "Customer Health Score"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, analyst_agent]
+    task: |
+      Create customer health score system.
+    success_criteria:
+      - score_calculation: true
+      - factor_weights: true
+      - alert_triggers: true
+      - dashboard_display: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B6_I19
+    name: "Product Analytics"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, analyst_agent]
+    task: |
+      Build product usage analytics dashboard.
+    success_criteria:
+      - feature_usage: true
+      - user_flows: true
+      - retention_metrics: true
+      - engagement_score: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  # Billing + Builder Teams (6 tests)
+  - id: B6_I20
+    name: "Pricing Page with Calculator"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, billing_agent]
+    task: |
+      Create pricing page with cost calculator.
+    success_criteria:
+      - tier_display: true
+      - usage_calculator: true
+      - comparison_table: true
+      - checkout_link: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B6_I21
+    name: "Subscription Portal"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, billing_agent]
+    task: |
+      Build customer subscription management portal.
+    success_criteria:
+      - plan_display: true
+      - upgrade_downgrade: true
+      - payment_methods: true
+      - invoice_history: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B6_I22
+    name: "Checkout Flow"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, billing_agent]
+    task: |
+      Create optimized checkout flow.
+    success_criteria:
+      - cart_summary: true
+      - payment_form: true
+      - order_confirmation: true
+      - upsell_option: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B6_I23
+    name: "Trial Management"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, billing_agent]
+    task: |
+      Build trial tracking and conversion system.
+    success_criteria:
+      - trial_status: true
+      - usage_tracking: true
+      - conversion_prompts: true
+      - expiration_handling: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B6_I24
+    name: "Revenue Recovery"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, billing_agent]
+    task: |
+      Create failed payment recovery system.
+    success_criteria:
+      - retry_logic: true
+      - notification_emails: true
+      - update_payment_ui: true
+      - grace_period: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B6_I25
+    name: "Discount Management"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, billing_agent]
+    task: |
+      Build discount and coupon management.
+    success_criteria:
+      - coupon_creation: true
+      - validation_logic: true
+      - usage_limits: true
+      - reporting: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+# =============================================================================
+# HARD TESTS (B6_H01-H25): Complex Multi-Agent Tasks
+# =============================================================================
+hard_tests:
+  # Full Marketing Systems (10 tests)
+  - id: B6_H01
+    name: "Marketing Automation System"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, marketing_agent, analyst_agent, qa_agent]
+    task: |
+      Build marketing automation with workflows.
+    success_criteria:
+      - workflow_builder: true
+      - trigger_system: true
+      - email_automation: true
+      - segmentation: true
+      - analytics: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B6_H02
+    name: "Campaign Management Platform"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, marketing_agent, analyst_agent, qa_agent]
+    task: |
+      Create campaign management system.
+    success_criteria:
+      - campaign_creation: true
+      - channel_management: true
+      - budget_tracking: true
+      - performance_dashboard: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B6_H03
+    name: "Lead Scoring System"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, marketing_agent, analyst_agent, qa_agent]
+    task: |
+      Build intelligent lead scoring and routing.
+    success_criteria:
+      - scoring_model: true
+      - behavior_tracking: true
+      - routing_rules: true
+      - sales_integration: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B6_H04
+    name: "Content Marketing Hub"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, marketing_agent, seo_agent, qa_agent]
+    task: |
+      Create content marketing management system.
+    success_criteria:
+      - content_calendar: true
+      - editorial_workflow: true
+      - seo_optimization: true
+      - distribution: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B6_H05
+    name: "Email Marketing Platform"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, marketing_agent, analyst_agent, qa_agent]
+    task: |
+      Build email marketing platform with automation.
+    success_criteria:
+      - template_builder: true
+      - list_management: true
+      - automation_flows: true
+      - analytics: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B6_H06
+    name: "Social Media Dashboard"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, marketing_agent, analyst_agent, qa_agent]
+    task: |
+      Create social media management dashboard.
+    success_criteria:
+      - post_scheduling: true
+      - engagement_tracking: true
+      - analytics: true
+      - multi_platform: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B6_H07
+    name: "Affiliate Marketing System"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, marketing_agent, billing_agent, qa_agent]
+    task: |
+      Build affiliate marketing platform.
+    success_criteria:
+      - affiliate_portal: true
+      - tracking_links: true
+      - commission_calculation: true
+      - payout_management: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B6_H08
+    name: "Influencer Campaign Manager"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, marketing_agent, analyst_agent, qa_agent]
+    task: |
+      Create influencer campaign management system.
+    success_criteria:
+      - influencer_database: true
+      - campaign_tracking: true
+      - content_approval: true
+      - roi_analysis: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B6_H09
+    name: "Event Marketing Platform"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, marketing_agent, analyst_agent, qa_agent]
+    task: |
+      Build event marketing and management system.
+    success_criteria:
+      - event_creation: true
+      - registration_flow: true
+      - promotion_tools: true
+      - attendee_management: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B6_H10
+    name: "ABM Platform"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, marketing_agent, analyst_agent, qa_agent]
+    task: |
+      Create account-based marketing platform.
+    success_criteria:
+      - account_targeting: true
+      - personalization: true
+      - engagement_tracking: true
+      - sales_alignment: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  # Growth & Analytics Systems (10 tests)
+  - id: B6_H11
+    name: "Growth Experiment Platform"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, analyst_agent, marketing_agent, qa_agent]
+    task: |
+      Build growth experimentation platform.
+    success_criteria:
+      - experiment_design: true
+      - variant_management: true
+      - statistical_analysis: true
+      - learning_repository: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B6_H12
+    name: "Product-Led Growth Tools"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, analyst_agent, onboarding_agent, qa_agent]
+    task: |
+      Create PLG features and analytics.
+    success_criteria:
+      - onboarding_optimization: true
+      - activation_tracking: true
+      - viral_mechanics: true
+      - expansion_triggers: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B6_H13
+    name: "Customer Journey Analytics"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, analyst_agent, marketing_agent, qa_agent]
+    task: |
+      Build customer journey mapping and analytics.
+    success_criteria:
+      - journey_visualization: true
+      - touchpoint_tracking: true
+      - attribution_modeling: true
+      - optimization_insights: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B6_H14
+    name: "Revenue Operations Dashboard"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, analyst_agent, billing_agent, qa_agent]
+    task: |
+      Create revenue operations analytics platform.
+    success_criteria:
+      - pipeline_analytics: true
+      - revenue_forecasting: true
+      - sales_metrics: true
+      - cross_team_alignment: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B6_H15
+    name: "Churn Prediction System"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, analyst_agent, support_agent, qa_agent]
+    task: |
+      Build churn prediction and prevention system.
+    success_criteria:
+      - risk_scoring: true
+      - early_warning: true
+      - intervention_workflow: true
+      - tracking_dashboard: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B6_H16
+    name: "Customer Segmentation Engine"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, analyst_agent, marketing_agent, qa_agent]
+    task: |
+      Create customer segmentation system.
+    success_criteria:
+      - segment_definition: true
+      - dynamic_segmentation: true
+      - behavior_based: true
+      - activation_tools: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B6_H17
+    name: "Pricing Optimization"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, analyst_agent, billing_agent, qa_agent]
+    task: |
+      Build pricing analysis and optimization tools.
+    success_criteria:
+      - price_testing: true
+      - elasticity_analysis: true
+      - competitive_intelligence: true
+      - recommendation_engine: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B6_H18
+    name: "Competitive Intelligence Dashboard"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, analyst_agent, marketing_agent, qa_agent]
+    task: |
+      Create competitive intelligence system.
+    success_criteria:
+      - competitor_tracking: true
+      - feature_comparison: true
+      - market_trends: true
+      - alert_system: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B6_H19
+    name: "NPS and Feedback System"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, analyst_agent, support_agent, qa_agent]
+    task: |
+      Build NPS collection and analysis system.
+    success_criteria:
+      - survey_system: true
+      - score_tracking: true
+      - feedback_analysis: true
+      - action_workflow: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B6_H20
+    name: "ROI Calculator Tool"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, analyst_agent, marketing_agent, qa_agent]
+    task: |
+      Create ROI calculator for sales enablement.
+    success_criteria:
+      - input_wizard: true
+      - calculation_engine: true
+      - visualization: true
+      - pdf_export: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  # Customer Success Systems (5 tests)
+  - id: B6_H21
+    name: "Customer Success Platform"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, support_agent, analyst_agent, qa_agent]
+    task: |
+      Build customer success management platform.
+    success_criteria:
+      - customer_360: true
+      - health_scoring: true
+      - playbook_automation: true
+      - renewal_tracking: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B6_H22
+    name: "Onboarding Platform"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, onboarding_agent, analyst_agent, qa_agent]
+    task: |
+      Create comprehensive onboarding platform.
+    success_criteria:
+      - checklist_system: true
+      - progress_tracking: true
+      - milestone_automation: true
+      - success_measurement: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B6_H23
+    name: "Customer Education Portal"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, support_agent, onboarding_agent, qa_agent]
+    task: |
+      Build customer education and certification platform.
+    success_criteria:
+      - course_library: true
+      - progress_tracking: true
+      - certification_system: true
+      - community_features: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B6_H24
+    name: "Expansion Revenue System"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, billing_agent, analyst_agent, qa_agent]
+    task: |
+      Create expansion and upsell management system.
+    success_criteria:
+      - opportunity_identification: true
+      - recommendation_engine: true
+      - quote_generation: true
+      - tracking_dashboard: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B6_H25
+    name: "Customer Community Platform"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, support_agent, marketing_agent, qa_agent]
+    task: |
+      Build customer community platform.
+    success_criteria:
+      - forum_features: true
+      - user_profiles: true
+      - gamification: true
+      - moderation_tools: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+# =============================================================================
+# EXTREME TESTS (B6_X01-X25): Genesis-Led Full Business Platforms
+# =============================================================================
+extreme_tests:
+  # Full Business Platforms (15 tests)
+  - id: B6_X01
+    name: "Complete Marketing Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, marketing_agent, analyst_agent, qa_agent, deploy_agent, seo_agent]
+    task: |
+      Build complete marketing automation platform.
+    success_criteria:
+      - campaign_management: true
+      - email_automation: true
+      - lead_management: true
+      - analytics_dashboard: true
+      - seo_tools: true
+      - reporting: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B6_X02
+    name: "E-commerce Business Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, billing_agent, marketing_agent, analyst_agent, qa_agent, deploy_agent]
+    task: |
+      Build complete e-commerce business platform.
+    success_criteria:
+      - storefront: true
+      - inventory_management: true
+      - payment_processing: true
+      - order_management: true
+      - marketing_tools: true
+      - analytics: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B6_X03
+    name: "SaaS Business Suite"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, billing_agent, support_agent, analyst_agent, qa_agent, deploy_agent]
+    task: |
+      Build complete SaaS business management suite.
+    success_criteria:
+      - subscription_management: true
+      - customer_portal: true
+      - support_system: true
+      - analytics_dashboard: true
+      - billing_automation: true
+      - admin_tools: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B6_X04
+    name: "Customer Data Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, analyst_agent, marketing_agent, qa_agent, deploy_agent]
+    task: |
+      Build customer data platform with unification.
+    success_criteria:
+      - data_ingestion: true
+      - identity_resolution: true
+      - segmentation: true
+      - activation_channels: true
+      - analytics: true
+      - privacy_compliance: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B6_X05
+    name: "Revenue Intelligence Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, analyst_agent, billing_agent, qa_agent, deploy_agent]
+    task: |
+      Build revenue intelligence and forecasting platform.
+    success_criteria:
+      - pipeline_analytics: true
+      - forecasting_models: true
+      - deal_intelligence: true
+      - quota_management: true
+      - coaching_insights: true
+      - reporting: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B6_X06
+    name: "Growth Analytics Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, analyst_agent, marketing_agent, qa_agent, deploy_agent]
+    task: |
+      Build growth analytics and experimentation platform.
+    success_criteria:
+      - product_analytics: true
+      - experimentation_engine: true
+      - funnel_analysis: true
+      - cohort_analysis: true
+      - attribution: true
+      - predictive_models: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B6_X07
+    name: "Partner Management Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, billing_agent, marketing_agent, support_agent, qa_agent, deploy_agent]
+    task: |
+      Build partner and channel management platform.
+    success_criteria:
+      - partner_portal: true
+      - deal_registration: true
+      - commission_management: true
+      - training_content: true
+      - performance_tracking: true
+      - co_marketing: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B6_X08
+    name: "Customer Success Suite"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, support_agent, analyst_agent, onboarding_agent, qa_agent, deploy_agent]
+    task: |
+      Build complete customer success platform.
+    success_criteria:
+      - health_scoring: true
+      - playbook_automation: true
+      - onboarding_management: true
+      - renewal_management: true
+      - expansion_tracking: true
+      - cs_analytics: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B6_X09
+    name: "Content Operations Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, marketing_agent, seo_agent, analyst_agent, qa_agent, deploy_agent]
+    task: |
+      Build content operations and DAM platform.
+    success_criteria:
+      - asset_management: true
+      - editorial_workflow: true
+      - distribution_channels: true
+      - performance_analytics: true
+      - seo_optimization: true
+      - collaboration_tools: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B6_X10
+    name: "Demand Generation Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, marketing_agent, analyst_agent, billing_agent, qa_agent, deploy_agent]
+    task: |
+      Build demand generation and ABM platform.
+    success_criteria:
+      - campaign_orchestration: true
+      - account_targeting: true
+      - multi_channel: true
+      - intent_data: true
+      - pipeline_attribution: true
+      - reporting: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B6_X11
+    name: "Product Analytics Suite"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, analyst_agent, onboarding_agent, qa_agent, deploy_agent]
+    task: |
+      Build comprehensive product analytics platform.
+    success_criteria:
+      - event_tracking: true
+      - user_journey: true
+      - feature_adoption: true
+      - retention_analysis: true
+      - experimentation: true
+      - dashboards: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B6_X12
+    name: "Marketplace Business Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, billing_agent, support_agent, analyst_agent, qa_agent, deploy_agent]
+    task: |
+      Build two-sided marketplace platform.
+    success_criteria:
+      - seller_management: true
+      - buyer_experience: true
+      - transaction_processing: true
+      - dispute_resolution: true
+      - marketplace_analytics: true
+      - trust_safety: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B6_X13
+    name: "Subscription Business Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, billing_agent, analyst_agent, support_agent, qa_agent, deploy_agent]
+    task: |
+      Build subscription business management platform.
+    success_criteria:
+      - subscription_engine: true
+      - revenue_recognition: true
+      - dunning_management: true
+      - subscriber_analytics: true
+      - lifecycle_automation: true
+      - financial_reporting: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B6_X14
+    name: "Agency Client Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, billing_agent, analyst_agent, support_agent, qa_agent, deploy_agent]
+    task: |
+      Build agency client management platform.
+    success_criteria:
+      - client_portal: true
+      - project_management: true
+      - time_tracking: true
+      - reporting_dashboards: true
+      - invoicing: true
+      - asset_delivery: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B6_X15
+    name: "Franchise Management Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, billing_agent, analyst_agent, support_agent, qa_agent, deploy_agent]
+    task: |
+      Build franchise business management platform.
+    success_criteria:
+      - franchisee_portal: true
+      - royalty_management: true
+      - brand_compliance: true
+      - training_system: true
+      - performance_benchmarks: true
+      - communication_hub: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  # Enterprise Business Systems (10 tests)
+  - id: B6_X16
+    name: "Enterprise Sales Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, analyst_agent, billing_agent, support_agent, qa_agent, deploy_agent]
+    task: |
+      Build enterprise sales enablement platform.
+    success_criteria:
+      - opportunity_management: true
+      - proposal_generation: true
+      - cpq_features: true
+      - contract_management: true
+      - forecasting: true
+      - coaching_tools: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B6_X17
+    name: "Customer 360 Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, analyst_agent, support_agent, marketing_agent, qa_agent, deploy_agent]
+    task: |
+      Build unified customer 360 view platform.
+    success_criteria:
+      - data_unification: true
+      - profile_enrichment: true
+      - interaction_history: true
+      - predictive_insights: true
+      - action_recommendations: true
+      - integration_hub: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B6_X18
+    name: "Business Intelligence Suite"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, analyst_agent, qa_agent, deploy_agent]
+    task: |
+      Build business intelligence platform.
+    success_criteria:
+      - data_warehouse: true
+      - report_builder: true
+      - dashboard_designer: true
+      - scheduled_reports: true
+      - data_governance: true
+      - self_service: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B6_X19
+    name: "Strategic Planning Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, analyst_agent, qa_agent, deploy_agent]
+    task: |
+      Build strategic planning and OKR platform.
+    success_criteria:
+      - goal_setting: true
+      - okr_tracking: true
+      - initiative_management: true
+      - progress_visualization: true
+      - alignment_tools: true
+      - reporting: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B6_X20
+    name: "Vendor Risk Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, analyst_agent, billing_agent, emergency_error_specialist_agent, qa_agent, deploy_agent]
+    task: |
+      Build vendor risk management platform.
+    success_criteria:
+      - vendor_assessment: true
+      - risk_scoring: true
+      - compliance_tracking: true
+      - contract_management: true
+      - monitoring_alerts: true
+      - reporting: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B6_X21
+    name: "Budget Planning Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, analyst_agent, billing_agent, qa_agent, deploy_agent]
+    task: |
+      Build budget planning and management platform.
+    success_criteria:
+      - budget_creation: true
+      - approval_workflow: true
+      - spend_tracking: true
+      - variance_analysis: true
+      - forecasting: true
+      - reporting: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B6_X22
+    name: "Competitive Strategy Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, analyst_agent, marketing_agent, qa_agent, deploy_agent]
+    task: |
+      Build competitive intelligence and strategy platform.
+    success_criteria:
+      - competitor_profiles: true
+      - market_tracking: true
+      - battle_cards: true
+      - win_loss_analysis: true
+      - trend_analysis: true
+      - strategy_tools: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B6_X23
+    name: "M&A Due Diligence Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, analyst_agent, billing_agent, emergency_error_specialist_agent, qa_agent, deploy_agent]
+    task: |
+      Build M&A due diligence management platform.
+    success_criteria:
+      - document_management: true
+      - request_tracking: true
+      - data_room: true
+      - analysis_tools: true
+      - workflow_management: true
+      - reporting: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B6_X24
+    name: "Investor Relations Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, analyst_agent, marketing_agent, qa_agent, deploy_agent]
+    task: |
+      Build investor relations portal.
+    success_criteria:
+      - investor_portal: true
+      - document_library: true
+      - event_management: true
+      - stock_information: true
+      - analytics: true
+      - communication_tools: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B6_X25
+    name: "Corporate Governance Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, analyst_agent, support_agent, qa_agent, deploy_agent]
+    task: |
+      Build corporate governance management platform.
+    success_criteria:
+      - board_management: true
+      - meeting_management: true
+      - document_repository: true
+      - policy_management: true
+      - compliance_tracking: true
+      - reporting: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0

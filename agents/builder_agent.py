@@ -25,7 +25,7 @@ from typing import Dict, List, Optional, Any
 # from azure.identity.aio import AzureCliCredential  # Commented out - missing module
 
 # Import StandardIntegrationMixin for ALL 283 integrations
-from infrastructure.standard_integration_mixin import StandardIntegrationMixin
+from infrastructure.standard_integration_mixin import StandardIntegrationMixin, darwin_evolved
 
 # Import DAAO and TUMIX
 from infrastructure.daao_router import get_daao_router, RoutingDecision
@@ -110,21 +110,31 @@ class BuilderAgent(StandardIntegrationMixin):
 
     async def initialize(self):
         """Initialize the agent with Azure AI Agent Client"""
-        cred = AzureCliCredential()
-        client = AzureAIAgentClient(async_credential=cred)
+        # Azure Agent Framework is optional - use direct LLM if not available
+        try:
+            from azure.identity.aio import AzureCliCredential
+            from agent_framework import ChatAgent
+            from agent_framework.azure import AzureAIAgentClient
 
-        self.agent = ChatAgent(
-            chat_client=client,
-            instructions=self._get_system_instruction(),
-            name="builder-agent",
-            tools=[
-                self.generate_frontend,
-                self.generate_backend,
-                self.generate_database,
-                self.generate_config,
-                self.review_code
-            ]
-        )
+            cred = AzureCliCredential()
+            client = AzureAIAgentClient(async_credential=cred)
+
+            self.agent = ChatAgent(
+                chat_client=client,
+                instructions=self._get_system_instruction(),
+                name="builder-agent",
+                tools=[
+                    self.generate_frontend,
+                    self.generate_backend,
+                    self.generate_database,
+                    self.generate_config,
+                    self.review_code
+                ]
+            )
+            logger.info(f"Builder Agent initialized with Azure Agent Framework")
+        except (ImportError, Exception) as e:
+            self.agent = None
+            logger.info(f"Builder Agent initialized (standalone mode) - Azure: {e}")
 
         # Initialize OpenEnv for deployment automation (Playwright for cloud interfaces)
         self.deploy_env = EnvRegistry.make("playwright")
@@ -144,7 +154,7 @@ class BuilderAgent(StandardIntegrationMixin):
             max_episodes=10  # Deployment: thorough learning
         )
 
-        print(f"🔨 Builder Agent initialized for business: {self.business_id}")
+        print(f"[BUILDER] Builder Agent initialized for business: {self.business_id}")
         print("   Model: Claude Sonnet 4 / GPT-4o")
         print("   OpenEnv deployment automation enabled (Playwright)")
         print("   Ready to generate production code\n")

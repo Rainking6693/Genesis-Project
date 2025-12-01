@@ -70,7 +70,13 @@ except ImportError:
     logging.warning("DAAO/TUMIX not available - cost optimization disabled")
 
 # Import StandardIntegrationMixin
-from infrastructure.standard_integration_mixin import StandardIntegrationMixin
+from infrastructure.standard_integration_mixin import StandardIntegrationMixin, darwin_evolved
+
+# Import MemoryOS for reflection history and quality pattern memory
+from infrastructure.memory_os_mongodb_adapter import (
+    create_genesis_memory_mongodb
+)
+import os
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -220,12 +226,30 @@ class ReflectionAgent(StandardIntegrationMixin):
             except Exception as e:
                 logger.warning(f"DAAO/TUMIX initialization failed: {e}")
 
+        # Initialize MemoryOS for reflection history
+        self.memory = None  # Lazy initialization
+
         logger.info(f"✅ ReflectionAgent v4.0 initialized: {agent_id}")
         logger.info(f"   Quality threshold: {quality_threshold}")
         logger.info(f"   LLM enabled: {use_llm}")
         logger.info(f"   ReasoningBank: {'Connected' if self.reasoning_bank else 'Disabled'}")
         logger.info(f"   ReplayBuffer: {'Connected' if self.replay_buffer else 'Disabled'}")
         logger.info(f"   DAAO/TUMIX: {'Enabled' if self.router else 'Disabled'}")
+
+    async def _init_memory(self):
+        """Initialize MemoryOS MongoDB backend for Reflection memory."""
+        try:
+            self.memory = create_genesis_memory_mongodb(
+                mongodb_uri=os.getenv("MONGODB_URI", "mongodb://localhost:27017/"),
+                database_name="genesis_memory_reflection",
+                short_term_capacity=15,   # Recent reflections
+                mid_term_capacity=500,    # Historical reflection data
+                long_term_knowledge_capacity=300  # Quality patterns, review insights
+            )
+            logger.info("[OK] MemoryOS initialized for ReflectionAgent")
+        except Exception as e:
+            logger.warning(f"[ReflectionAgent] Failed to initialize MemoryOS: {e}. Memory features disabled.")
+            self.memory = None
 
     async def reflect(
         self,

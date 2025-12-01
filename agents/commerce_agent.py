@@ -24,7 +24,12 @@ from infrastructure.x402_client import get_x402_client, X402PaymentError
 from infrastructure.x402_vendor_cache import get_x402_vendor_cache
 
 # Import StandardIntegrationMixin for ALL 283 integrations
-from infrastructure.standard_integration_mixin import StandardIntegrationMixin
+from infrastructure.standard_integration_mixin import StandardIntegrationMixin, darwin_evolved
+
+# Import MemoryOS for commerce history and transaction memory
+from infrastructure.memory_os_mongodb_adapter import (
+    create_genesis_memory_mongodb
+)
 
 logger = logging.getLogger(__name__)
 
@@ -61,6 +66,24 @@ class CommerceAgent(StandardIntegrationMixin):
                 daemon=True,
             )
             self._ap2_thread.start()
+
+        # Initialize MemoryOS for commerce history and transaction memory
+        self.memory = None  # Lazy initialization
+
+    async def _init_memory(self):
+        """Initialize MemoryOS MongoDB backend for Commerce memory."""
+        try:
+            self.memory = create_genesis_memory_mongodb(
+                mongodb_uri=os.getenv("MONGODB_URI", "mongodb://localhost:27017/"),
+                database_name="genesis_memory_commerce",
+                short_term_capacity=10,   # Recent transactions
+                mid_term_capacity=500,    # Historical commerce data
+                long_term_knowledge_capacity=200  # Commerce strategies, vendor insights
+            )
+            logger.info("[OK] MemoryOS initialized for CommerceAgent")
+        except Exception as e:
+            logger.warning(f"[CommerceAgent] Failed to initialize MemoryOS: {e}. Memory features disabled.")
+            self.memory = None
 
     async def _charge_x402(self, vendor: str, amount: float, metadata: Optional[Dict[str, Any]] = None) -> None:
         """Charge x402 payment with LLM analysis."""
@@ -546,7 +569,7 @@ Return JSON with:
             self._budget_window = current_window
             self._monthly_spend = 0.0
 
-    def _ensure_commerce_budget(
+    async def _ensure_commerce_budget(
         self,
         service_name: str,
         amount: float,

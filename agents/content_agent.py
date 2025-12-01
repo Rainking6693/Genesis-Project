@@ -45,7 +45,7 @@ from infrastructure.creative_asset_registry import get_asset_registry
 from infrastructure.x402_vendor_cache import get_x402_vendor_cache
 
 # Import StandardIntegrationMixin for ALL 283 integrations
-from infrastructure.standard_integration_mixin import StandardIntegrationMixin
+from infrastructure.standard_integration_mixin import StandardIntegrationMixin, darwin_evolved
 
 # Import WebVoyager for web navigation and content research (optional - graceful fallback)
 try:
@@ -323,35 +323,45 @@ Return JSON with:
     async def initialize(self):
         # Initialize memory (now async)
         await self._init_memory()
-        
-        cred = AzureCliCredential()
-        client = AzureAIAgentClient(async_credential=cred)
 
-        tools = [
-            self.write_blog_post,
-            self.create_documentation,
-            self.generate_faq,
-            self.create_video_content,
-            self.translate_content,
-            self.proofread_content,
-            self.subscribe_stock_images,
-            self.subscribe_video_platform,
-            self.subscribe_translation_api,
-            self.subscribe_proofreading_tool,
-        ]
+        # Azure Agent Framework is optional - use direct LLM if not available
+        try:
+            from azure.identity.aio import AzureCliCredential
+            from agent_framework import ChatAgent
+            from agent_framework.azure import AzureAIAgentClient
 
-        # Add web_content_research tool if WebVoyager is available
-        if WEBVOYAGER_AVAILABLE and self.webvoyager:
-            tools.append(self.web_content_research)
-        tools.append(self.request_content_budget)
+            cred = AzureCliCredential()
+            client = AzureAIAgentClient(async_credential=cred)
 
-        self.agent = ChatAgent(
-            chat_client=client,
-            instructions="""You are the world\'s premier Content specialist - recognized globally for innovative, cost-effective, and exceptional results. You deliver elegant, efficient, and reliable outcomes every time.""",
-            name="content-agent",
-            tools=tools
-        )
-        print(f"📝 Content Agent initialized for business: {self.business_id}")
+            tools = [
+                self.write_blog_post,
+                self.create_documentation,
+                self.generate_faq,
+                self.create_video_content,
+                self.translate_content,
+                self.proofread_content,
+                self.subscribe_stock_images,
+                self.subscribe_video_platform,
+                self.subscribe_translation_api,
+                self.subscribe_proofreading_tool,
+            ]
+
+            # Add web_content_research tool if WebVoyager is available
+            if WEBVOYAGER_AVAILABLE and self.webvoyager:
+                tools.append(self.web_content_research)
+            tools.append(self.request_content_budget)
+
+            self.agent = ChatAgent(
+                chat_client=client,
+                instructions="""You are the world\'s premier Content specialist - recognized globally for innovative, cost-effective, and exceptional results. You deliver elegant, efficient, and reliable outcomes every time.""",
+                name="content-agent",
+                tools=tools
+            )
+            logger.info(f"Content Agent initialized with Azure Agent Framework")
+        except (ImportError, Exception) as e:
+            self.agent = None
+            logger.info(f"Content Agent initialized (standalone mode) - Azure: {e}")
+        print(f"[CONTENT] Content Agent initialized for business: {self.business_id}")
         print(f"   - MemoryOS MongoDB backend enabled (49% F1 improvement)")
         if WEBVOYAGER_AVAILABLE and self.webvoyager:
             print(f"   - WebVoyager web navigation enabled (59.1% success rate)\n")

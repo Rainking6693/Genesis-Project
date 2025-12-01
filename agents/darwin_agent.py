@@ -49,7 +49,12 @@ import anthropic
 from openai import AsyncOpenAI
 
 # Import StandardIntegrationMixin for ALL 283 integrations
-from infrastructure.standard_integration_mixin import StandardIntegrationMixin
+from infrastructure.standard_integration_mixin import StandardIntegrationMixin, darwin_evolved
+
+# Import MemoryOS for evolution history and pattern memory
+from infrastructure.memory_os_mongodb_adapter import (
+    create_genesis_memory_mongodb
+)
 
 # Genesis infrastructure imports
 from infrastructure import (
@@ -192,9 +197,27 @@ class DarwinAgent(StandardIntegrationMixin):
         self.best_score = 0.0
         self.best_version = "initial"
 
+        # Initialize MemoryOS for evolution history
+        self.memory = None  # Lazy initialization
+
         logger.info(f"Darwin Agent initialized for {agent_name}")
         logger.info(f"Max generations: {max_generations}, Population size: {population_size}")
         logger.info(f"Acceptance threshold: {acceptance_threshold * 100}%")
+
+    async def _init_memory(self):
+        """Initialize MemoryOS MongoDB backend for Evolution memory."""
+        try:
+            self.memory = create_genesis_memory_mongodb(
+                mongodb_uri=os.getenv("MONGODB_URI", "mongodb://localhost:27017/"),
+                database_name="genesis_memory_darwin",
+                short_term_capacity=20,   # Recent evolution attempts
+                mid_term_capacity=500,    # Historical evolution data
+                long_term_knowledge_capacity=300  # Evolution patterns, code insights
+            )
+            logger.info("[OK] MemoryOS initialized for DarwinAgent")
+        except Exception as e:
+            logger.warning(f"[DarwinAgent] Failed to initialize MemoryOS: {e}. Memory features disabled.")
+            self.memory = None
 
     async def _sanitize_path_component(self, user_input: str) -> str:
         """
@@ -1234,7 +1257,7 @@ if __name__ == "__main__":
         )
 
         archive = await darwin.evolve()
-        print(f"\n🎯 Evolution complete!")
+        print(f"\n[DARWIN] Evolution complete!")
         print(f"Best version: {archive.best_version}")
         print(f"Best score: {archive.best_score:.3f}")
         print(f"Acceptance rate: {archive.acceptance_rate:.1%}")

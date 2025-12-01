@@ -1,36 +1,28 @@
-equirements · TXT
-Copy
-
-# Genesis Agent System - Python Dependencies
-
 # Core Framework
 anthropic>=0.40.0
 google-generativeai>=0.8.0
+groq>=0.4.0
 openai>=1.0.0
 
 # Database & Caching
-psycopg2-binary>=2.9.0  # PostgreSQL (replaces pymongo)
+psycopg2-binary>=2.9.0
 redis>=5.0.0
 
 # Web & HTTP
 requests>=2.31.0
 httpx>=0.27.0
-
-# Async & Task Management
 aiohttp>=3.9.0
-asyncio
 
 # Deployment & Cloud
 vercel>=0.1.0
-# HopX secure sandbox SDK (falls back to mock mode when unavailable)
-hopx-sdk @ git+https://github.com/hopx-ai/hopx.git
+# hopx-sdk is non-installable (no setup.py); kept optional via fallback stubs in code
 
 # Marketing & Ads
 google-ads>=24.0.0
 
 # Payments
 stripe>=7.0.0
-x402-sdk>=0.1.0
+# x402-sdk not published to PyPI; integration uses stubs/clients bundled in repo
 
 # Email
 sendgrid>=6.11.0
@@ -49,3 +41,9 @@ opentelemetry-exporter-otlp>=1.20.0
 # Testing (optional but recommended)
 pytest>=7.4.0
 pytest-asyncio>=0.21.0
+
+# LangGraph integration
+langgraph>=0.2.0
+langchain-core>=0.3.0
+
+# External agents/libraries (cloned under external/, not pip-installable)

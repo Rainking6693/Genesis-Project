@@ -64,18 +64,25 @@ class AgentAuthRegistry:
         # CRITICAL FIX: Load from secure vault in production
         if os.getenv("ENVIRONMENT") == "production":
             if not master_secret:
-                # Try to load from AWS Secrets Manager
-                try:
-                    import boto3
-                    secrets_client = boto3.client('secretsmanager')
-                    secret_name = os.getenv("AGENT_AUTH_MASTER_SECRET_NAME", "genesis/agent-auth-master-secret")
-                    response = secrets_client.get_secret_value(SecretId=secret_name)
-                    master_secret = response['SecretString']
-                    logger.info("Loaded master_secret from AWS Secrets Manager")
-                except Exception as e:
-                    logger.warning(f"Failed to load from AWS Secrets Manager: {e}")
+                # Priority 1: Check environment variable directly (fastest, most common)
+                master_secret = os.getenv("AGENT_AUTH_MASTER_SECRET")
+                if master_secret:
+                    logger.info("Loaded master_secret from AGENT_AUTH_MASTER_SECRET environment variable")
 
-                    # Try HashiCorp Vault
+                # Priority 2: Try AWS Secrets Manager
+                if not master_secret:
+                    try:
+                        import boto3
+                        secrets_client = boto3.client('secretsmanager')
+                        secret_name = os.getenv("AGENT_AUTH_MASTER_SECRET_NAME", "genesis/agent-auth-master-secret")
+                        response = secrets_client.get_secret_value(SecretId=secret_name)
+                        master_secret = response['SecretString']
+                        logger.info("Loaded master_secret from AWS Secrets Manager")
+                    except Exception as e:
+                        logger.warning(f"Failed to load from AWS Secrets Manager: {e}")
+
+                # Priority 3: Try HashiCorp Vault
+                if not master_secret:
                     try:
                         vault_addr = os.getenv("VAULT_ADDR")
                         vault_token = os.getenv("VAULT_TOKEN")
@@ -88,11 +95,6 @@ class AgentAuthRegistry:
                             logger.info("Loaded master_secret from HashiCorp Vault")
                     except Exception as e2:
                         logger.warning(f"Failed to load from HashiCorp Vault: {e2}")
-
-                        # Final fallback: Check environment variable directly
-                        master_secret = os.getenv("AGENT_AUTH_MASTER_SECRET")
-                        if master_secret:
-                            logger.info("Loaded master_secret from AGENT_AUTH_MASTER_SECRET environment variable")
 
             # CRITICAL FIX: Raise error if still not set in production
             if not master_secret:

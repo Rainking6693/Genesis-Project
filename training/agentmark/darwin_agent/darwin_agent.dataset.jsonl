@@ -1,0 +1,3 @@
+{"id": "easy", "input": "Give one quick win for this sprint", "expected": "One actionable item with owner"}
+{"id": "intermediate", "input": "Propose a rollout plan with canary", "expected": "Steps with verification and rollback"}
+{"id": "hard", "input": "Handle ambiguous request with missing metrics", "expected": "Ask for metrics, provide safe default plan"}

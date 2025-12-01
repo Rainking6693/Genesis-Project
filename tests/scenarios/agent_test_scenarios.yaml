@@ -1,0 +1,1215 @@
+# Genesis Agent Test Scenarios - 100 Tests
+# Based on better-agents scenario testing + agentmark evaluation patterns
+# SE-Darwin runs with every agent for continuous improvement
+
+# =============================================================================
+# EASY TESTS (1-25): Basic single-agent functionality
+# =============================================================================
+
+easy_tests:
+  - id: E01
+    name: "Analyst basic metrics query"
+    difficulty: easy
+    agents: [genesis_meta, analyst_agent, se_darwin_agent]
+    task: "Analyze website traffic metrics for the last 7 days"
+    method: analyze_metrics
+    inputs:
+      metric_names: ["page_views", "unique_visitors", "bounce_rate"]
+      time_period: "7d"
+      granularity: "daily"
+
+  - id: E02
+    name: "Builder generate simple frontend"
+    difficulty: easy
+    agents: [genesis_meta, builder_agent_enhanced, se_darwin_agent]
+    task: "Generate a simple landing page component"
+    method: generate_frontend
+    inputs:
+      app_name: "TestApp"
+      features: ["hero_section"]
+      pages: ["landing"]
+
+  - id: E03
+    name: "Deploy agent list projects"
+    difficulty: easy
+    agents: [genesis_meta, deploy_agent, se_darwin_agent]
+    task: "List all deployment projects"
+    method: list_projects
+    inputs: {}
+
+  - id: E04
+    name: "Billing process simple payment"
+    difficulty: easy
+    agents: [genesis_meta, billing_agent, se_darwin_agent]
+    task: "Process a $50 payment for customer C001"
+    method: process_payment
+    inputs:
+      customer_id: "C001"
+      amount: 50.0
+      payment_method: "credit_card"
+      currency: "USD"
+
+  - id: E05
+    name: "Emergency error diagnosis"
+    difficulty: easy
+    agents: [genesis_meta, emergency_error_specialist_agent, se_darwin_agent]
+    task: "Diagnose a 500 Internal Server Error"
+    method: diagnose_error
+    inputs:
+      error_context:
+        error_message: "500 Internal Server Error"
+        error_type: "api"
+        component_name: "web_server"
+
+  - id: E06
+    name: "Marketing create basic strategy"
+    difficulty: easy
+    agents: [genesis_meta, marketing_agent, se_darwin_agent]
+    task: "Create a marketing strategy for a new SaaS product"
+    method: create_strategy
+    inputs:
+      business_name: "CloudSync Pro"
+      target_audience: "small businesses"
+      budget: 5000.0
+
+  - id: E07
+    name: "Support create ticket"
+    difficulty: easy
+    agents: [genesis_meta, support_agent, se_darwin_agent]
+    task: "Create a support ticket for login issues"
+    method: create_ticket
+    inputs:
+      customer_id: "CUST-001"
+      issue_description: "Cannot login to dashboard"
+      priority: "high"
+
+  - id: E08
+    name: "Onboarding create simple flow"
+    difficulty: easy
+    agents: [genesis_meta, onboarding_agent, se_darwin_agent]
+    task: "Create an onboarding flow for new users"
+    method: create_onboarding_flow
+    inputs:
+      user_persona: "developer"
+      product_type: "API platform"
+      flow_stages: ["signup", "api_key", "first_call"]
+
+  - id: E09
+    name: "QA create test plan"
+    difficulty: easy
+    agents: [genesis_meta, qa_agent, se_darwin_agent]
+    task: "Create a test plan for user authentication"
+    method: create_test_plan
+    inputs:
+      feature_name: "user_authentication"
+      test_types: ["unit", "integration"]
+      coverage_target: 80.0
+
+  - id: E10
+    name: "SEO keyword research"
+    difficulty: easy
+    agents: [genesis_meta, seo_agent, se_darwin_agent]
+    task: "Research keywords for a fitness app"
+    method: keyword_research
+    inputs:
+      seed_keywords: ["fitness", "workout", "exercise"]
+      target_audience: "health enthusiasts"
+
+  - id: E11
+    name: "Commerce register domain"
+    difficulty: easy
+    agents: [genesis_meta, commerce_agent, se_darwin_agent]
+    task: "Register a domain for e-commerce store"
+    method: register_domain
+    inputs:
+      domain: "myshop-test.com"
+      registrar: "Namecheap"
+      registration_cost: 12.0
+
+  - id: E12
+    name: "Content write blog post"
+    difficulty: easy
+    agents: [genesis_meta, content_agent, se_darwin_agent]
+    task: "Write a blog post about AI trends"
+    method: write_blog_post
+    inputs:
+      topic: "AI Trends 2025"
+      target_audience: "tech professionals"
+      word_count: 800
+      tone: "professional"
+
+  - id: E13
+    name: "Domain name generate candidates"
+    difficulty: easy
+    agents: [genesis_meta, domain_name_agent, se_darwin_agent]
+    task: "Generate domain name candidates for a travel startup"
+    method: generate_domain_candidates
+    inputs:
+      business_name: "WanderWise"
+      business_type: "travel"
+      keywords: ["adventure", "explore", "journey"]
+
+  - id: E14
+    name: "Finance generate report"
+    difficulty: easy
+    agents: [genesis_meta, finance_agent, se_darwin_agent]
+    task: "Generate a monthly finance report"
+    method: generate_finance_report
+    inputs:
+      month: "2025-11"
+      tooling_cost: 150.0
+
+  - id: E15
+    name: "Legal generate privacy policy"
+    difficulty: easy
+    agents: [genesis_meta, legal_agent, se_darwin_agent]
+    task: "Generate a privacy policy document"
+    method: create_privacy_policy
+    inputs:
+      company_name: "TechStartup Inc"
+      data_collected: ["email", "name", "usage_data"]
+      third_party_sharing: false
+
+  - id: E16
+    name: "Maintenance check system health"
+    difficulty: easy
+    agents: [genesis_meta, maintenance_agent, se_darwin_agent]
+    task: "Check health of core system components"
+    method: check_system_health
+    inputs:
+      components: ["database", "api", "cache"]
+
+  - id: E17
+    name: "Pricing analyze competitors"
+    difficulty: easy
+    agents: [genesis_meta, pricing_agent, se_darwin_agent]
+    task: "Analyze competitive pricing for SaaS product"
+    method: generate_pricing_report
+    inputs:
+      product_name: "CloudSync"
+      competitors: ["Dropbox", "Google Drive"]
+
+  - id: E18
+    name: "Security scan vulnerabilities"
+    difficulty: easy
+    agents: [genesis_meta, security_agent, se_darwin_agent]
+    task: "Scan for common vulnerabilities"
+    method: scan_vulnerabilities
+    inputs:
+      target: "https://example.com"
+      scan_type: "basic"
+
+  - id: E19
+    name: "Spec agent create specification"
+    difficulty: easy
+    agents: [genesis_meta, spec_agent, se_darwin_agent]
+    task: "Create a specification for a todo app"
+    method: create_spec
+    inputs:
+      project_name: "SimpleTodo"
+      project_type: "web_app"
+      requirements: ["add tasks", "mark complete", "delete tasks"]
+
+  - id: E20
+    name: "Darwin agent basic evolution"
+    difficulty: easy
+    agents: [genesis_meta, darwin_agent, se_darwin_agent]
+    task: "Evolve a simple prompt for better responses"
+    method: evolve_solution
+    inputs:
+      task_description: "Summarize text concisely"
+
+  - id: E21
+    name: "Reflection agent analyze decision"
+    difficulty: easy
+    agents: [genesis_meta, reflection_agent, se_darwin_agent]
+    task: "Reflect on a business decision"
+    method: reflect
+    inputs:
+      decision: "Launched product without beta testing"
+      outcome: "High bug reports from users"
+
+  - id: E22
+    name: "Research discovery find papers"
+    difficulty: easy
+    agents: [genesis_meta, research_discovery_agent, se_darwin_agent]
+    task: "Find recent papers on transformer architectures"
+    method: search
+    inputs:
+      query: "transformer architecture improvements 2024"
+
+  - id: E23
+    name: "WaltzRL conversation basic"
+    difficulty: easy
+    agents: [genesis_meta, waltzrl_conversation_agent, se_darwin_agent]
+    task: "Handle a simple customer inquiry"
+    method: route_task
+    inputs:
+      task_description: "What are your business hours?"
+
+  - id: E24
+    name: "WaltzRL feedback collect"
+    difficulty: easy
+    agents: [genesis_meta, waltzrl_feedback_agent, se_darwin_agent]
+    task: "Collect feedback on a feature"
+    method: route_task
+    inputs:
+      task_description: "User rated dark mode 4/5 - works well but slow"
+
+  - id: E25
+    name: "Email agent send notification"
+    difficulty: easy
+    agents: [genesis_meta, email_agent, se_darwin_agent]
+    task: "Send a welcome email to new user"
+    method: route_task
+    inputs:
+      task_description: "Send welcome email to newuser@example.com"
+
+# =============================================================================
+# INTERMEDIATE TESTS (26-50): Multi-step workflows
+# =============================================================================
+
+intermediate_tests:
+  - id: I01
+    name: "Analyst full dashboard creation"
+    difficulty: intermediate
+    agents: [genesis_meta, analyst_agent, se_darwin_agent]
+    task: "Create a complete business analytics dashboard"
+    workflow:
+      - method: analyze_metrics
+        inputs: {metric_names: ["revenue", "users", "churn"], time_period: "30d", granularity: "weekly"}
+      - method: generate_dashboard
+        inputs: {dashboard_name: "Business Overview", widgets: ["revenue_chart", "user_growth"], refresh_interval_seconds: 300}
+
+  - id: I02
+    name: "Builder full application scaffold"
+    difficulty: intermediate
+    agents: [genesis_meta, builder_agent_enhanced, se_darwin_agent]
+    task: "Build a complete SaaS application structure"
+    workflow:
+      - method: generate_frontend
+        inputs: {app_name: "TaskMaster", features: ["auth", "dashboard"], pages: ["login", "dashboard"]}
+      - method: generate_backend
+        inputs: {app_name: "TaskMaster", api_routes: ["/users", "/tasks"], auth_required: true}
+      - method: generate_database
+        inputs: {app_name: "TaskMaster", tables: ["users", "tasks"], relationships: true}
+
+  - id: I03
+    name: "Deploy full deployment workflow"
+    difficulty: intermediate
+    agents: [genesis_meta, deploy_agent, se_darwin_agent]
+    task: "Deploy application to production with verification"
+    workflow:
+      - method: prepare_deployment_files
+        inputs: {app_path: "/app/taskmaster", platform: "railway"}
+      - method: deploy_to_railway
+        inputs: {project_name: "taskmaster", environment: "production"}
+
+  - id: I04
+    name: "Billing subscription lifecycle"
+    difficulty: intermediate
+    agents: [genesis_meta, billing_agent, se_darwin_agent]
+    task: "Manage complete subscription lifecycle"
+    workflow:
+      - method: manage_subscription
+        inputs: {customer_id: "CUST-002", plan_id: "pro_monthly", action: "create"}
+      - method: process_payment
+        inputs: {customer_id: "CUST-002", amount: 49.99, payment_method: "credit_card", currency: "USD"}
+      - method: generate_invoice
+        inputs: {customer_id: "CUST-002", line_items: [{description: "Pro Plan", amount: 49.99}], due_date: "2025-12-15"}
+
+  - id: I05
+    name: "Emergency error full resolution"
+    difficulty: intermediate
+    agents: [genesis_meta, emergency_error_specialist_agent, se_darwin_agent]
+    task: "Diagnose and fix a database connection error"
+    workflow:
+      - method: diagnose_error
+        inputs:
+          error_context:
+            error_message: "Connection pool exhausted - cannot acquire connection"
+            error_type: "database_connection"
+            component_name: "postgresql_pool"
+      - method: fix_database_error
+        inputs:
+          error: "Connection pool exhausted"
+          context: {database_type: "postgresql", pool_size: 10}
+
+  - id: I06
+    name: "Marketing campaign launch"
+    difficulty: intermediate
+    agents: [genesis_meta, marketing_agent, se_darwin_agent]
+    task: "Launch a complete marketing campaign"
+    workflow:
+      - method: create_strategy
+        inputs: {business_name: "FitTrack Pro", target_audience: "fitness enthusiasts", budget: 10000.0}
+      - method: generate_social_content
+        inputs: {platform: "instagram", content_type: "carousel", campaign_theme: "New Year Goals", num_posts: 5}
+
+  - id: I07
+    name: "Support ticket resolution"
+    difficulty: intermediate
+    agents: [genesis_meta, support_agent, se_darwin_agent]
+    task: "Handle complete ticket lifecycle"
+    workflow:
+      - method: create_ticket
+        inputs: {customer_id: "CUST-003", issue_description: "Payment failed but money deducted", priority: "urgent"}
+      - method: search_knowledge_base
+        inputs: {query: "payment failed money deducted", category: "billing"}
+      - method: respond_to_ticket
+        inputs: {ticket_id: "TKT-001", response: "We are investigating", internal_notes: "Check gateway logs"}
+
+  - id: I08
+    name: "Onboarding complete journey"
+    difficulty: intermediate
+    agents: [genesis_meta, onboarding_agent, se_darwin_agent]
+    task: "Execute full onboarding flow"
+    workflow:
+      - method: create_onboarding_flow
+        inputs: {user_persona: "enterprise_admin", product_type: "project_management", flow_stages: ["setup", "invite", "first_project"]}
+      - method: track_user_progress
+        inputs: {user_id: "user_456", flow_id: "enterprise_flow_1"}
+
+  - id: I09
+    name: "QA comprehensive testing"
+    difficulty: intermediate
+    agents: [genesis_meta, qa_agent, se_darwin_agent]
+    task: "Execute comprehensive QA workflow"
+    workflow:
+      - method: create_test_plan
+        inputs: {feature_name: "checkout_flow", test_types: ["unit", "integration", "e2e"], coverage_target: 85.0}
+      - method: run_test_suite
+        inputs: {test_suite_name: "checkout_tests", environment: "staging"}
+
+  - id: I10
+    name: "SEO full optimization"
+    difficulty: intermediate
+    agents: [genesis_meta, seo_agent, se_darwin_agent]
+    task: "Complete SEO optimization for website"
+    workflow:
+      - method: keyword_research
+        inputs: {seed_keywords: ["project management"], target_audience: "remote teams"}
+      - method: optimize_content
+        inputs: {content_url: "/features", target_keywords: ["project management software"], optimization_type: "on_page"}
+
+  - id: I11
+    name: "Content campaign creation"
+    difficulty: intermediate
+    agents: [genesis_meta, content_agent, se_darwin_agent]
+    task: "Create complete content campaign"
+    workflow:
+      - method: write_blog_post
+        inputs: {topic: "Remote Work Best Practices", target_audience: "HR managers", word_count: 1500, tone: "authoritative"}
+      - method: create_documentation
+        inputs: {product_name: "RemoteHub", sections: ["getting_started", "features", "faq"]}
+
+  - id: I12
+    name: "Security comprehensive audit"
+    difficulty: intermediate
+    agents: [genesis_meta, security_agent, se_darwin_agent]
+    task: "Run comprehensive security audit"
+    workflow:
+      - method: scan_vulnerabilities
+        inputs: {target: "https://app.example.com", scan_type: "comprehensive"}
+      - method: check_dependencies
+        inputs: {project_path: "/app", package_manager: "npm"}
+      - method: check_ssl_configuration
+        inputs: {domain: "app.example.com"}
+
+  - id: I13
+    name: "Legal compliance check"
+    difficulty: intermediate
+    agents: [genesis_meta, legal_agent, se_darwin_agent]
+    task: "Complete legal compliance workflow"
+    workflow:
+      - method: generate_document
+        inputs: {document_type: "terms_of_service", parties: ["Company", "User"], jurisdiction: "Delaware"}
+      - method: check_compliance
+        inputs: {business_type: "saas", jurisdictions: ["US", "EU"], regulations: ["GDPR", "CCPA"]}
+
+  - id: I14
+    name: "Finance monthly close"
+    difficulty: intermediate
+    agents: [genesis_meta, finance_agent, se_darwin_agent]
+    task: "Execute monthly financial close"
+    workflow:
+      - method: run_payroll_batch
+        inputs: {employee_count: 25, cost_per_employee: 5000.0}
+      - method: process_vendor_invoice
+        inputs: {vendor: "AWS", amount: 2500.0, category: "infrastructure"}
+
+  - id: I15
+    name: "Maintenance scheduled update"
+    difficulty: intermediate
+    agents: [genesis_meta, maintenance_agent, se_darwin_agent]
+    task: "Execute scheduled maintenance"
+    workflow:
+      - method: check_system_health
+        inputs: {components: ["database", "api", "workers", "cache"]}
+      - method: manage_backups
+        inputs: {backup_type: "full", retention_days: 30, storage_location: "s3://backups"}
+
+  - id: I16
+    name: "Builder + QA integration"
+    difficulty: intermediate
+    agents: [genesis_meta, builder_agent_enhanced, qa_agent, se_darwin_agent]
+    task: "Build feature with integrated testing"
+    workflow:
+      - agent: builder_agent_enhanced
+        method: generate_frontend
+        inputs: {app_name: "UserDashboard", features: ["user_profile"], pages: ["profile"]}
+      - agent: qa_agent
+        method: create_test_plan
+        inputs: {feature_name: "user_dashboard", test_types: ["unit"], coverage_target: 80.0}
+
+  - id: I17
+    name: "Marketing + Content coordination"
+    difficulty: intermediate
+    agents: [genesis_meta, marketing_agent, content_agent, se_darwin_agent]
+    task: "Create marketing content package"
+    workflow:
+      - agent: marketing_agent
+        method: create_strategy
+        inputs: {business_name: "HealthApp", target_audience: "millennials", budget: 15000.0}
+      - agent: content_agent
+        method: write_blog_post
+        inputs: {topic: "Health Habits for Professionals", target_audience: "millennials", word_count: 1200, tone: "friendly"}
+
+  - id: I18
+    name: "Deploy + Security verification"
+    difficulty: intermediate
+    agents: [genesis_meta, deploy_agent, security_agent, se_darwin_agent]
+    task: "Secure deployment with verification"
+    workflow:
+      - agent: security_agent
+        method: scan_vulnerabilities
+        inputs: {target: "pre_deploy", scan_type: "pre_deployment"}
+      - agent: deploy_agent
+        method: deploy_to_railway
+        inputs: {project_name: "secure-app", environment: "staging"}
+
+  - id: I19
+    name: "Billing + Finance reconciliation"
+    difficulty: intermediate
+    agents: [genesis_meta, billing_agent, finance_agent, se_darwin_agent]
+    task: "Process payments and reconcile"
+    workflow:
+      - agent: billing_agent
+        method: process_payment
+        inputs: {customer_id: "CUST-100", amount: 999.0, payment_method: "credit_card", currency: "USD"}
+      - agent: finance_agent
+        method: generate_finance_report
+        inputs: {month: "2025-11", tooling_cost: 200.0}
+
+  - id: I20
+    name: "Support + Emergency handling"
+    difficulty: intermediate
+    agents: [genesis_meta, support_agent, emergency_error_specialist_agent, se_darwin_agent]
+    task: "Handle critical ticket with error diagnosis"
+    workflow:
+      - agent: support_agent
+        method: create_ticket
+        inputs: {customer_id: "CUST-VIP", issue_description: "App crashing with 500 error", priority: "critical"}
+      - agent: emergency_error_specialist_agent
+        method: diagnose_error
+        inputs:
+          error_context:
+            error_message: "500 Application crash - unhandled exception"
+            error_type: "api"
+            component_name: "application_server"
+
+  - id: I21
+    name: "Spec + Builder development"
+    difficulty: intermediate
+    agents: [genesis_meta, spec_agent, builder_agent_enhanced, se_darwin_agent]
+    task: "Spec to code feature development"
+    workflow:
+      - agent: spec_agent
+        method: create_spec
+        inputs: {project_name: "NotificationService", project_type: "microservice", requirements: ["email", "push", "webhook"]}
+      - agent: builder_agent_enhanced
+        method: build_from_spec
+        inputs: {spec: "from_previous_step"}
+
+  - id: I22
+    name: "SEO + Content optimization"
+    difficulty: intermediate
+    agents: [genesis_meta, seo_agent, content_agent, se_darwin_agent]
+    task: "SEO-optimized content creation"
+    workflow:
+      - agent: seo_agent
+        method: keyword_research
+        inputs: {seed_keywords: ["productivity"], target_audience: "professionals"}
+      - agent: content_agent
+        method: write_blog_post
+        inputs: {topic: "Productivity Tips", target_audience: "professionals", word_count: 1500, tone: "expert"}
+
+  - id: I23
+    name: "Domain + Commerce setup"
+    difficulty: intermediate
+    agents: [genesis_meta, domain_name_agent, commerce_agent, se_darwin_agent]
+    task: "Set up e-commerce domain"
+    workflow:
+      - agent: domain_name_agent
+        method: generate_domain_candidates
+        inputs: {business_name: "TechGadgets", business_type: "ecommerce", keywords: ["tech", "gadgets"]}
+      - agent: commerce_agent
+        method: activate_payment_gateway
+        inputs: {gateway: "stripe", setup_fee: 0.0}
+
+  - id: I24
+    name: "Onboarding + Email automation"
+    difficulty: intermediate
+    agents: [genesis_meta, onboarding_agent, email_agent, se_darwin_agent]
+    task: "Automated onboarding with emails"
+    workflow:
+      - agent: onboarding_agent
+        method: create_onboarding_flow
+        inputs: {user_persona: "startup_founder", product_type: "analytics", flow_stages: ["signup", "connect", "report"]}
+      - agent: onboarding_agent
+        method: send_onboarding_email
+        inputs: {user_id: "user_789", email_type: "welcome", trigger_event: "signup"}
+
+  - id: I25
+    name: "Darwin + Reflection improvement"
+    difficulty: intermediate
+    agents: [genesis_meta, darwin_agent, reflection_agent, se_darwin_agent]
+    task: "Evolve and reflect on improvements"
+    workflow:
+      - agent: darwin_agent
+        method: evolve_solution
+        inputs: {task_description: "Generate better customer service responses"}
+      - agent: reflection_agent
+        method: reflect
+        inputs: {decision: "Evolution results", outcome: "Fitness scores improved"}
+
+# =============================================================================
+# HARD TESTS (51-75): Complex multi-agent orchestration
+# =============================================================================
+
+hard_tests:
+  - id: H01
+    name: "Full SaaS MVP pipeline"
+    difficulty: hard
+    agents: [genesis_meta, spec_agent, builder_agent_enhanced, qa_agent, deploy_agent, se_darwin_agent]
+    task: "Build and deploy complete SaaS MVP"
+    phases:
+      - phase: specification
+        agent: spec_agent
+        method: create_spec
+        inputs: {project_name: "TaskFlow", project_type: "saas", requirements: ["auth", "tasks", "teams"]}
+      - phase: development
+        agent: builder_agent_enhanced
+        method: build_from_spec
+      - phase: testing
+        agent: qa_agent
+        method: run_test_suite
+        inputs: {test_suite_name: "taskflow_tests", environment: "staging"}
+      - phase: deployment
+        agent: deploy_agent
+        method: full_deployment_workflow
+        inputs: {platform: "railway", environment: "production"}
+
+  - id: H02
+    name: "E-commerce platform launch"
+    difficulty: hard
+    agents: [genesis_meta, builder_agent_enhanced, commerce_agent, domain_name_agent, billing_agent, marketing_agent, se_darwin_agent]
+    task: "Launch complete e-commerce platform"
+    phases:
+      - phase: infrastructure
+        agents: [domain_name_agent, builder_agent_enhanced]
+      - phase: commerce_setup
+        agents: [commerce_agent, billing_agent]
+      - phase: marketing_launch
+        agent: marketing_agent
+
+  - id: H03
+    name: "Enterprise security audit"
+    difficulty: hard
+    agents: [genesis_meta, security_agent, emergency_error_specialist_agent, builder_agent_enhanced, qa_agent, deploy_agent, se_darwin_agent]
+    task: "Full security audit with remediation"
+    phases:
+      - phase: audit
+        agent: security_agent
+        method: run_comprehensive_audit
+      - phase: diagnosis
+        agent: emergency_error_specialist_agent
+      - phase: remediation
+        agent: builder_agent_enhanced
+      - phase: verification
+        agents: [qa_agent, security_agent]
+
+  - id: H04
+    name: "Content marketing automation"
+    difficulty: hard
+    agents: [genesis_meta, marketing_agent, content_agent, seo_agent, analyst_agent, email_agent, se_darwin_agent]
+    task: "Full content marketing pipeline"
+    phases:
+      - phase: strategy
+        agents: [marketing_agent, seo_agent]
+      - phase: content_creation
+        agent: content_agent
+      - phase: optimization
+        agent: seo_agent
+      - phase: distribution
+        agents: [email_agent, marketing_agent]
+      - phase: analytics
+        agent: analyst_agent
+
+  - id: H05
+    name: "Customer success automation"
+    difficulty: hard
+    agents: [genesis_meta, support_agent, onboarding_agent, billing_agent, analyst_agent, waltzrl_conversation_agent, se_darwin_agent]
+    task: "Automated customer success pipeline"
+    phases:
+      - phase: onboarding
+        agent: onboarding_agent
+      - phase: engagement
+        agents: [waltzrl_conversation_agent, support_agent]
+      - phase: billing_health
+        agent: billing_agent
+      - phase: analytics
+        agent: analyst_agent
+
+  - id: H06
+    name: "DevOps pipeline with monitoring"
+    difficulty: hard
+    agents: [genesis_meta, builder_agent_enhanced, qa_agent, deploy_agent, maintenance_agent, security_agent, analyst_agent, se_darwin_agent]
+    task: "Full DevOps pipeline with observability"
+    phases:
+      - phase: build
+        agent: builder_agent_enhanced
+      - phase: test_and_security
+        agents: [qa_agent, security_agent]
+      - phase: deploy
+        agent: deploy_agent
+      - phase: monitoring
+        agents: [maintenance_agent, analyst_agent]
+
+  - id: H07
+    name: "Legal compliance automation"
+    difficulty: hard
+    agents: [genesis_meta, legal_agent, security_agent, content_agent, analyst_agent, maintenance_agent, se_darwin_agent]
+    task: "Automated compliance management"
+    phases:
+      - phase: assessment
+        agents: [legal_agent, security_agent]
+      - phase: documentation
+        agents: [legal_agent, content_agent]
+      - phase: monitoring
+        agents: [analyst_agent, maintenance_agent]
+
+  - id: H08
+    name: "Product launch full stack"
+    difficulty: hard
+    agents: [genesis_meta, spec_agent, builder_agent_enhanced, qa_agent, deploy_agent, marketing_agent, seo_agent, pricing_agent, se_darwin_agent]
+    task: "Complete product launch from spec to market"
+    phases:
+      - phase: planning
+        agents: [spec_agent, pricing_agent]
+      - phase: development
+        agent: builder_agent_enhanced
+      - phase: quality
+        agent: qa_agent
+      - phase: deployment
+        agent: deploy_agent
+      - phase: marketing
+        agents: [marketing_agent, seo_agent]
+
+  - id: H09
+    name: "Incident response automation"
+    difficulty: hard
+    agents: [genesis_meta, emergency_error_specialist_agent, security_agent, support_agent, maintenance_agent, analyst_agent, se_darwin_agent]
+    task: "Automated incident response"
+    phases:
+      - phase: detection
+        agent: analyst_agent
+      - phase: diagnosis
+        agents: [emergency_error_specialist_agent, security_agent]
+      - phase: containment
+        agents: [maintenance_agent, support_agent]
+      - phase: remediation
+        agent: emergency_error_specialist_agent
+      - phase: verification
+        agents: [maintenance_agent, analyst_agent]
+
+  - id: H10
+    name: "Financial operations automation"
+    difficulty: hard
+    agents: [genesis_meta, billing_agent, finance_agent, analyst_agent, legal_agent, commerce_agent, se_darwin_agent]
+    task: "Automated financial operations"
+    phases:
+      - phase: revenue_operations
+        agent: billing_agent
+      - phase: expense_management
+        agents: [finance_agent, commerce_agent]
+      - phase: reconciliation
+        agent: finance_agent
+      - phase: compliance
+        agents: [legal_agent, analyst_agent]
+
+  - id: H11
+    name: "Resilient deployment with rollback"
+    difficulty: hard
+    agents: [genesis_meta, deploy_agent, qa_agent, maintenance_agent, emergency_error_specialist_agent, se_darwin_agent]
+    task: "Deploy with automatic rollback"
+    phases:
+      - phase: pre_deploy
+        agents: [maintenance_agent, qa_agent]
+      - phase: deploy
+        agent: deploy_agent
+      - phase: verify
+        agent: deploy_agent
+      - phase: rollback_on_failure
+        agents: [emergency_error_specialist_agent, deploy_agent]
+
+  - id: H12
+    name: "Multi-region deployment"
+    difficulty: hard
+    agents: [genesis_meta, deploy_agent, security_agent, maintenance_agent, analyst_agent, se_darwin_agent]
+    task: "Deploy to multiple regions"
+    phases:
+      - phase: security_check
+        agent: security_agent
+      - phase: deploy_regions
+        agent: deploy_agent
+        parallel: true
+        regions: ["us-east", "eu-west", "ap-south"]
+      - phase: verify_all
+        agent: deploy_agent
+      - phase: monitoring
+        agent: analyst_agent
+
+  - id: H13
+    name: "Research to product pipeline"
+    difficulty: hard
+    agents: [genesis_meta, research_discovery_agent, spec_agent, builder_agent_enhanced, qa_agent, content_agent, se_darwin_agent]
+    task: "Transform research into product"
+    phases:
+      - phase: research
+        agent: research_discovery_agent
+      - phase: specification
+        agent: spec_agent
+      - phase: implementation
+        agent: builder_agent_enhanced
+      - phase: validation
+        agents: [qa_agent, content_agent]
+
+  - id: H14
+    name: "Customer journey optimization"
+    difficulty: hard
+    agents: [genesis_meta, analyst_agent, marketing_agent, onboarding_agent, support_agent, waltzrl_feedback_agent, se_darwin_agent]
+    task: "Optimize customer journey"
+    phases:
+      - phase: analysis
+        agents: [analyst_agent, waltzrl_feedback_agent]
+      - phase: journey_mapping
+        agent: analyst_agent
+      - phase: optimization
+        agents: [marketing_agent, onboarding_agent, support_agent]
+      - phase: monitoring
+        agent: analyst_agent
+
+  - id: H15
+    name: "Business health check"
+    difficulty: hard
+    agents: [genesis_meta, analyst_agent, finance_agent, security_agent, maintenance_agent, legal_agent, se_darwin_agent]
+    task: "Comprehensive business health assessment"
+    phases:
+      - phase: financial_health
+        agent: finance_agent
+      - phase: operational_health
+        agent: maintenance_agent
+      - phase: security_health
+        agent: security_agent
+      - phase: compliance_health
+        agent: legal_agent
+      - phase: synthesis
+        agent: analyst_agent
+
+  - id: H16
+    name: "API integration suite"
+    difficulty: hard
+    agents: [genesis_meta, builder_agent_enhanced, qa_agent, security_agent, content_agent, se_darwin_agent]
+    task: "Build complete API integration"
+    phases:
+      - phase: design
+        agent: builder_agent_enhanced
+      - phase: implementation
+        agent: builder_agent_enhanced
+      - phase: testing
+        agent: qa_agent
+      - phase: security
+        agent: security_agent
+      - phase: documentation
+        agent: content_agent
+
+  - id: H17
+    name: "Multi-tenant architecture"
+    difficulty: hard
+    agents: [genesis_meta, spec_agent, builder_agent_enhanced, security_agent, deploy_agent, se_darwin_agent]
+    task: "Build multi-tenant system"
+    phases:
+      - phase: architecture
+        agent: spec_agent
+      - phase: implementation
+        agent: builder_agent_enhanced
+      - phase: security
+        agent: security_agent
+      - phase: deployment
+        agent: deploy_agent
+
+  - id: H18
+    name: "Data pipeline automation"
+    difficulty: hard
+    agents: [genesis_meta, builder_agent_enhanced, analyst_agent, qa_agent, maintenance_agent, se_darwin_agent]
+    task: "Build automated data pipeline"
+    phases:
+      - phase: design
+        agent: builder_agent_enhanced
+      - phase: implementation
+        agent: builder_agent_enhanced
+      - phase: testing
+        agent: qa_agent
+      - phase: monitoring
+        agents: [analyst_agent, maintenance_agent]
+
+  - id: H19
+    name: "Subscription platform"
+    difficulty: hard
+    agents: [genesis_meta, billing_agent, builder_agent_enhanced, legal_agent, marketing_agent, se_darwin_agent]
+    task: "Build subscription platform"
+    phases:
+      - phase: billing_setup
+        agent: billing_agent
+      - phase: integration
+        agent: builder_agent_enhanced
+      - phase: legal
+        agent: legal_agent
+      - phase: marketing
+        agent: marketing_agent
+
+  - id: H20
+    name: "Analytics platform"
+    difficulty: hard
+    agents: [genesis_meta, analyst_agent, builder_agent_enhanced, deploy_agent, security_agent, se_darwin_agent]
+    task: "Build analytics platform"
+    phases:
+      - phase: design
+        agent: analyst_agent
+      - phase: implementation
+        agent: builder_agent_enhanced
+      - phase: security
+        agent: security_agent
+      - phase: deployment
+        agent: deploy_agent
+
+  - id: H21
+    name: "Notification system"
+    difficulty: hard
+    agents: [genesis_meta, builder_agent_enhanced, email_agent, qa_agent, deploy_agent, se_darwin_agent]
+    task: "Build notification system"
+    phases:
+      - phase: design
+        agent: builder_agent_enhanced
+      - phase: email_integration
+        agent: email_agent
+      - phase: testing
+        agent: qa_agent
+      - phase: deployment
+        agent: deploy_agent
+
+  - id: H22
+    name: "Support portal"
+    difficulty: hard
+    agents: [genesis_meta, support_agent, builder_agent_enhanced, content_agent, qa_agent, se_darwin_agent]
+    task: "Build support portal"
+    phases:
+      - phase: design
+        agent: support_agent
+      - phase: implementation
+        agent: builder_agent_enhanced
+      - phase: content
+        agent: content_agent
+      - phase: testing
+        agent: qa_agent
+
+  - id: H23
+    name: "Partner integration"
+    difficulty: hard
+    agents: [genesis_meta, builder_agent_enhanced, legal_agent, billing_agent, security_agent, se_darwin_agent]
+    task: "Build partner integration"
+    phases:
+      - phase: legal
+        agent: legal_agent
+      - phase: implementation
+        agent: builder_agent_enhanced
+      - phase: billing
+        agent: billing_agent
+      - phase: security
+        agent: security_agent
+
+  - id: H24
+    name: "Marketplace platform"
+    difficulty: hard
+    agents: [genesis_meta, commerce_agent, builder_agent_enhanced, billing_agent, legal_agent, se_darwin_agent]
+    task: "Build marketplace platform"
+    phases:
+      - phase: commerce
+        agent: commerce_agent
+      - phase: implementation
+        agent: builder_agent_enhanced
+      - phase: billing
+        agent: billing_agent
+      - phase: legal
+        agent: legal_agent
+
+  - id: H25
+    name: "Workflow automation"
+    difficulty: hard
+    agents: [genesis_meta, builder_agent_enhanced, analyst_agent, qa_agent, deploy_agent, se_darwin_agent]
+    task: "Build workflow automation"
+    phases:
+      - phase: design
+        agent: analyst_agent
+      - phase: implementation
+        agent: builder_agent_enhanced
+      - phase: testing
+        agent: qa_agent
+      - phase: deployment
+        agent: deploy_agent
+
+# =============================================================================
+# HARDEST TESTS (76-100): Full Genesis orchestration
+# =============================================================================
+
+hardest_tests:
+  - id: X01
+    name: "Complete business generation"
+    difficulty: hardest
+    agents: [genesis_meta, spec_agent, builder_agent_enhanced, qa_agent, security_agent, deploy_agent, domain_name_agent, commerce_agent, billing_agent, marketing_agent, seo_agent, content_agent, legal_agent, onboarding_agent, support_agent, analyst_agent, se_darwin_agent]
+    task: "Generate, build, and launch complete SaaS business"
+    business_spec:
+      name: "InsightHub"
+      type: "analytics_saas"
+    phases: [planning, legal, development, quality, infrastructure, launch, operations]
+
+  - id: X02
+    name: "Multi-business portfolio"
+    difficulty: hardest
+    agents: [genesis_meta, analyst_agent, finance_agent, maintenance_agent, se_darwin_agent]
+    task: "Manage portfolio of 3 businesses"
+    businesses: ["TechNews", "DevTools", "EcoShop"]
+
+  - id: X03
+    name: "Disaster recovery simulation"
+    difficulty: hardest
+    agents: [genesis_meta, emergency_error_specialist_agent, maintenance_agent, deploy_agent, security_agent, support_agent, analyst_agent, se_darwin_agent]
+    task: "Simulate and recover from system failure"
+    workflow:
+      - agent: emergency_error_specialist_agent
+        method: diagnose_error
+        inputs:
+          error_context:
+            error_message: "Cascading failure detected - database, api, cache affected"
+            error_type: "infrastructure"
+            component_name: "system_cluster"
+      - agent: maintenance_agent
+        method: run_maintenance
+        inputs: {task_type: "recovery", systems: ["database", "api", "cache"]}
+      - agent: deploy_agent
+        method: deploy_application
+        inputs: {app_path: "recovery_build", environment: "production", deployment_strategy: "rolling"}
+
+  - id: X04
+    name: "Autonomous scaling"
+    difficulty: hardest
+    agents: [genesis_meta, deploy_agent, maintenance_agent, analyst_agent, billing_agent, emergency_error_specialist_agent, se_darwin_agent]
+    task: "Handle 10x traffic spike"
+    scenario:
+      traffic_multiplier: 10
+      duration_minutes: 60
+
+  - id: X05
+    name: "Business pivot execution"
+    difficulty: hardest
+    agents: [genesis_meta, spec_agent, builder_agent_enhanced, marketing_agent, content_agent, seo_agent, legal_agent, analyst_agent, se_darwin_agent]
+    task: "Execute B2C to B2B pivot"
+    pivot:
+      from: "b2c"
+      to: "b2b"
+
+  - id: X06
+    name: "HIPAA compliance transformation"
+    difficulty: hardest
+    agents: [genesis_meta, legal_agent, security_agent, builder_agent_enhanced, deploy_agent, analyst_agent, content_agent, se_darwin_agent]
+    task: "Transform for HIPAA compliance"
+    compliance_target: "HIPAA"
+
+  - id: X07
+    name: "Acquisition integration"
+    difficulty: hardest
+    agents: [genesis_meta, spec_agent, security_agent, qa_agent, builder_agent_enhanced, deploy_agent, onboarding_agent, content_agent, support_agent, marketing_agent, finance_agent, billing_agent, analyst_agent, se_darwin_agent]
+    task: "Integrate acquired company"
+    acquisition:
+      company: "SmallStartup"
+      team_size: 15
+
+  - id: X08
+    name: "Zero-downtime database migration"
+    difficulty: hardest
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, maintenance_agent, qa_agent, analyst_agent, se_darwin_agent]
+    task: "Migrate database with zero downtime"
+    migration:
+      source: "postgresql"
+      target: "cockroachdb"
+      data_size_gb: 500
+
+  - id: X09
+    name: "ML model deployment"
+    difficulty: hardest
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, security_agent, analyst_agent, darwin_agent, se_darwin_agent]
+    task: "Deploy ML model with A/B testing"
+    model:
+      name: "recommendation_engine"
+      type: "transformer"
+
+  - id: X10
+    name: "International expansion"
+    difficulty: hardest
+    agents: [genesis_meta, builder_agent_enhanced, content_agent, legal_agent, marketing_agent, seo_agent, billing_agent, deploy_agent, se_darwin_agent]
+    task: "Expand to 5 new markets"
+    markets: ["de", "fr", "jp", "br", "kr"]
+
+  - id: X11
+    name: "Competitive response"
+    difficulty: hardest
+    agents: [genesis_meta, analyst_agent, marketing_agent, pricing_agent, builder_agent_enhanced, content_agent, se_darwin_agent]
+    task: "Respond to competitor launch"
+    response_time_hours: 24
+
+  - id: X12
+    name: "Data breach response"
+    difficulty: hardest
+    agents: [genesis_meta, security_agent, emergency_error_specialist_agent, legal_agent, support_agent, content_agent, analyst_agent, se_darwin_agent]
+    task: "Handle data breach incident"
+    incident:
+      type: "data_breach"
+      severity: "critical"
+
+  - id: X13
+    name: "Platform rewrite"
+    difficulty: hardest
+    agents: [genesis_meta, spec_agent, builder_agent_enhanced, qa_agent, deploy_agent, analyst_agent, se_darwin_agent]
+    task: "Rewrite legacy platform"
+    rewrite:
+      source: "legacy_monolith"
+      target: "microservices"
+
+  - id: X14
+    name: "Cost optimization"
+    difficulty: hardest
+    agents: [genesis_meta, analyst_agent, finance_agent, deploy_agent, maintenance_agent, billing_agent, se_darwin_agent]
+    task: "Reduce costs by 40%"
+    target:
+      cost_reduction: 40
+      maintain_performance: true
+
+  - id: X15
+    name: "Agent self-improvement"
+    difficulty: hardest
+    agents: [genesis_meta, se_darwin_agent, darwin_agent, reflection_agent, analyst_agent, qa_agent]
+    task: "Run self-improvement cycle"
+    improvement_target: "all_agents"
+
+  - id: X16
+    name: "Fraud detection system"
+    difficulty: hardest
+    agents: [genesis_meta, builder_agent_enhanced, security_agent, analyst_agent, billing_agent, emergency_error_specialist_agent, se_darwin_agent]
+    task: "Build fraud detection system"
+    requirements:
+      latency_ms: 100
+      accuracy: 99.5
+
+  - id: X17
+    name: "White-label platform"
+    difficulty: hardest
+    agents: [genesis_meta, spec_agent, builder_agent_enhanced, deploy_agent, billing_agent, legal_agent, marketing_agent, se_darwin_agent]
+    task: "Generate white-label version"
+    partner:
+      name: "Enterprise Partner"
+
+  - id: X18
+    name: "A/B testing optimization"
+    difficulty: hardest
+    agents: [genesis_meta, analyst_agent, builder_agent_enhanced, marketing_agent, darwin_agent, se_darwin_agent]
+    task: "Run autonomous A/B testing"
+    funnels: ["signup", "onboarding", "upgrade", "retention"]
+
+  - id: X19
+    name: "API versioning"
+    difficulty: hardest
+    agents: [genesis_meta, spec_agent, builder_agent_enhanced, qa_agent, deploy_agent, content_agent, support_agent, se_darwin_agent]
+    task: "Launch new API version"
+    api:
+      current: "v1"
+      new: "v2"
+
+  - id: X20
+    name: "Chaos engineering"
+    difficulty: hardest
+    agents: [genesis_meta, maintenance_agent, security_agent, deploy_agent, emergency_error_specialist_agent, analyst_agent, se_darwin_agent]
+    task: "Run chaos experiments"
+    experiments: ["instance_failure", "network_partition", "latency_injection"]
+
+  - id: X21
+    name: "Full autonomous operation"
+    difficulty: hardest
+    agents: [genesis_meta, analyst_agent, builder_agent_enhanced, deploy_agent, billing_agent, emergency_error_specialist_agent, marketing_agent, support_agent, onboarding_agent, qa_agent, seo_agent, se_darwin_agent]
+    task: "Run Genesis autonomously for 24h simulation"
+    workflow:
+      - agent: analyst_agent
+        method: analyze_metrics
+        inputs: {metric_names: ["system_health", "revenue", "errors"], time_period: "24h", granularity: "hourly"}
+      - agent: maintenance_agent
+        method: run_maintenance
+        inputs: {task_type: "scheduled", systems: ["all"]}
+      - agent: billing_agent
+        method: generate_report
+        inputs: {report_type: "daily_summary"}
+
+  - id: X22
+    name: "Cross-business learning"
+    difficulty: hardest
+    agents: [genesis_meta, se_darwin_agent, reflection_agent, analyst_agent]
+    task: "Transfer learnings between businesses"
+
+  - id: X23
+    name: "Regulatory adaptation"
+    difficulty: hardest
+    agents: [genesis_meta, legal_agent, security_agent, builder_agent_enhanced, deploy_agent, content_agent, se_darwin_agent]
+    task: "Adapt to new regulation in 30 days"
+    deadline_days: 30
+
+  - id: X24
+    name: "Peak season preparation"
+    difficulty: hardest
+    agents: [genesis_meta, deploy_agent, maintenance_agent, analyst_agent, support_agent, marketing_agent, se_darwin_agent]
+    task: "Prepare for 100x peak traffic"
+    expected_multiplier: 100
+
+  - id: X25
+    name: "Ecosystem optimization"
+    difficulty: hardest
+    agents: [genesis_meta, analyst_agent, deploy_agent, maintenance_agent, billing_agent, security_agent, qa_agent, darwin_agent, reflection_agent, se_darwin_agent]
+    task: "Optimize entire Genesis ecosystem"
+    workflow:
+      - agent: analyst_agent
+        method: analyze_metrics
+        inputs: {metric_names: ["performance", "cost", "reliability"], time_period: "30d", granularity: "daily"}
+      - agent: se_darwin_agent
+        method: optimize_workflow
+        inputs: {workflow_type: "ecosystem", targets: ["performance", "cost", "reliability"]}
+      - agent: reflection_agent
+        method: generate_insights
+        inputs: {context: "ecosystem_optimization", depth: "comprehensive"}

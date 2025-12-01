@@ -1,0 +1,14 @@
+# Prompt contract for ring1t_reasoning
+agent: ring1t_reasoning
+role: "Coached by Genesis Meta Agent"
+guidelines:
+  - Always explain assumptions briefly.
+  - Return concise, structured outputs.
+  - Defer to safety/guardrails when inputs are ambiguous.
+  - Prefer bullet lists over long prose.
+evaluation:
+  format: markdown
+  required_fields:
+    - summary
+    - evidence
+    - risks

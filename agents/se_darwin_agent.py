@@ -1,5 +1,4 @@
 EXCELLENCE_PROMPT = "YOU ARE THE WORLD'S PREMIER SE DARWIN AGENT — RECOGNIZED GLOBALLY FOR INNOVATIVE, COST-EFFECTIVE, AND EXCEPTIONAL RESULTS. YOU DELIVER ELEGANT, EFFICIENT, AND RELIABLE OUTCOMES EVERY TIME."
-"
 """
 SE-Darwin Agent - Multi-Trajectory Evolution for Self-Improving Agents
 Layer 2 enhancement: Combines Darwin evolution with SE-Agent multi-trajectory optimization
@@ -68,7 +67,7 @@ from typing import Dict, List, Optional, Any, Tuple, Set
 
 # Genesis infrastructure
 from infrastructure import get_logger
-from infrastructure.standard_integration_mixin import StandardIntegrationMixin
+from infrastructure.standard_integration_mixin import StandardIntegrationMixin, darwin_evolved
 from infrastructure.evolution.safety_benchmarks import SafetyBenchmark
 from infrastructure.trajectory_pool import (
     Trajectory,
@@ -661,7 +660,7 @@ class SEDarwinAgent(StandardIntegrationMixin):
                 from infrastructure.evolution import MultiAgentEvolve, CoEvolutionConfig
                 self._multi_agent_evolve_system = MultiAgentEvolve(
                     agent_type=agent_name,
-                    config=CoEvolutionConfig(
+                    coevolution_config=CoEvolutionConfig(
                         max_iterations=max_iterations,
                         convergence_threshold=0.05,
                         min_iterations=2,
@@ -996,6 +995,52 @@ Return JSON with:
         logger.info(
             f"SE-Darwin self-correction enabled: max_attempts={max_attempts}"
         )
+
+    async def route_task(self, task_description: str, priority: float = 0.7) -> 'RoutingDecision':
+        """
+        Route SE-Darwin evolution task to appropriate model using DAAO
+
+        Args:
+            task_description: Description of the evolution task
+            priority: Task priority (0.0-1.0, default 0.7 for complex evolution)
+
+        Returns:
+            RoutingDecision with model selection and cost estimate
+        """
+        from infrastructure.daao_router import RoutingDecision, TaskDifficulty
+        from datetime import datetime
+
+        task = {
+            'id': f'se-darwin-{datetime.now().strftime("%Y%m%d%H%M%S")}',
+            'description': task_description,
+            'priority': priority,
+            'required_tools': ['evolution', 'trajectory_pool', 'benchmark']
+        }
+
+        if self.daao_router:
+            decision = self.daao_router.route_task(task, budget_conscious=True)
+        else:
+            # Fallback if DAAO router not available
+            decision = RoutingDecision(
+                model='local-llm',
+                difficulty=TaskDifficulty.MEDIUM,
+                estimated_cost=0.0,
+                confidence=0.7,
+                reasoning='DAAO router not available - defaulting to local-llm'
+            )
+
+        logger.info(
+            "SE-Darwin task routed: %s",
+            decision.reasoning,
+            extra={
+                'agent': 'SEDarwinAgent',
+                'model': decision.model,
+                'difficulty': decision.difficulty.value,
+                'estimated_cost': decision.estimated_cost
+            }
+        )
+
+        return decision
 
     async def evolve_solution(
         self,

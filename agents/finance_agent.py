@@ -63,7 +63,7 @@ from infrastructure.trajectory_pool import TrajectoryPool
 from infrastructure.casebank import CaseBank
 
 # Import StandardIntegrationMixin for ALL 283 integrations
-from infrastructure.standard_integration_mixin import StandardIntegrationMixin
+from infrastructure.standard_integration_mixin import StandardIntegrationMixin, darwin_evolved
 
 logger = logging.getLogger(__name__)
 
@@ -108,15 +108,15 @@ class FinanceAgent(StandardIntegrationMixin):
 
         # AgentEvolver integrations (76-80) - CRITICAL
         self.experience_buffer = ExperienceBuffer(max_size=10000)
-        self.hybrid_policy = HybridPolicy(exploration_rate=0.15)
+        self.hybrid_policy = HybridPolicy(exploit_ratio=0.85, explore_ratio=0.15)
         self.attribution_engine = AttributionEngine()
-        self.multi_agent_sharing = MultiAgentSharing(agent_id=self.agent_name)
+        self.multi_agent_sharing = MultiAgentSharing(experience_buffer=self.experience_buffer)
         self.self_questioning = None  # Lazy-loaded when needed
 
         # DeepEyesV2 integrations (81-83) - CRITICAL
-        self.metrics_collector = BaselineMetricsCollector(agent_name=self.agent_name)
-        self.tool_reliability_sft = ColdStartSFT(agent_name=self.agent_name)
-        self.tool_reliability_rl = RLRefinement(agent_name=self.agent_name)
+        self.metrics_collector = BaselineMetricsCollector()
+        self.tool_reliability_sft = ColdStartSFT()
+        self.tool_reliability_rl = RLRefinement()
 
         # Observability integrations - CRITICAL
         self.monitor = get_monitor()
@@ -126,7 +126,7 @@ class FinanceAgent(StandardIntegrationMixin):
         self.tumix_termination = get_tumix_termination()
 
         # Memory & learning integrations
-        self.trajectory_pool = TrajectoryPool()
+        self.trajectory_pool = TrajectoryPool(agent_name=self.agent_name)
         self.casebank = CaseBank()
 
         try:

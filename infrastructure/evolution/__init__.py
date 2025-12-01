@@ -110,6 +110,21 @@ from infrastructure.evolution.verifier_agent import (
     get_verifier_agent
 )
 
+# Multi-Agent Evolve orchestration
+try:
+    from infrastructure.evolution.multi_agent_evolve import (
+        MultiAgentEvolve,
+        CoEvolutionConfig,
+        CoEvolutionResult
+    )
+    MULTI_AGENT_EVOLVE_AVAILABLE = True
+except ImportError as e:
+    # Optional dependency - may not be fully configured
+    MultiAgentEvolve = None
+    CoEvolutionConfig = None
+    CoEvolutionResult = None
+    MULTI_AGENT_EVOLVE_AVAILABLE = False
+
 __all__ = [
     # Memory-Aware Darwin
     "MemoryAwareDarwin",
@@ -125,5 +140,10 @@ __all__ = [
     "VerifierAgent",
     "VerifierConfig",
     "VerificationResult",
-    "get_verifier_agent"
+    "get_verifier_agent",
+    # Multi-Agent Evolve (Orchestration)
+    "MultiAgentEvolve",
+    "CoEvolutionConfig",
+    "CoEvolutionResult",
+    "MULTI_AGENT_EVOLVE_AVAILABLE"
 ]

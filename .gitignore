@@ -25,6 +25,7 @@ infra
 .env.staging
  production.env
  production.env.example
+.env.acontext
 
 # Config directory environment files (CRITICAL)
 config/production.env

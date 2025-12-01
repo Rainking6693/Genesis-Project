@@ -1,0 +1,1628 @@
+# Day 2 Bootcamp - Batch 4: 100 Test Scenarios
+# Genesis + 11 Agents: API, Backend Integration & Data Management
+# IDs: B4_E01-E25 (Easy), B4_I01-I25 (Intermediate), B4_H01-H25 (Hard), B4_X01-X25 (Extreme)
+
+metadata:
+  version: "4.0"
+  batch: 4
+  total_tests: 100
+  focus: "api_backend_data"
+  agents:
+    - genesis_meta
+    - analyst_agent
+    - builder_agent_enhanced
+    - deploy_agent
+    - billing_agent
+    - emergency_error_specialist_agent
+    - marketing_agent
+    - support_agent
+    - onboarding_agent
+    - qa_agent
+    - se_darwin_agent
+    - seo_agent
+
+# =============================================================================
+# EASY TESTS (B4_E01-E25): Solo Agent Tasks - API Fundamentals
+# =============================================================================
+easy_tests:
+  # Builder Agent - API Components (10 tests)
+  - id: B4_E01
+    name: "Create REST API Client"
+    difficulty: easy
+    type: solo
+    agent: builder_agent_enhanced
+    task: |
+      Create a reusable REST API client with fetch wrapper.
+      Include error handling and timeout support.
+    success_criteria:
+      - fetch_wrapper: true
+      - error_handling: true
+      - timeout_support: true
+    timeout_seconds: 90
+    reward_weight: 1.0
+
+  - id: B4_E02
+    name: "Build GraphQL Client"
+    difficulty: easy
+    type: solo
+    agent: builder_agent_enhanced
+    task: |
+      Create a simple GraphQL client with query/mutation support.
+    success_criteria:
+      - query_support: true
+      - mutation_support: true
+      - error_handling: true
+    timeout_seconds: 90
+    reward_weight: 1.0
+
+  - id: B4_E03
+    name: "Create Data Table Component"
+    difficulty: easy
+    type: solo
+    agent: builder_agent_enhanced
+    task: |
+      Build a data table with server-side pagination support.
+    success_criteria:
+      - pagination_params: true
+      - loading_state: true
+      - error_state: true
+    timeout_seconds: 90
+    reward_weight: 1.0
+
+  - id: B4_E04
+    name: "Build Form with API Submit"
+    difficulty: easy
+    type: solo
+    agent: builder_agent_enhanced
+    task: |
+      Create a form that submits to an API endpoint.
+    success_criteria:
+      - form_fields: true
+      - api_submit: true
+      - loading_state: true
+      - success_feedback: true
+    timeout_seconds: 75
+    reward_weight: 1.0
+
+  - id: B4_E05
+    name: "Create Search with Debounce"
+    difficulty: easy
+    type: solo
+    agent: builder_agent_enhanced
+    task: |
+      Build search input with API debouncing.
+    success_criteria:
+      - debounce_logic: true
+      - api_call: true
+      - results_display: true
+    timeout_seconds: 75
+    reward_weight: 1.0
+
+  - id: B4_E06
+    name: "Build Infinite Scroll List"
+    difficulty: easy
+    type: solo
+    agent: builder_agent_enhanced
+    task: |
+      Create infinite scroll with cursor-based pagination.
+    success_criteria:
+      - scroll_detection: true
+      - cursor_tracking: true
+      - loading_more: true
+    timeout_seconds: 90
+    reward_weight: 1.0
+
+  - id: B4_E07
+    name: "Create Auth Token Handler"
+    difficulty: easy
+    type: solo
+    agent: builder_agent_enhanced
+    task: |
+      Build token management for API authentication.
+    success_criteria:
+      - token_storage: true
+      - refresh_logic: true
+      - header_injection: true
+    timeout_seconds: 75
+    reward_weight: 1.0
+
+  - id: B4_E08
+    name: "Build Error Boundary for API"
+    difficulty: easy
+    type: solo
+    agent: builder_agent_enhanced
+    task: |
+      Create error boundary for API failure handling.
+    success_criteria:
+      - error_catch: true
+      - fallback_ui: true
+      - retry_option: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B4_E09
+    name: "Create Loading States System"
+    difficulty: easy
+    type: solo
+    agent: builder_agent_enhanced
+    task: |
+      Build reusable loading states for API calls.
+    success_criteria:
+      - loading_spinner: true
+      - skeleton_loader: true
+      - progress_bar: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B4_E10
+    name: "Build Retry Logic Component"
+    difficulty: easy
+    type: solo
+    agent: builder_agent_enhanced
+    task: |
+      Create automatic retry with exponential backoff.
+    success_criteria:
+      - retry_count: true
+      - backoff_logic: true
+      - max_retries: true
+    timeout_seconds: 75
+    reward_weight: 1.0
+
+  # Deploy Agent - Backend Configs (5 tests)
+  - id: B4_E11
+    name: "Create API Route Template"
+    difficulty: easy
+    type: solo
+    agent: deploy_agent
+    task: |
+      Generate Next.js API route template with middleware.
+    success_criteria:
+      - route_handler: true
+      - middleware_setup: true
+      - error_handling: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B4_E12
+    name: "Build Environment Config"
+    difficulty: easy
+    type: solo
+    agent: deploy_agent
+    task: |
+      Create environment configuration for API keys.
+    success_criteria:
+      - env_validation: true
+      - type_safety: true
+      - fallback_values: true
+    timeout_seconds: 45
+    reward_weight: 1.0
+
+  - id: B4_E13
+    name: "Generate OpenAPI Spec Shell"
+    difficulty: easy
+    type: solo
+    agent: deploy_agent
+    task: |
+      Create basic OpenAPI specification for REST API.
+    success_criteria:
+      - valid_openapi: true
+      - endpoints_defined: true
+      - schemas_defined: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B4_E14
+    name: "Create Database Migration Template"
+    difficulty: easy
+    type: solo
+    agent: deploy_agent
+    task: |
+      Generate database migration file template.
+    success_criteria:
+      - up_migration: true
+      - down_migration: true
+      - timestamp_naming: true
+    timeout_seconds: 45
+    reward_weight: 1.0
+
+  - id: B4_E15
+    name: "Build CORS Configuration"
+    difficulty: easy
+    type: solo
+    agent: deploy_agent
+    task: |
+      Create CORS configuration for API.
+    success_criteria:
+      - origin_config: true
+      - methods_config: true
+      - headers_config: true
+    timeout_seconds: 45
+    reward_weight: 1.0
+
+  # QA Agent - API Testing (5 tests)
+  - id: B4_E16
+    name: "Write API Mock Tests"
+    difficulty: easy
+    type: solo
+    agent: qa_agent
+    task: |
+      Create mock server setup for API testing.
+    success_criteria:
+      - mock_server: true
+      - response_mocks: true
+      - test_isolation: true
+    timeout_seconds: 75
+    reward_weight: 1.0
+
+  - id: B4_E17
+    name: "Build API Error Tests"
+    difficulty: easy
+    type: solo
+    agent: qa_agent
+    task: |
+      Write tests for API error scenarios.
+    success_criteria:
+      - 400_tests: true
+      - 401_tests: true
+      - 500_tests: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B4_E18
+    name: "Create Integration Test Setup"
+    difficulty: easy
+    type: solo
+    agent: qa_agent
+    task: |
+      Set up integration test environment for APIs.
+    success_criteria:
+      - test_database: true
+      - setup_teardown: true
+      - test_fixtures: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B4_E19
+    name: "Write Rate Limit Tests"
+    difficulty: easy
+    type: solo
+    agent: qa_agent
+    task: |
+      Create tests for API rate limiting.
+    success_criteria:
+      - limit_tests: true
+      - retry_tests: true
+      - header_tests: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B4_E20
+    name: "Build API Response Validators"
+    difficulty: easy
+    type: solo
+    agent: qa_agent
+    task: |
+      Create response schema validators for tests.
+    success_criteria:
+      - schema_validation: true
+      - type_checking: true
+      - required_fields: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  # Support/Analyst Agent (5 tests)
+  - id: B4_E21
+    name: "Create API Documentation"
+    difficulty: easy
+    type: solo
+    agent: support_agent
+    task: |
+      Write API endpoint documentation for developers.
+    success_criteria:
+      - endpoint_descriptions: true
+      - request_examples: true
+      - response_examples: true
+    timeout_seconds: 75
+    reward_weight: 1.0
+
+  - id: B4_E22
+    name: "Build API Error Codes Guide"
+    difficulty: easy
+    type: solo
+    agent: support_agent
+    task: |
+      Create error codes reference documentation.
+    success_criteria:
+      - error_codes: true
+      - descriptions: true
+      - solutions: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B4_E23
+    name: "Generate API Metrics Template"
+    difficulty: easy
+    type: solo
+    agent: analyst_agent
+    task: |
+      Create template for API metrics tracking.
+    success_criteria:
+      - latency_metrics: true
+      - error_metrics: true
+      - usage_metrics: true
+    timeout_seconds: 45
+    reward_weight: 1.0
+
+  - id: B4_E24
+    name: "Write API Best Practices"
+    difficulty: easy
+    type: solo
+    agent: support_agent
+    task: |
+      Document API usage best practices guide.
+    success_criteria:
+      - authentication: true
+      - pagination: true
+      - error_handling: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: B4_E25
+    name: "Create API Changelog Template"
+    difficulty: easy
+    type: solo
+    agent: support_agent
+    task: |
+      Build API changelog/versioning documentation template.
+    success_criteria:
+      - version_format: true
+      - change_categories: true
+      - migration_notes: true
+    timeout_seconds: 45
+    reward_weight: 1.0
+
+# =============================================================================
+# INTERMEDIATE TESTS (B4_I01-I25): Team Tasks - API Integration
+# =============================================================================
+intermediate_tests:
+  # Builder + Deploy Teams (8 tests)
+  - id: B4_I01
+    name: "Full CRUD API Routes"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent]
+    task: |
+      Create complete CRUD API routes for a resource.
+    success_criteria:
+      - create_endpoint: true
+      - read_endpoints: true
+      - update_endpoint: true
+      - delete_endpoint: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B4_I02
+    name: "API with Authentication"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent]
+    task: |
+      Build protected API routes with JWT authentication.
+    success_criteria:
+      - jwt_middleware: true
+      - protected_routes: true
+      - token_refresh: true
+      - error_responses: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B4_I03
+    name: "File Upload API"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent]
+    task: |
+      Create file upload API with cloud storage.
+    success_criteria:
+      - upload_endpoint: true
+      - size_validation: true
+      - type_validation: true
+      - storage_integration: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B4_I04
+    name: "Search API with Filters"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent]
+    task: |
+      Build search API with multiple filter options.
+    success_criteria:
+      - text_search: true
+      - filter_params: true
+      - sort_options: true
+      - pagination: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B4_I05
+    name: "Webhook Handler System"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent]
+    task: |
+      Create webhook receiving and processing system.
+    success_criteria:
+      - webhook_endpoint: true
+      - signature_verify: true
+      - event_processing: true
+      - retry_handling: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B4_I06
+    name: "Batch Processing API"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent]
+    task: |
+      Build API for batch operations with progress tracking.
+    success_criteria:
+      - batch_endpoint: true
+      - progress_tracking: true
+      - partial_failure: true
+      - result_retrieval: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B4_I07
+    name: "Export API with Formats"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent]
+    task: |
+      Create data export API supporting multiple formats.
+    success_criteria:
+      - csv_export: true
+      - json_export: true
+      - excel_export: true
+      - async_generation: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B4_I08
+    name: "Import API with Validation"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent]
+    task: |
+      Build data import API with validation preview.
+    success_criteria:
+      - file_parsing: true
+      - validation_preview: true
+      - error_report: true
+      - confirm_import: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  # Builder + QA Teams (8 tests)
+  - id: B4_I09
+    name: "API with Full Test Suite"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, qa_agent]
+    task: |
+      Create API endpoint with comprehensive tests.
+    success_criteria:
+      - unit_tests: true
+      - integration_tests: true
+      - error_tests: true
+      - performance_tests: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B4_I10
+    name: "Form Submit with Validation"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, qa_agent]
+    task: |
+      Build form with client/server validation and tests.
+    success_criteria:
+      - client_validation: true
+      - server_validation: true
+      - error_display: true
+      - tests: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B4_I11
+    name: "Real-time Data Subscription"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, qa_agent]
+    task: |
+      Create real-time data subscription component.
+    success_criteria:
+      - websocket_connection: true
+      - reconnect_logic: true
+      - data_sync: true
+      - tests: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B4_I12
+    name: "Optimistic Updates"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, qa_agent]
+    task: |
+      Implement optimistic updates for API mutations.
+    success_criteria:
+      - optimistic_update: true
+      - rollback_logic: true
+      - conflict_handling: true
+      - tests: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B4_I13
+    name: "API Cache Layer"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, qa_agent]
+    task: |
+      Build caching layer for API responses.
+    success_criteria:
+      - cache_storage: true
+      - invalidation: true
+      - stale_while_revalidate: true
+      - tests: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B4_I14
+    name: "Pagination Component Suite"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, qa_agent]
+    task: |
+      Create pagination components with API integration.
+    success_criteria:
+      - offset_pagination: true
+      - cursor_pagination: true
+      - page_size_select: true
+      - tests: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B4_I15
+    name: "Multi-step API Wizard"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, qa_agent]
+    task: |
+      Build multi-step form with draft saving API.
+    success_criteria:
+      - draft_save: true
+      - step_validation: true
+      - resume_flow: true
+      - tests: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B4_I16
+    name: "API State Management"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, qa_agent]
+    task: |
+      Create state management for API data.
+    success_criteria:
+      - query_state: true
+      - mutation_state: true
+      - cache_sync: true
+      - tests: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  # Analyst + Builder Teams (5 tests)
+  - id: B4_I17
+    name: "Analytics Dashboard API"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, analyst_agent]
+    task: |
+      Create analytics data fetching with aggregations.
+    success_criteria:
+      - time_series: true
+      - aggregations: true
+      - comparisons: true
+      - export_data: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B4_I18
+    name: "Report Generation API"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, analyst_agent]
+    task: |
+      Build report generation with scheduling.
+    success_criteria:
+      - report_templates: true
+      - data_queries: true
+      - pdf_generation: true
+      - scheduling: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B4_I19
+    name: "Data Visualization API"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, analyst_agent]
+    task: |
+      Create API for chart data with transformations.
+    success_criteria:
+      - data_transform: true
+      - chart_formats: true
+      - drill_down: true
+      - caching: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B4_I20
+    name: "Metrics Collection API"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, analyst_agent]
+    task: |
+      Build API for collecting and querying metrics.
+    success_criteria:
+      - metric_ingestion: true
+      - time_bucketing: true
+      - percentiles: true
+      - alerts_api: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B4_I21
+    name: "A/B Test API"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, analyst_agent]
+    task: |
+      Create API for A/B test assignment and tracking.
+    success_criteria:
+      - variant_assignment: true
+      - event_tracking: true
+      - results_api: true
+      - segment_targeting: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  # Billing + Builder Teams (4 tests)
+  - id: B4_I22
+    name: "Payment API Integration"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, billing_agent]
+    task: |
+      Integrate Stripe payment API with checkout.
+    success_criteria:
+      - checkout_session: true
+      - payment_intent: true
+      - webhook_handler: true
+      - error_handling: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B4_I23
+    name: "Subscription API"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, billing_agent]
+    task: |
+      Create subscription management API endpoints.
+    success_criteria:
+      - create_subscription: true
+      - update_subscription: true
+      - cancel_subscription: true
+      - proration_handling: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B4_I24
+    name: "Invoice API"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, billing_agent]
+    task: |
+      Build invoice generation and retrieval API.
+    success_criteria:
+      - invoice_create: true
+      - invoice_list: true
+      - pdf_generation: true
+      - payment_link: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: B4_I25
+    name: "Usage Metering API"
+    difficulty: intermediate
+    type: team
+    agents: [builder_agent_enhanced, billing_agent]
+    task: |
+      Create usage-based billing metering API.
+    success_criteria:
+      - usage_tracking: true
+      - meter_events: true
+      - usage_summary: true
+      - billing_integration: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+# =============================================================================
+# HARD TESTS (B4_H01-H25): Complex Multi-Agent Tasks
+# =============================================================================
+hard_tests:
+  # Full API Systems (10 tests)
+  - id: B4_H01
+    name: "Complete REST API"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Build complete REST API with auth, CRUD, and docs.
+    success_criteria:
+      - authentication: true
+      - crud_operations: true
+      - api_docs: true
+      - rate_limiting: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B4_H02
+    name: "GraphQL API Server"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Create GraphQL API with subscriptions.
+    success_criteria:
+      - schema_design: true
+      - resolvers: true
+      - subscriptions: true
+      - dataloaders: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B4_H03
+    name: "API Gateway System"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Build API gateway with routing and transformation.
+    success_criteria:
+      - route_mapping: true
+      - request_transform: true
+      - response_transform: true
+      - health_checks: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B4_H04
+    name: "Real-time API System"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Create real-time API with WebSocket and SSE.
+    success_criteria:
+      - websocket_api: true
+      - sse_api: true
+      - room_management: true
+      - presence_system: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B4_H05
+    name: "Multi-tenant API"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Build multi-tenant API with isolation.
+    success_criteria:
+      - tenant_routing: true
+      - data_isolation: true
+      - tenant_config: true
+      - cross_tenant_block: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B4_H06
+    name: "API Versioning System"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Create API with version management.
+    success_criteria:
+      - version_routing: true
+      - deprecation_headers: true
+      - migration_support: true
+      - docs_per_version: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B4_H07
+    name: "Async Job API"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Build async job processing API.
+    success_criteria:
+      - job_submission: true
+      - status_polling: true
+      - result_retrieval: true
+      - job_cancellation: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B4_H08
+    name: "Notification API System"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent, support_agent]
+    task: |
+      Create notification API with multiple channels.
+    success_criteria:
+      - email_channel: true
+      - push_channel: true
+      - sms_channel: true
+      - preference_management: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B4_H09
+    name: "Search API with Elasticsearch"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent, se_darwin_agent]
+    task: |
+      Build advanced search API with full-text search.
+    success_criteria:
+      - full_text_search: true
+      - faceted_search: true
+      - autocomplete: true
+      - relevance_tuning: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B4_H10
+    name: "Audit Log API"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Create comprehensive audit logging API.
+    success_criteria:
+      - event_logging: true
+      - query_api: true
+      - retention_policy: true
+      - export_capability: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  # Data Management APIs (10 tests)
+  - id: B4_H11
+    name: "Data Import/Export System"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent, analyst_agent]
+    task: |
+      Build data import/export with transformation.
+    success_criteria:
+      - import_api: true
+      - export_api: true
+      - transform_rules: true
+      - validation_report: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B4_H12
+    name: "Data Sync API"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Create bi-directional data sync API.
+    success_criteria:
+      - sync_protocol: true
+      - conflict_resolution: true
+      - delta_sync: true
+      - sync_status: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B4_H13
+    name: "Data Pipeline API"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent, analyst_agent]
+    task: |
+      Build data pipeline orchestration API.
+    success_criteria:
+      - pipeline_definition: true
+      - step_execution: true
+      - error_handling: true
+      - monitoring: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B4_H14
+    name: "Backup and Restore API"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent, emergency_error_specialist_agent]
+    task: |
+      Create backup and restore management API.
+    success_criteria:
+      - backup_create: true
+      - backup_list: true
+      - restore_point: true
+      - verification: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B4_H15
+    name: "Data Migration API"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Build data migration management API.
+    success_criteria:
+      - migration_plan: true
+      - rollback_support: true
+      - progress_tracking: true
+      - validation: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B4_H16
+    name: "Feature Flag API"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Create feature flag management API.
+    success_criteria:
+      - flag_crud: true
+      - targeting_rules: true
+      - evaluation_api: true
+      - analytics: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B4_H17
+    name: "Configuration API"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Build dynamic configuration management API.
+    success_criteria:
+      - config_crud: true
+      - environment_scoping: true
+      - change_history: true
+      - real_time_update: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B4_H18
+    name: "Template Engine API"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Create template rendering API with variables.
+    success_criteria:
+      - template_crud: true
+      - variable_substitution: true
+      - preview_render: true
+      - versioning: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B4_H19
+    name: "Localization API"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent, support_agent]
+    task: |
+      Build localization/i18n management API.
+    success_criteria:
+      - translation_crud: true
+      - locale_management: true
+      - fallback_logic: true
+      - import_export: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B4_H20
+    name: "Media Processing API"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Create media processing and transformation API.
+    success_criteria:
+      - image_resize: true
+      - format_conversion: true
+      - video_transcode: true
+      - async_processing: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  # Security & Compliance APIs (5 tests)
+  - id: B4_H21
+    name: "OAuth2 Provider API"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent, emergency_error_specialist_agent]
+    task: |
+      Build OAuth2 authorization server API.
+    success_criteria:
+      - authorization_code: true
+      - token_endpoint: true
+      - refresh_tokens: true
+      - client_credentials: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B4_H22
+    name: "RBAC Permission API"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Create role-based access control API.
+    success_criteria:
+      - role_management: true
+      - permission_assignment: true
+      - access_check: true
+      - inheritance: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B4_H23
+    name: "Data Encryption API"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent, emergency_error_specialist_agent]
+    task: |
+      Build data encryption at rest API.
+    success_criteria:
+      - key_management: true
+      - encrypt_api: true
+      - decrypt_api: true
+      - key_rotation: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B4_H24
+    name: "Compliance Reporting API"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent, analyst_agent]
+    task: |
+      Create compliance and audit reporting API.
+    success_criteria:
+      - report_generation: true
+      - data_retention: true
+      - export_formats: true
+      - scheduling: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+  - id: B4_H25
+    name: "API Security Scanner"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent, emergency_error_specialist_agent]
+    task: |
+      Build API security scanning and testing.
+    success_criteria:
+      - vulnerability_scan: true
+      - auth_tests: true
+      - injection_tests: true
+      - report_generation: true
+      - tests: true
+    timeout_seconds: 300
+    reward_weight: 2.5
+
+# =============================================================================
+# EXTREME TESTS (B4_X01-X25): Genesis-Led Full API Platforms
+# =============================================================================
+extreme_tests:
+  # Full API Platforms (15 tests)
+  - id: B4_X01
+    name: "Complete SaaS API Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, billing_agent, support_agent]
+    task: |
+      Build complete SaaS API with auth, billing, multi-tenant.
+    success_criteria:
+      - authentication: true
+      - multi_tenant: true
+      - billing_integration: true
+      - rate_limiting: true
+      - api_docs: true
+      - sdk_generation: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B4_X02
+    name: "E-commerce API Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, billing_agent, seo_agent]
+    task: |
+      Build complete e-commerce API with inventory, orders, payments.
+    success_criteria:
+      - product_api: true
+      - inventory_api: true
+      - order_api: true
+      - payment_api: true
+      - shipping_api: true
+      - webhook_system: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B4_X03
+    name: "Communication API Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, support_agent]
+    task: |
+      Build communication API with email, SMS, push, chat.
+    success_criteria:
+      - email_api: true
+      - sms_api: true
+      - push_api: true
+      - chat_api: true
+      - template_system: true
+      - analytics: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B4_X04
+    name: "Content Management API"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, seo_agent, support_agent]
+    task: |
+      Build headless CMS API with content types, media.
+    success_criteria:
+      - content_types: true
+      - media_management: true
+      - versioning: true
+      - publishing_workflow: true
+      - localization: true
+      - webhooks: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B4_X05
+    name: "Identity Platform API"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, emergency_error_specialist_agent]
+    task: |
+      Build identity management API with SSO, MFA.
+    success_criteria:
+      - user_management: true
+      - sso_integration: true
+      - mfa_support: true
+      - session_management: true
+      - social_login: true
+      - audit_logging: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B4_X06
+    name: "Analytics API Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, analyst_agent]
+    task: |
+      Build analytics data collection and query API.
+    success_criteria:
+      - event_ingestion: true
+      - query_api: true
+      - dashboard_api: true
+      - report_generation: true
+      - real_time_stream: true
+      - retention_management: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B4_X07
+    name: "IoT Data Platform API"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, analyst_agent]
+    task: |
+      Build IoT device data management API.
+    success_criteria:
+      - device_registry: true
+      - telemetry_ingestion: true
+      - command_api: true
+      - alerts_rules: true
+      - time_series_query: true
+      - device_groups: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B4_X08
+    name: "Scheduling API Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, billing_agent]
+    task: |
+      Build appointment scheduling API platform.
+    success_criteria:
+      - availability_api: true
+      - booking_api: true
+      - calendar_sync: true
+      - reminder_system: true
+      - payment_integration: true
+      - resource_management: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B4_X09
+    name: "Document Management API"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, support_agent]
+    task: |
+      Build document management API with versioning.
+    success_criteria:
+      - upload_api: true
+      - version_control: true
+      - search_api: true
+      - sharing_permissions: true
+      - collaboration: true
+      - preview_generation: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B4_X10
+    name: "Workflow Automation API"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, analyst_agent]
+    task: |
+      Build workflow automation engine API.
+    success_criteria:
+      - workflow_definition: true
+      - trigger_system: true
+      - action_execution: true
+      - conditional_logic: true
+      - execution_logs: true
+      - template_library: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B4_X11
+    name: "Survey/Forms API Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, analyst_agent, marketing_agent]
+    task: |
+      Build survey and form builder API platform.
+    success_criteria:
+      - form_builder_api: true
+      - response_collection: true
+      - logic_branching: true
+      - analytics_api: true
+      - export_api: true
+      - embedding_api: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B4_X12
+    name: "Notification Hub API"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, support_agent]
+    task: |
+      Build multi-channel notification platform API.
+    success_criteria:
+      - channel_management: true
+      - template_engine: true
+      - delivery_api: true
+      - preference_center: true
+      - analytics: true
+      - scheduling: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B4_X13
+    name: "Integration Platform API"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, emergency_error_specialist_agent]
+    task: |
+      Build integration/iPaaS platform API.
+    success_criteria:
+      - connector_api: true
+      - data_mapping: true
+      - flow_execution: true
+      - error_handling: true
+      - monitoring: true
+      - oauth_management: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B4_X14
+    name: "Marketplace API Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, billing_agent, support_agent]
+    task: |
+      Build marketplace API with vendors, transactions.
+    success_criteria:
+      - vendor_api: true
+      - product_api: true
+      - order_api: true
+      - payment_split: true
+      - review_system: true
+      - dispute_management: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B4_X15
+    name: "Learning Management API"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, onboarding_agent]
+    task: |
+      Build LMS API with courses, progress, certificates.
+    success_criteria:
+      - course_api: true
+      - enrollment_api: true
+      - progress_tracking: true
+      - assessment_api: true
+      - certificate_api: true
+      - analytics: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  # Enterprise API Systems (10 tests)
+  - id: B4_X16
+    name: "CRM API Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, analyst_agent, support_agent]
+    task: |
+      Build CRM API with contacts, deals, activities.
+    success_criteria:
+      - contact_api: true
+      - deal_api: true
+      - activity_api: true
+      - pipeline_api: true
+      - reporting_api: true
+      - integration_api: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B4_X17
+    name: "Project Management API"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, support_agent]
+    task: |
+      Build project management API platform.
+    success_criteria:
+      - project_api: true
+      - task_api: true
+      - time_tracking: true
+      - resource_api: true
+      - reporting: true
+      - integration_webhooks: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B4_X18
+    name: "HR Management API"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, billing_agent]
+    task: |
+      Build HR management API platform.
+    success_criteria:
+      - employee_api: true
+      - leave_api: true
+      - payroll_api: true
+      - performance_api: true
+      - recruitment_api: true
+      - reporting: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B4_X19
+    name: "Inventory Management API"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, analyst_agent]
+    task: |
+      Build inventory management API platform.
+    success_criteria:
+      - product_api: true
+      - stock_api: true
+      - location_api: true
+      - transfer_api: true
+      - reorder_api: true
+      - reporting: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B4_X20
+    name: "Helpdesk API Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, support_agent]
+    task: |
+      Build helpdesk/ticketing API platform.
+    success_criteria:
+      - ticket_api: true
+      - agent_api: true
+      - automation_rules: true
+      - knowledge_base_api: true
+      - sla_management: true
+      - reporting: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B4_X21
+    name: "Asset Management API"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, analyst_agent]
+    task: |
+      Build IT asset management API.
+    success_criteria:
+      - asset_registry: true
+      - lifecycle_api: true
+      - assignment_api: true
+      - maintenance_api: true
+      - depreciation_api: true
+      - reporting: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B4_X22
+    name: "Compliance Management API"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, analyst_agent, emergency_error_specialist_agent]
+    task: |
+      Build compliance management API platform.
+    success_criteria:
+      - policy_api: true
+      - assessment_api: true
+      - evidence_api: true
+      - control_mapping: true
+      - risk_scoring: true
+      - reporting: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B4_X23
+    name: "Expense Management API"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, billing_agent]
+    task: |
+      Build expense management API platform.
+    success_criteria:
+      - expense_api: true
+      - receipt_processing: true
+      - approval_workflow: true
+      - reimbursement_api: true
+      - policy_enforcement: true
+      - reporting: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B4_X24
+    name: "Vendor Management API"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, billing_agent]
+    task: |
+      Build vendor/procurement management API.
+    success_criteria:
+      - vendor_api: true
+      - contract_api: true
+      - purchase_order_api: true
+      - invoice_matching: true
+      - performance_scoring: true
+      - reporting: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0
+
+  - id: B4_X25
+    name: "Field Service API Platform"
+    difficulty: extreme
+    type: genesis_led
+    agents: [genesis_meta, builder_agent_enhanced, deploy_agent, qa_agent, support_agent]
+    task: |
+      Build field service management API.
+    success_criteria:
+      - work_order_api: true
+      - scheduling_api: true
+      - dispatch_api: true
+      - mobile_sync: true
+      - parts_inventory: true
+      - reporting: true
+      - tests: true
+    timeout_seconds: 600
+    reward_weight: 5.0

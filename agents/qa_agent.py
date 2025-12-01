@@ -52,7 +52,7 @@ from infrastructure.memory_os_mongodb_adapter import (
 from infrastructure.memory.memori_tool import MemoriMemoryToolset
 
 # Import StandardIntegrationMixin for ALL 283 integrations
-from infrastructure.standard_integration_mixin import StandardIntegrationMixin
+from infrastructure.standard_integration_mixin import StandardIntegrationMixin, darwin_evolved
 
 # setup_observability(enable_sensitive_data=True)  # Commented out - missing import
 logger = logging.getLogger(__name__)
@@ -111,24 +111,34 @@ class QAAgent(StandardIntegrationMixin):
         logger.info(f"QA Agent v4.0 initialized with DAAO + TUMIX + DeepSeek-OCR + OpenEnv + MemoryOS for business: {business_id}")
 
     async def initialize(self):
-        cred = AzureCliCredential()
-        client = AzureAIAgentClient(async_credential=cred)
-        self.agent = ChatAgent(
-            chat_client=client,
-            instructions=self._get_system_instruction(),
-            name="qa-agent",
-            tools=[
-                self.create_test_plan,
-                self.run_test_suite,
-                self.report_bug,
-                self.measure_code_quality,
-                self.validate_acceptance_criteria,
-                self.validate_screenshot,
-                self.test_web_feature,
-                self.remember_test_fact,
-                self.recall_test_facts,
-            ]
-        )
+        # Azure Agent Framework is optional - use direct LLM if not available
+        try:
+            from azure.identity.aio import AzureCliCredential
+            from agent_framework import ChatAgent
+            from agent_framework.azure import AzureAIAgentClient
+
+            cred = AzureCliCredential()
+            client = AzureAIAgentClient(async_credential=cred)
+            self.agent = ChatAgent(
+                chat_client=client,
+                instructions=self._get_system_instruction(),
+                name="qa-agent",
+                tools=[
+                    self.create_test_plan,
+                    self.run_test_suite,
+                    self.report_bug,
+                    self.measure_code_quality,
+                    self.validate_acceptance_criteria,
+                    self.validate_screenshot,
+                    self.test_web_feature,
+                    self.remember_test_fact,
+                    self.recall_test_facts,
+                ]
+            )
+            logger.info(f"QA Agent initialized with Azure Agent Framework")
+        except (ImportError, Exception) as e:
+            self.agent = None
+            logger.info(f"QA Agent initialized (standalone mode) - Azure: {e}")
 
         # Initialize OpenEnv for E2E testing
         self.browser_env = EnvRegistry.make("playwright")
@@ -148,7 +158,7 @@ class QAAgent(StandardIntegrationMixin):
             max_episodes=5  # QA testing: quick learning
         )
 
-        print(f"✅ QA Agent initialized for business: {self.business_id}")
+        print(f"[QA] QA Agent initialized for business: {self.business_id}")
         print(f"   - OpenEnv E2E testing enabled (Playwright)")
         print(f"   - MemoryOS MongoDB backend enabled (49% F1 improvement)\n")
 
@@ -1049,7 +1059,7 @@ Generate quality analysis as JSON with:
             hasher.update(content)
         return hasher.hexdigest()
 
-    async     async def _reuse_cached_artifacts(self) -> Optional[Dict[str, bytes]]:
+    async def _reuse_cached_artifacts(self) -> Optional[Dict[str, bytes]]:
         if not self._last_artifact_fingerprint:
             return None
         cached = self._artifact_payload_cache.get(self._last_artifact_fingerprint)

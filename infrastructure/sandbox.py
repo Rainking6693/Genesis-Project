@@ -362,13 +362,38 @@ if __name__ == "__main__":
 
 # Convenience functions
 _sandbox_instance = None
+_sandbox_available = None
 
 
-def get_sandbox() -> CodeSandbox:
-    """Get singleton sandbox instance"""
+def is_sandbox_available() -> bool:
+    """Check if Docker sandbox is available without raising exceptions"""
+    global _sandbox_available
+    if _sandbox_available is not None:
+        return _sandbox_available
+
+    try:
+        import docker
+        client = docker.from_env()
+        client.ping()
+        _sandbox_available = True
+    except Exception as e:
+        logger.warning(f"Docker sandbox not available: {e}")
+        _sandbox_available = False
+
+    return _sandbox_available
+
+
+def get_sandbox() -> Optional[CodeSandbox]:
+    """Get singleton sandbox instance, returns None if Docker unavailable"""
     global _sandbox_instance
     if _sandbox_instance is None:
-        _sandbox_instance = CodeSandbox()
+        if not is_sandbox_available():
+            return None
+        try:
+            _sandbox_instance = CodeSandbox()
+        except Exception as e:
+            logger.warning(f"Failed to create sandbox: {e}")
+            return None
     return _sandbox_instance
 
 

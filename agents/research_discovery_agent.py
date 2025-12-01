@@ -55,7 +55,7 @@ except ImportError:
     logger.warning("VOIX hybrid automation not available - data extraction will be limited")
 
 # Import StandardIntegrationMixin
-from infrastructure.standard_integration_mixin import StandardIntegrationMixin
+from infrastructure.standard_integration_mixin import StandardIntegrationMixin, darwin_evolved
 
 logger = logging.getLogger(__name__)
 

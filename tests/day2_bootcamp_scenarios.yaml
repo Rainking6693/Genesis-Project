@@ -1,0 +1,1937 @@
+# Day 2 Bootcamp - 100 Test Scenarios
+# Genesis + 11 Agents: Website Building & Running Focus
+# Difficulty: Easy (25) -> Intermediate (25) -> Hard (25) -> Extreme (25)
+# Types: Solo, Team (Squad), Genesis-Led
+
+metadata:
+  version: "1.0"
+  total_tests: 100
+  focus: "website_building_and_running"
+  agents:
+    - genesis_meta
+    - analyst_agent
+    - builder_agent_enhanced
+    - deploy_agent
+    - billing_agent
+    - emergency_error_specialist_agent
+    - marketing_agent
+    - support_agent
+    - onboarding_agent
+    - qa_agent
+    - se_darwin_agent
+    - seo_agent
+
+squads:
+  growth_squad:
+    agents: [analyst_agent, marketing_agent, seo_agent, se_darwin_agent]
+    focus: "market_analysis_and_growth"
+
+  delivery_squad:
+    agents: [builder_agent_enhanced, deploy_agent, emergency_error_specialist_agent, qa_agent]
+    focus: "build_deploy_quality"
+
+  customer_squad:
+    agents: [onboarding_agent, support_agent, billing_agent]
+    focus: "customer_lifecycle"
+
+# =============================================================================
+# EASY TESTS (1-25): Solo Agent Tasks - Basic Website Operations
+# =============================================================================
+easy_tests:
+  # Builder Agent Solo (5 tests)
+  - id: E01
+    name: "Create Static HTML Landing Page"
+    difficulty: easy
+    type: solo
+    agent: builder_agent_enhanced
+    task: |
+      Create a simple static HTML landing page for a coffee shop.
+      Must include: header, hero section, about section, contact info, footer.
+    success_criteria:
+      - valid_html: true
+      - sections_present: ["header", "hero", "about", "contact", "footer"]
+      - responsive_meta: true
+    timeout_seconds: 120
+    reward_weight: 1.0
+
+  - id: E02
+    name: "Add CSS Styling to Page"
+    difficulty: easy
+    type: solo
+    agent: builder_agent_enhanced
+    task: |
+      Add modern CSS styling to an existing HTML page.
+      Include: color scheme, typography, spacing, basic hover effects.
+    success_criteria:
+      - valid_css: true
+      - color_scheme_defined: true
+      - responsive_styles: true
+    timeout_seconds: 90
+    reward_weight: 1.0
+
+  - id: E03
+    name: "Create Contact Form"
+    difficulty: easy
+    type: solo
+    agent: builder_agent_enhanced
+    task: |
+      Build an HTML contact form with name, email, message fields.
+      Include basic client-side validation.
+    success_criteria:
+      - form_fields: ["name", "email", "message", "submit"]
+      - validation_present: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: E04
+    name: "Create Navigation Menu"
+    difficulty: easy
+    type: solo
+    agent: builder_agent_enhanced
+    task: |
+      Create a responsive navigation menu with 5 links.
+      Mobile hamburger menu required.
+    success_criteria:
+      - nav_links: 5
+      - mobile_menu: true
+      - accessible: true
+    timeout_seconds: 90
+    reward_weight: 1.0
+
+  - id: E05
+    name: "Image Gallery Component"
+    difficulty: easy
+    type: solo
+    agent: builder_agent_enhanced
+    task: |
+      Create a simple image gallery grid with lightbox functionality.
+    success_criteria:
+      - grid_layout: true
+      - lightbox: true
+      - alt_texts: true
+    timeout_seconds: 90
+    reward_weight: 1.0
+
+  # Deploy Agent Solo (4 tests)
+  - id: E06
+    name: "Generate Netlify Config"
+    difficulty: easy
+    type: solo
+    agent: deploy_agent
+    task: |
+      Create a netlify.toml configuration for a static site.
+      Include build command and publish directory.
+    success_criteria:
+      - valid_toml: true
+      - build_command: true
+      - publish_dir: true
+    timeout_seconds: 45
+    reward_weight: 1.0
+
+  - id: E07
+    name: "Create GitHub Actions Workflow"
+    difficulty: easy
+    type: solo
+    agent: deploy_agent
+    task: |
+      Create a basic CI/CD workflow for deploying on push to main.
+    success_criteria:
+      - valid_yaml: true
+      - trigger_on_push: true
+      - deploy_step: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: E08
+    name: "Generate Package.json"
+    difficulty: easy
+    type: solo
+    agent: deploy_agent
+    task: |
+      Create a package.json with scripts for dev, build, and deploy.
+    success_criteria:
+      - valid_json: true
+      - scripts_present: ["dev", "build"]
+      - dependencies_section: true
+    timeout_seconds: 45
+    reward_weight: 1.0
+
+  - id: E09
+    name: "Create Dockerfile for Static Site"
+    difficulty: easy
+    type: solo
+    agent: deploy_agent
+    task: |
+      Create a Dockerfile to serve a static site with nginx.
+    success_criteria:
+      - valid_dockerfile: true
+      - nginx_base: true
+      - expose_port: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  # QA Agent Solo (4 tests)
+  - id: E10
+    name: "Write Unit Test for Form Validation"
+    difficulty: easy
+    type: solo
+    agent: qa_agent
+    task: |
+      Write Jest unit tests for email validation function.
+      Cover valid emails, invalid formats, edge cases.
+    success_criteria:
+      - test_count: 5
+      - covers_valid: true
+      - covers_invalid: true
+    timeout_seconds: 90
+    reward_weight: 1.0
+
+  - id: E11
+    name: "Create Accessibility Checklist"
+    difficulty: easy
+    type: solo
+    agent: qa_agent
+    task: |
+      Create a comprehensive accessibility testing checklist for a landing page.
+    success_criteria:
+      - wcag_criteria: true
+      - keyboard_nav: true
+      - screen_reader: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: E12
+    name: "Performance Baseline Test"
+    difficulty: easy
+    type: solo
+    agent: qa_agent
+    task: |
+      Create a Lighthouse CI configuration for performance testing.
+    success_criteria:
+      - valid_config: true
+      - thresholds_defined: true
+      - assertions: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: E13
+    name: "Write E2E Test for Navigation"
+    difficulty: easy
+    type: solo
+    agent: qa_agent
+    task: |
+      Write a Playwright test that navigates through all menu items.
+    success_criteria:
+      - valid_playwright: true
+      - all_links_tested: true
+      - assertions_present: true
+    timeout_seconds: 90
+    reward_weight: 1.0
+
+  # SEO Agent Solo (3 tests)
+  - id: E14
+    name: "Generate Meta Tags"
+    difficulty: easy
+    type: solo
+    agent: seo_agent
+    task: |
+      Generate comprehensive meta tags for a SaaS landing page.
+      Include title, description, keywords, Open Graph, Twitter cards.
+    success_criteria:
+      - title_tag: true
+      - meta_description: true
+      - og_tags: true
+      - twitter_cards: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: E15
+    name: "Create Robots.txt"
+    difficulty: easy
+    type: solo
+    agent: seo_agent
+    task: |
+      Create a robots.txt file with appropriate crawl rules.
+    success_criteria:
+      - valid_format: true
+      - sitemap_reference: true
+      - crawl_rules: true
+    timeout_seconds: 30
+    reward_weight: 1.0
+
+  - id: E16
+    name: "Generate Sitemap XML"
+    difficulty: easy
+    type: solo
+    agent: seo_agent
+    task: |
+      Create a sitemap.xml for a 10-page website.
+    success_criteria:
+      - valid_xml: true
+      - all_pages: true
+      - lastmod_present: true
+    timeout_seconds: 45
+    reward_weight: 1.0
+
+  # Marketing Agent Solo (3 tests)
+  - id: E17
+    name: "Write Hero Section Copy"
+    difficulty: easy
+    type: solo
+    agent: marketing_agent
+    task: |
+      Write compelling hero section copy for a project management tool.
+      Include headline, subheadline, and CTA text.
+    success_criteria:
+      - headline_length: [5, 12]  # words
+      - value_proposition: true
+      - cta_present: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: E18
+    name: "Create Feature Bullet Points"
+    difficulty: easy
+    type: solo
+    agent: marketing_agent
+    task: |
+      Create 6 compelling feature bullet points for an analytics dashboard.
+    success_criteria:
+      - bullet_count: 6
+      - benefit_focused: true
+      - consistent_format: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: E19
+    name: "Write FAQ Section"
+    difficulty: easy
+    type: solo
+    agent: marketing_agent
+    task: |
+      Write 5 FAQ entries for a subscription service.
+    success_criteria:
+      - faq_count: 5
+      - clear_answers: true
+      - addresses_concerns: true
+    timeout_seconds: 90
+    reward_weight: 1.0
+
+  # Analyst Agent Solo (2 tests)
+  - id: E20
+    name: "Analyze Competitor Landing Page"
+    difficulty: easy
+    type: solo
+    agent: analyst_agent
+    task: |
+      Analyze a competitor's landing page structure and identify:
+      key sections, value propositions, CTAs, and conversion elements.
+    success_criteria:
+      - sections_identified: true
+      - value_props_listed: true
+      - cta_analysis: true
+    timeout_seconds: 120
+    reward_weight: 1.0
+
+  - id: E21
+    name: "Define Target Audience Persona"
+    difficulty: easy
+    type: solo
+    agent: analyst_agent
+    task: |
+      Create a target audience persona for a B2B SaaS product.
+    success_criteria:
+      - demographics: true
+      - pain_points: true
+      - goals: true
+      - buying_behavior: true
+    timeout_seconds: 90
+    reward_weight: 1.0
+
+  # Support Agent Solo (2 tests)
+  - id: E22
+    name: "Create Help Article Template"
+    difficulty: easy
+    type: solo
+    agent: support_agent
+    task: |
+      Create a help article template for "How to reset your password".
+    success_criteria:
+      - step_by_step: true
+      - screenshots_placeholders: true
+      - troubleshooting: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  - id: E23
+    name: "Draft Welcome Email"
+    difficulty: easy
+    type: solo
+    agent: support_agent
+    task: |
+      Write a welcome email for new users with onboarding steps.
+    success_criteria:
+      - personalized_greeting: true
+      - clear_next_steps: true
+      - support_contact: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  # Onboarding Agent Solo (1 test)
+  - id: E24
+    name: "Create Onboarding Checklist"
+    difficulty: easy
+    type: solo
+    agent: onboarding_agent
+    task: |
+      Create a 7-step onboarding checklist for new SaaS users.
+    success_criteria:
+      - step_count: 7
+      - progressive_complexity: true
+      - completion_tracking: true
+    timeout_seconds: 60
+    reward_weight: 1.0
+
+  # Billing Agent Solo (1 test)
+  - id: E25
+    name: "Create Pricing Table Structure"
+    difficulty: easy
+    type: solo
+    agent: billing_agent
+    task: |
+      Design a 3-tier pricing table (Free, Pro, Enterprise).
+    success_criteria:
+      - three_tiers: true
+      - features_per_tier: true
+      - pricing_clear: true
+      - cta_per_tier: true
+    timeout_seconds: 90
+    reward_weight: 1.0
+
+# =============================================================================
+# INTERMEDIATE TESTS (26-50): Solo & Team Tasks - Website Features
+# =============================================================================
+intermediate_tests:
+  # Builder + Deploy Team (5 tests)
+  - id: I26
+    name: "Build and Deploy Landing Page"
+    difficulty: intermediate
+    type: team
+    squad: delivery_squad
+    agents: [builder_agent_enhanced, deploy_agent]
+    task: |
+      Builder creates a React landing page with hero, features, pricing.
+      Deploy agent sets up CI/CD to Netlify with preview deploys.
+    success_criteria:
+      - react_app_valid: true
+      - components_created: ["Hero", "Features", "Pricing"]
+      - netlify_config: true
+      - preview_deploys: true
+    timeout_seconds: 300
+    reward_weight: 1.5
+
+  - id: I27
+    name: "Setup Next.js with SSG"
+    difficulty: intermediate
+    type: team
+    squad: delivery_squad
+    agents: [builder_agent_enhanced, deploy_agent]
+    task: |
+      Builder creates a Next.js blog with static generation.
+      Deploy sets up Vercel deployment with ISR configuration.
+    success_criteria:
+      - nextjs_valid: true
+      - ssg_pages: true
+      - isr_config: true
+      - deploy_config: true
+    timeout_seconds: 360
+    reward_weight: 1.5
+
+  - id: I28
+    name: "Implement Authentication Flow"
+    difficulty: intermediate
+    type: team
+    squad: delivery_squad
+    agents: [builder_agent_enhanced, qa_agent]
+    task: |
+      Builder implements login/signup with JWT.
+      QA writes comprehensive auth tests.
+    success_criteria:
+      - auth_pages: ["login", "signup", "forgot-password"]
+      - jwt_handling: true
+      - test_coverage: 80
+    timeout_seconds: 360
+    reward_weight: 1.5
+
+  - id: I29
+    name: "Create Dashboard Layout"
+    difficulty: intermediate
+    type: solo
+    agent: builder_agent_enhanced
+    task: |
+      Build a responsive dashboard layout with sidebar navigation,
+      header with user menu, and main content area with grid.
+    success_criteria:
+      - responsive: true
+      - sidebar_nav: true
+      - user_menu: true
+      - grid_layout: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: I30
+    name: "Implement Dark Mode Toggle"
+    difficulty: intermediate
+    type: solo
+    agent: builder_agent_enhanced
+    task: |
+      Add dark mode support with CSS variables and localStorage persistence.
+      Include smooth transitions.
+    success_criteria:
+      - css_variables: true
+      - localStorage: true
+      - transitions: true
+      - system_preference: true
+    timeout_seconds: 120
+    reward_weight: 1.5
+
+  # Growth Squad Team (5 tests)
+  - id: I31
+    name: "SEO Audit and Fix"
+    difficulty: intermediate
+    type: team
+    squad: growth_squad
+    agents: [analyst_agent, seo_agent]
+    task: |
+      Analyst reviews current site performance and SEO issues.
+      SEO agent generates fixes for identified problems.
+    success_criteria:
+      - issues_identified: 5
+      - fixes_provided: true
+      - priority_ranking: true
+    timeout_seconds: 240
+    reward_weight: 1.5
+
+  - id: I32
+    name: "Content Strategy for Blog"
+    difficulty: intermediate
+    type: team
+    squad: growth_squad
+    agents: [analyst_agent, marketing_agent, seo_agent]
+    task: |
+      Analyst researches keywords. Marketing creates content calendar.
+      SEO provides optimization guidelines.
+    success_criteria:
+      - keywords_researched: 10
+      - content_calendar: true
+      - seo_guidelines: true
+    timeout_seconds: 300
+    reward_weight: 1.5
+
+  - id: I33
+    name: "Landing Page A/B Test Plan"
+    difficulty: intermediate
+    type: team
+    squad: growth_squad
+    agents: [analyst_agent, marketing_agent]
+    task: |
+      Design A/B test for landing page headline and CTA.
+      Include hypothesis, variants, success metrics.
+    success_criteria:
+      - hypothesis: true
+      - variants: 2
+      - metrics_defined: true
+      - sample_size: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: I34
+    name: "Competitive Analysis Report"
+    difficulty: intermediate
+    type: solo
+    agent: analyst_agent
+    task: |
+      Create detailed competitive analysis of 3 competitors.
+      Include: features, pricing, positioning, strengths/weaknesses.
+    success_criteria:
+      - competitors: 3
+      - feature_matrix: true
+      - pricing_comparison: true
+      - swot_analysis: true
+    timeout_seconds: 300
+    reward_weight: 1.5
+
+  - id: I35
+    name: "Search Feature Implementation"
+    difficulty: intermediate
+    type: solo
+    agent: se_darwin_agent
+    task: |
+      Implement client-side search with fuzzy matching and highlighting.
+    success_criteria:
+      - fuzzy_search: true
+      - highlighting: true
+      - debounce: true
+      - keyboard_nav: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  # QA & Emergency (5 tests)
+  - id: I36
+    name: "Write Integration Test Suite"
+    difficulty: intermediate
+    type: solo
+    agent: qa_agent
+    task: |
+      Write integration tests for a checkout flow:
+      cart -> shipping -> payment -> confirmation.
+    success_criteria:
+      - flow_coverage: true
+      - edge_cases: 5
+      - assertions: 10
+    timeout_seconds: 240
+    reward_weight: 1.5
+
+  - id: I37
+    name: "Performance Testing Setup"
+    difficulty: intermediate
+    type: solo
+    agent: qa_agent
+    task: |
+      Set up k6 load testing for API endpoints.
+      Include scenarios: smoke, load, stress, spike.
+    success_criteria:
+      - k6_scripts: 4
+      - thresholds: true
+      - scenarios: ["smoke", "load", "stress", "spike"]
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: I38
+    name: "Debug Memory Leak"
+    difficulty: intermediate
+    type: solo
+    agent: emergency_error_specialist_agent
+    task: |
+      Identify and fix a memory leak in a React component with
+      improper useEffect cleanup.
+    success_criteria:
+      - leak_identified: true
+      - fix_applied: true
+      - cleanup_added: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: I39
+    name: "Fix CORS Configuration"
+    difficulty: intermediate
+    type: solo
+    agent: emergency_error_specialist_agent
+    task: |
+      Diagnose and fix CORS issues preventing API calls.
+      Implement proper CORS headers and preflight handling.
+    success_criteria:
+      - issue_diagnosed: true
+      - headers_configured: true
+      - preflight_handled: true
+    timeout_seconds: 120
+    reward_weight: 1.5
+
+  - id: I40
+    name: "Error Boundary Implementation"
+    difficulty: intermediate
+    type: team
+    squad: delivery_squad
+    agents: [builder_agent_enhanced, emergency_error_specialist_agent]
+    task: |
+      Builder creates error boundary component.
+      Emergency specialist adds error logging and recovery.
+    success_criteria:
+      - error_boundary: true
+      - error_logging: true
+      - fallback_ui: true
+      - recovery_option: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  # Customer Squad (5 tests)
+  - id: I41
+    name: "Customer Onboarding Flow"
+    difficulty: intermediate
+    type: team
+    squad: customer_squad
+    agents: [onboarding_agent, support_agent]
+    task: |
+      Design complete onboarding flow with tooltips,
+      progress tracking, and help resources.
+    success_criteria:
+      - steps_defined: 7
+      - tooltips: true
+      - progress_tracking: true
+      - help_integration: true
+    timeout_seconds: 240
+    reward_weight: 1.5
+
+  - id: I42
+    name: "Support Ticket System"
+    difficulty: intermediate
+    type: solo
+    agent: support_agent
+    task: |
+      Design ticket submission form with categories,
+      priority levels, and file attachments.
+    success_criteria:
+      - categories: 5
+      - priority_levels: 3
+      - file_upload: true
+      - confirmation: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: I43
+    name: "Subscription Management UI"
+    difficulty: intermediate
+    type: team
+    squad: customer_squad
+    agents: [billing_agent, builder_agent_enhanced]
+    task: |
+      Create subscription management page with plan details,
+      upgrade/downgrade, billing history, cancel flow.
+    success_criteria:
+      - plan_display: true
+      - upgrade_flow: true
+      - billing_history: true
+      - cancel_flow: true
+    timeout_seconds: 300
+    reward_weight: 1.5
+
+  - id: I44
+    name: "Invoice Generation"
+    difficulty: intermediate
+    type: solo
+    agent: billing_agent
+    task: |
+      Create invoice template with line items, taxes,
+      payment terms, and PDF export capability.
+    success_criteria:
+      - line_items: true
+      - tax_calculation: true
+      - payment_terms: true
+      - pdf_structure: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: I45
+    name: "Knowledge Base Structure"
+    difficulty: intermediate
+    type: team
+    squad: customer_squad
+    agents: [support_agent, seo_agent]
+    task: |
+      Design knowledge base with categories, search,
+      and SEO-optimized article templates.
+    success_criteria:
+      - categories: 6
+      - search_enabled: true
+      - seo_template: true
+      - breadcrumbs: true
+    timeout_seconds: 240
+    reward_weight: 1.5
+
+  # Mixed Intermediate (5 tests)
+  - id: I46
+    name: "API Rate Limiting"
+    difficulty: intermediate
+    type: solo
+    agent: builder_agent_enhanced
+    task: |
+      Implement rate limiting middleware with token bucket algorithm.
+      Include per-user limits and retry headers.
+    success_criteria:
+      - rate_limiter: true
+      - token_bucket: true
+      - retry_headers: true
+      - per_user: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: I47
+    name: "Webhook Integration"
+    difficulty: intermediate
+    type: solo
+    agent: builder_agent_enhanced
+    task: |
+      Create webhook receiver with signature verification,
+      retry logic, and event logging.
+    success_criteria:
+      - signature_verify: true
+      - retry_logic: true
+      - event_logging: true
+      - idempotency: true
+    timeout_seconds: 180
+    reward_weight: 1.5
+
+  - id: I48
+    name: "Email Template System"
+    difficulty: intermediate
+    type: team
+    squad: customer_squad
+    agents: [marketing_agent, builder_agent_enhanced]
+    task: |
+      Marketing designs email templates (welcome, notification, digest).
+      Builder implements templating engine with variables.
+    success_criteria:
+      - templates: 3
+      - variable_system: true
+      - responsive_email: true
+      - preview_function: true
+    timeout_seconds: 300
+    reward_weight: 1.5
+
+  - id: I49
+    name: "Analytics Dashboard Widgets"
+    difficulty: intermediate
+    type: team
+    squad: growth_squad
+    agents: [analyst_agent, builder_agent_enhanced]
+    task: |
+      Analyst defines metrics and visualizations.
+      Builder creates dashboard with charts.
+    success_criteria:
+      - metrics_defined: 6
+      - chart_types: 3
+      - date_filters: true
+      - export_option: true
+    timeout_seconds: 300
+    reward_weight: 1.5
+
+  - id: I50
+    name: "Form Builder Component"
+    difficulty: intermediate
+    type: solo
+    agent: builder_agent_enhanced
+    task: |
+      Create dynamic form builder with drag-drop,
+      field types, validation rules, and JSON schema.
+    success_criteria:
+      - drag_drop: true
+      - field_types: 5
+      - validation_rules: true
+      - json_schema: true
+    timeout_seconds: 300
+    reward_weight: 1.5
+
+# =============================================================================
+# HARD TESTS (51-75): Full Squad & Complex Scenarios
+# =============================================================================
+hard_tests:
+  # Full Website Build (5 tests)
+  - id: H51
+    name: "E-commerce Product Page"
+    difficulty: hard
+    type: team
+    squad: delivery_squad
+    agents: [builder_agent_enhanced, qa_agent, seo_agent, deploy_agent]
+    task: |
+      Build complete e-commerce product page with:
+      image gallery, variants, add to cart, reviews, SEO.
+      Include tests and deployment config.
+    success_criteria:
+      - image_gallery: true
+      - variant_selector: true
+      - cart_integration: true
+      - review_section: true
+      - seo_optimized: true
+      - test_coverage: 70
+      - deploy_ready: true
+    timeout_seconds: 600
+    reward_weight: 2.5
+
+  - id: H52
+    name: "Multi-step Checkout Flow"
+    difficulty: hard
+    type: team
+    squad: delivery_squad
+    agents: [builder_agent_enhanced, qa_agent, billing_agent, emergency_error_specialist_agent]
+    task: |
+      Build checkout: cart review -> shipping -> payment -> confirmation.
+      Handle edge cases, payment errors, and abandoned cart.
+    success_criteria:
+      - steps: 4
+      - validation_each_step: true
+      - payment_integration: true
+      - error_handling: true
+      - abandoned_cart: true
+      - tests: 15
+    timeout_seconds: 600
+    reward_weight: 2.5
+
+  - id: H53
+    name: "User Dashboard with Real-time"
+    difficulty: hard
+    type: team
+    squad: delivery_squad
+    agents: [builder_agent_enhanced, deploy_agent, qa_agent]
+    task: |
+      Build user dashboard with WebSocket real-time updates,
+      notifications, activity feed, and settings.
+    success_criteria:
+      - websocket: true
+      - notifications: true
+      - activity_feed: true
+      - settings_page: true
+      - responsive: true
+      - test_coverage: 60
+    timeout_seconds: 600
+    reward_weight: 2.5
+
+  - id: H54
+    name: "Blog Platform with CMS"
+    difficulty: hard
+    type: team
+    squad: delivery_squad
+    agents: [builder_agent_enhanced, seo_agent, deploy_agent, qa_agent]
+    task: |
+      Create blog platform with markdown editor, categories,
+      tags, SEO optimization, and static generation.
+    success_criteria:
+      - markdown_editor: true
+      - categories_tags: true
+      - seo_metadata: true
+      - static_generation: true
+      - search: true
+      - rss_feed: true
+    timeout_seconds: 720
+    reward_weight: 2.5
+
+  - id: H55
+    name: "SaaS Pricing Page with Stripe"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, billing_agent, qa_agent, deploy_agent]
+    task: |
+      Build pricing page with Stripe integration,
+      plan switching, proration, and billing portal.
+    success_criteria:
+      - pricing_tiers: 3
+      - stripe_checkout: true
+      - plan_switching: true
+      - proration: true
+      - billing_portal: true
+      - webhook_handling: true
+    timeout_seconds: 600
+    reward_weight: 2.5
+
+  # Complex Debugging (5 tests)
+  - id: H56
+    name: "Production Performance Crisis"
+    difficulty: hard
+    type: team
+    agents: [emergency_error_specialist_agent, qa_agent, analyst_agent]
+    task: |
+      Site experiencing 5s load times. Diagnose:
+      - Database query optimization
+      - Asset optimization
+      - Caching strategy
+      - CDN configuration
+    success_criteria:
+      - root_cause: true
+      - db_optimization: true
+      - asset_optimization: true
+      - caching_implemented: true
+      - load_time_reduced: true
+    timeout_seconds: 480
+    reward_weight: 2.5
+
+  - id: H57
+    name: "Security Vulnerability Response"
+    difficulty: hard
+    type: team
+    agents: [emergency_error_specialist_agent, builder_agent_enhanced, deploy_agent]
+    task: |
+      XSS vulnerability reported. Implement:
+      - Immediate patch
+      - Input sanitization
+      - CSP headers
+      - Security audit
+    success_criteria:
+      - patch_applied: true
+      - sanitization: true
+      - csp_headers: true
+      - audit_complete: true
+    timeout_seconds: 360
+    reward_weight: 2.5
+
+  - id: H58
+    name: "Database Migration Crisis"
+    difficulty: hard
+    type: team
+    agents: [emergency_error_specialist_agent, deploy_agent, qa_agent]
+    task: |
+      Failed migration in production. Handle:
+      - Rollback strategy
+      - Data recovery
+      - Zero-downtime re-migration
+      - Monitoring
+    success_criteria:
+      - rollback_plan: true
+      - data_recovery: true
+      - migration_fixed: true
+      - monitoring_added: true
+    timeout_seconds: 480
+    reward_weight: 2.5
+
+  - id: H59
+    name: "Third-party API Outage"
+    difficulty: hard
+    type: team
+    agents: [emergency_error_specialist_agent, builder_agent_enhanced, support_agent]
+    task: |
+      Payment provider outage. Implement:
+      - Graceful degradation
+      - User communication
+      - Fallback handling
+      - Queue for retry
+    success_criteria:
+      - degradation_ui: true
+      - user_messaging: true
+      - fallback_logic: true
+      - retry_queue: true
+    timeout_seconds: 360
+    reward_weight: 2.5
+
+  - id: H60
+    name: "Infinite Loop Bug"
+    difficulty: hard
+    type: solo
+    agent: emergency_error_specialist_agent
+    task: |
+      Component causing infinite re-renders. Debug:
+      - Identify dependency cycle
+      - Fix useEffect deps
+      - Add circuit breaker
+      - Write regression test
+    success_criteria:
+      - bug_identified: true
+      - fix_applied: true
+      - circuit_breaker: true
+      - regression_test: true
+    timeout_seconds: 240
+    reward_weight: 2.5
+
+  # Growth & Marketing (5 tests)
+  - id: H61
+    name: "Full Marketing Funnel"
+    difficulty: hard
+    type: team
+    squad: growth_squad
+    agents: [analyst_agent, marketing_agent, seo_agent, se_darwin_agent]
+    task: |
+      Design complete marketing funnel:
+      - Landing pages per segment
+      - Email sequences
+      - Retargeting strategy
+      - Conversion tracking
+    success_criteria:
+      - landing_pages: 3
+      - email_sequences: 4
+      - retargeting_plan: true
+      - tracking_setup: true
+      - attribution_model: true
+    timeout_seconds: 600
+    reward_weight: 2.5
+
+  - id: H62
+    name: "SEO Site Overhaul"
+    difficulty: hard
+    type: team
+    squad: growth_squad
+    agents: [seo_agent, analyst_agent, builder_agent_enhanced]
+    task: |
+      Complete SEO overhaul for 50-page site:
+      - Technical SEO fixes
+      - Content optimization
+      - Internal linking
+      - Schema markup
+    success_criteria:
+      - technical_fixes: 10
+      - content_optimized: 20
+      - internal_links: true
+      - schema_markup: true
+      - sitemap_updated: true
+    timeout_seconds: 720
+    reward_weight: 2.5
+
+  - id: H63
+    name: "Product Launch Campaign"
+    difficulty: hard
+    type: team
+    squad: growth_squad
+    agents: [marketing_agent, analyst_agent, seo_agent]
+    task: |
+      Plan product launch with:
+      - Launch landing page
+      - Email campaign
+      - Social media strategy
+      - PR outreach template
+    success_criteria:
+      - landing_page_copy: true
+      - email_sequence: 5
+      - social_strategy: true
+      - pr_template: true
+      - launch_timeline: true
+    timeout_seconds: 600
+    reward_weight: 2.5
+
+  - id: H64
+    name: "Advanced Search Implementation"
+    difficulty: hard
+    type: solo
+    agent: se_darwin_agent
+    task: |
+      Build search with:
+      - Elasticsearch-like scoring
+      - Faceted filters
+      - Autocomplete
+      - Typo tolerance
+      - Search analytics
+    success_criteria:
+      - relevance_scoring: true
+      - faceted_filters: true
+      - autocomplete: true
+      - typo_tolerance: true
+      - analytics: true
+    timeout_seconds: 420
+    reward_weight: 2.5
+
+  - id: H65
+    name: "Conversion Rate Optimization"
+    difficulty: hard
+    type: team
+    squad: growth_squad
+    agents: [analyst_agent, marketing_agent, builder_agent_enhanced]
+    task: |
+      Improve signup conversion by 30%:
+      - Heatmap analysis
+      - Form optimization
+      - Social proof
+      - A/B test implementation
+    success_criteria:
+      - analysis_complete: true
+      - form_optimized: true
+      - social_proof: true
+      - ab_test_ready: true
+    timeout_seconds: 480
+    reward_weight: 2.5
+
+  # Customer Experience (5 tests)
+  - id: H66
+    name: "Complete Support System"
+    difficulty: hard
+    type: team
+    squad: customer_squad
+    agents: [support_agent, onboarding_agent, billing_agent, builder_agent_enhanced]
+    task: |
+      Build integrated support system:
+      - Ticket management
+      - Live chat
+      - Knowledge base
+      - Help widget
+    success_criteria:
+      - ticket_system: true
+      - live_chat: true
+      - knowledge_base: true
+      - help_widget: true
+      - integration: true
+    timeout_seconds: 720
+    reward_weight: 2.5
+
+  - id: H67
+    name: "Enterprise Onboarding"
+    difficulty: hard
+    type: team
+    squad: customer_squad
+    agents: [onboarding_agent, support_agent, analyst_agent]
+    task: |
+      Design enterprise onboarding:
+      - Custom implementation plan
+      - Training materials
+      - Success metrics
+      - Rollout phases
+    success_criteria:
+      - implementation_plan: true
+      - training_docs: true
+      - metrics_defined: true
+      - phases: 4
+      - checkpoints: true
+    timeout_seconds: 480
+    reward_weight: 2.5
+
+  - id: H68
+    name: "Billing Dispute Resolution"
+    difficulty: hard
+    type: team
+    squad: customer_squad
+    agents: [billing_agent, support_agent, analyst_agent]
+    task: |
+      Handle complex billing dispute:
+      - Audit trail review
+      - Refund calculation
+      - Policy compliance
+      - Customer communication
+    success_criteria:
+      - audit_complete: true
+      - refund_calculated: true
+      - policy_check: true
+      - communication_drafted: true
+    timeout_seconds: 360
+    reward_weight: 2.5
+
+  - id: H69
+    name: "User Feedback System"
+    difficulty: hard
+    type: team
+    agents: [builder_agent_enhanced, analyst_agent, support_agent]
+    task: |
+      Build feedback collection system:
+      - In-app surveys (NPS, CSAT)
+      - Feature voting
+      - Bug reporting
+      - Analytics dashboard
+    success_criteria:
+      - nps_survey: true
+      - feature_voting: true
+      - bug_reports: true
+      - analytics: true
+    timeout_seconds: 480
+    reward_weight: 2.5
+
+  - id: H70
+    name: "Self-Service Portal"
+    difficulty: hard
+    type: team
+    squad: customer_squad
+    agents: [builder_agent_enhanced, billing_agent, onboarding_agent]
+    task: |
+      Create self-service portal:
+      - Account management
+      - Usage dashboard
+      - Billing controls
+      - API key management
+    success_criteria:
+      - account_settings: true
+      - usage_dashboard: true
+      - billing_controls: true
+      - api_management: true
+    timeout_seconds: 600
+    reward_weight: 2.5
+
+  # QA & Testing (5 tests)
+  - id: H71
+    name: "Full E2E Test Suite"
+    difficulty: hard
+    type: solo
+    agent: qa_agent
+    task: |
+      Create comprehensive E2E suite for SaaS:
+      - Auth flows (signup, login, reset, 2FA)
+      - Core features (CRUD, settings)
+      - Billing (subscribe, cancel, upgrade)
+      - Admin functions
+    success_criteria:
+      - auth_tests: 10
+      - feature_tests: 20
+      - billing_tests: 8
+      - admin_tests: 5
+      - ci_integration: true
+    timeout_seconds: 720
+    reward_weight: 2.5
+
+  - id: H72
+    name: "Visual Regression Testing"
+    difficulty: hard
+    type: solo
+    agent: qa_agent
+    task: |
+      Set up visual regression testing:
+      - Baseline screenshots
+      - Cross-browser testing
+      - Responsive breakpoints
+      - CI/CD integration
+    success_criteria:
+      - baseline_setup: true
+      - browsers: 3
+      - breakpoints: 4
+      - ci_config: true
+      - diff_reporting: true
+    timeout_seconds: 480
+    reward_weight: 2.5
+
+  - id: H73
+    name: "API Contract Testing"
+    difficulty: hard
+    type: team
+    agents: [qa_agent, builder_agent_enhanced]
+    task: |
+      Implement API contract testing:
+      - OpenAPI spec validation
+      - Consumer-driven contracts
+      - Breaking change detection
+      - CI integration
+    success_criteria:
+      - openapi_tests: true
+      - pact_contracts: true
+      - breaking_detection: true
+      - ci_pipeline: true
+    timeout_seconds: 480
+    reward_weight: 2.5
+
+  - id: H74
+    name: "Chaos Engineering Setup"
+    difficulty: hard
+    type: team
+    agents: [qa_agent, emergency_error_specialist_agent, deploy_agent]
+    task: |
+      Implement chaos engineering:
+      - Failure injection
+      - Network partition tests
+      - Resource exhaustion
+      - Recovery validation
+    success_criteria:
+      - failure_injection: true
+      - network_tests: true
+      - resource_tests: true
+      - recovery_tests: true
+    timeout_seconds: 600
+    reward_weight: 2.5
+
+  - id: H75
+    name: "Accessibility Compliance"
+    difficulty: hard
+    type: team
+    agents: [qa_agent, builder_agent_enhanced]
+    task: |
+      Achieve WCAG 2.1 AA compliance:
+      - Full audit
+      - Fix all violations
+      - Screen reader testing
+      - Keyboard navigation
+    success_criteria:
+      - audit_complete: true
+      - violations_fixed: true
+      - screen_reader_pass: true
+      - keyboard_nav: true
+    timeout_seconds: 600
+    reward_weight: 2.5
+
+# =============================================================================
+# EXTREME TESTS (76-100): Genesis-Led Full Business Operations
+# =============================================================================
+extreme_tests:
+  # Genesis Leading Full Website Launch (5 tests)
+  - id: X76
+    name: "Complete SaaS Website Launch"
+    difficulty: extreme
+    type: genesis_led
+    leader: genesis_meta
+    team: [builder_agent_enhanced, deploy_agent, seo_agent, marketing_agent, qa_agent, billing_agent]
+    task: |
+      Genesis coordinates full SaaS website launch:
+      - Marketing site with 10 pages
+      - Blog system
+      - Pricing with Stripe
+      - Documentation
+      - Full test suite
+      - SEO optimization
+      - Deployment to production
+    success_criteria:
+      - pages: 10
+      - blog_system: true
+      - stripe_integration: true
+      - docs_complete: true
+      - test_coverage: 80
+      - seo_score: 90
+      - deployed: true
+      - lighthouse_performance: 90
+    timeout_seconds: 1800
+    reward_weight: 5.0
+
+  - id: X77
+    name: "E-commerce Platform Launch"
+    difficulty: extreme
+    type: genesis_led
+    leader: genesis_meta
+    team: [builder_agent_enhanced, deploy_agent, seo_agent, billing_agent, qa_agent, support_agent]
+    task: |
+      Genesis builds complete e-commerce:
+      - Product catalog
+      - Shopping cart
+      - Checkout with payments
+      - Order management
+      - Customer accounts
+      - Admin dashboard
+      - Full testing
+    success_criteria:
+      - product_catalog: true
+      - cart_checkout: true
+      - payment_complete: true
+      - order_management: true
+      - customer_accounts: true
+      - admin_dashboard: true
+      - test_coverage: 85
+      - security_audit: true
+    timeout_seconds: 2400
+    reward_weight: 5.0
+
+  - id: X78
+    name: "Marketplace Platform"
+    difficulty: extreme
+    type: genesis_led
+    leader: genesis_meta
+    team: [builder_agent_enhanced, deploy_agent, billing_agent, qa_agent, support_agent, analyst_agent]
+    task: |
+      Genesis creates two-sided marketplace:
+      - Seller onboarding
+      - Product listings
+      - Buyer experience
+      - Payment splitting
+      - Review system
+      - Admin moderation
+    success_criteria:
+      - seller_flow: true
+      - buyer_flow: true
+      - payment_split: true
+      - reviews: true
+      - moderation: true
+      - test_coverage: 80
+      - scalability_tested: true
+    timeout_seconds: 2400
+    reward_weight: 5.0
+
+  - id: X79
+    name: "Community Platform Launch"
+    difficulty: extreme
+    type: genesis_led
+    leader: genesis_meta
+    team: [builder_agent_enhanced, deploy_agent, qa_agent, onboarding_agent, support_agent, seo_agent]
+    task: |
+      Genesis builds community platform:
+      - User profiles
+      - Forums/discussions
+      - Direct messaging
+      - Content moderation
+      - Notifications
+      - Mobile responsive
+    success_criteria:
+      - user_profiles: true
+      - forums: true
+      - messaging: true
+      - moderation: true
+      - notifications: true
+      - mobile_ready: true
+      - performance: true
+    timeout_seconds: 2100
+    reward_weight: 5.0
+
+  - id: X80
+    name: "Analytics Platform"
+    difficulty: extreme
+    type: genesis_led
+    leader: genesis_meta
+    team: [builder_agent_enhanced, deploy_agent, analyst_agent, qa_agent, billing_agent]
+    task: |
+      Genesis builds analytics platform:
+      - Data ingestion API
+      - Real-time processing
+      - Dashboard builder
+      - Custom reports
+      - Alerting system
+      - API access
+    success_criteria:
+      - data_api: true
+      - real_time: true
+      - dashboards: true
+      - reports: true
+      - alerts: true
+      - api_docs: true
+      - scale_tested: true
+    timeout_seconds: 2400
+    reward_weight: 5.0
+
+  # Genesis Crisis Management (5 tests)
+  - id: X81
+    name: "Production Outage Recovery"
+    difficulty: extreme
+    type: genesis_led
+    leader: genesis_meta
+    team: [emergency_error_specialist_agent, deploy_agent, support_agent, analyst_agent]
+    task: |
+      Site completely down. Genesis coordinates:
+      - Immediate diagnosis
+      - Status communication
+      - Root cause analysis
+      - Fix implementation
+      - Post-mortem
+    success_criteria:
+      - diagnosis_time: 300
+      - communication: true
+      - fix_applied: true
+      - recovery_verified: true
+      - post_mortem: true
+      - preventive_measures: true
+    timeout_seconds: 900
+    reward_weight: 5.0
+
+  - id: X82
+    name: "Data Breach Response"
+    difficulty: extreme
+    type: genesis_led
+    leader: genesis_meta
+    team: [emergency_error_specialist_agent, deploy_agent, support_agent, billing_agent, analyst_agent]
+    task: |
+      Security breach detected. Genesis leads:
+      - Containment
+      - Impact assessment
+      - User notification
+      - Credential reset
+      - Security hardening
+    success_criteria:
+      - contained: true
+      - impact_assessed: true
+      - users_notified: true
+      - credentials_reset: true
+      - security_improved: true
+      - compliance_met: true
+    timeout_seconds: 1200
+    reward_weight: 5.0
+
+  - id: X83
+    name: "Traffic Spike Handling"
+    difficulty: extreme
+    type: genesis_led
+    leader: genesis_meta
+    team: [emergency_error_specialist_agent, deploy_agent, builder_agent_enhanced, analyst_agent]
+    task: |
+      10x normal traffic. Genesis handles:
+      - Auto-scaling
+      - CDN optimization
+      - Database caching
+      - Queue management
+      - Performance monitoring
+    success_criteria:
+      - scaling_triggered: true
+      - cdn_optimized: true
+      - cache_implemented: true
+      - queues_managed: true
+      - uptime_maintained: true
+    timeout_seconds: 900
+    reward_weight: 5.0
+
+  - id: X84
+    name: "Vendor Migration"
+    difficulty: extreme
+    type: genesis_led
+    leader: genesis_meta
+    team: [deploy_agent, builder_agent_enhanced, qa_agent, billing_agent, analyst_agent]
+    task: |
+      Migrate from one cloud to another:
+      - Infrastructure planning
+      - Data migration
+      - DNS cutover
+      - Zero-downtime transition
+      - Rollback plan
+    success_criteria:
+      - plan_complete: true
+      - data_migrated: true
+      - dns_cutover: true
+      - zero_downtime: true
+      - rollback_ready: true
+      - verification: true
+    timeout_seconds: 1800
+    reward_weight: 5.0
+
+  - id: X85
+    name: "Compliance Audit Preparation"
+    difficulty: extreme
+    type: genesis_led
+    leader: genesis_meta
+    team: [analyst_agent, deploy_agent, qa_agent, billing_agent, support_agent]
+    task: |
+      Prepare for SOC 2 audit:
+      - Policy documentation
+      - Control implementation
+      - Evidence collection
+      - Gap remediation
+      - Audit simulation
+    success_criteria:
+      - policies: true
+      - controls: true
+      - evidence: true
+      - gaps_fixed: true
+      - simulation_pass: true
+    timeout_seconds: 2400
+    reward_weight: 5.0
+
+  # Genesis Full Business Operations (5 tests)
+  - id: X86
+    name: "New Feature Release"
+    difficulty: extreme
+    type: genesis_led
+    leader: genesis_meta
+    team: [builder_agent_enhanced, qa_agent, deploy_agent, marketing_agent, support_agent, seo_agent]
+    task: |
+      Genesis coordinates major feature release:
+      - Feature development
+      - Testing & QA
+      - Documentation
+      - Marketing materials
+      - Staged rollout
+      - Support training
+    success_criteria:
+      - feature_complete: true
+      - tests_pass: true
+      - docs_updated: true
+      - marketing_ready: true
+      - rollout_staged: true
+      - support_trained: true
+    timeout_seconds: 2100
+    reward_weight: 5.0
+
+  - id: X87
+    name: "Pricing Model Change"
+    difficulty: extreme
+    type: genesis_led
+    leader: genesis_meta
+    team: [billing_agent, analyst_agent, marketing_agent, support_agent, builder_agent_enhanced]
+    task: |
+      Genesis handles pricing restructure:
+      - Analysis of impact
+      - Grandfathering strategy
+      - Migration plan
+      - Communication strategy
+      - Implementation
+    success_criteria:
+      - impact_analyzed: true
+      - grandfathering: true
+      - migration_plan: true
+      - communications: true
+      - implemented: true
+      - churn_minimized: true
+    timeout_seconds: 1800
+    reward_weight: 5.0
+
+  - id: X88
+    name: "Internationalization Launch"
+    difficulty: extreme
+    type: genesis_led
+    leader: genesis_meta
+    team: [builder_agent_enhanced, marketing_agent, seo_agent, billing_agent, support_agent, deploy_agent]
+    task: |
+      Genesis expands to 3 new markets:
+      - i18n implementation
+      - Localized content
+      - Currency support
+      - Regional SEO
+      - Local support
+    success_criteria:
+      - i18n_complete: true
+      - languages: 3
+      - currencies: 3
+      - regional_seo: true
+      - support_localized: true
+      - legal_compliance: true
+    timeout_seconds: 2400
+    reward_weight: 5.0
+
+  - id: X89
+    name: "Enterprise Tier Launch"
+    difficulty: extreme
+    type: genesis_led
+    leader: genesis_meta
+    team: [builder_agent_enhanced, billing_agent, onboarding_agent, support_agent, analyst_agent, deploy_agent]
+    task: |
+      Genesis launches enterprise offering:
+      - Enterprise features
+      - Custom billing
+      - Dedicated onboarding
+      - SLA implementation
+      - Account management
+    success_criteria:
+      - features: true
+      - custom_billing: true
+      - onboarding_program: true
+      - sla_defined: true
+      - account_tools: true
+      - sales_enablement: true
+    timeout_seconds: 2400
+    reward_weight: 5.0
+
+  - id: X90
+    name: "Platform API Launch"
+    difficulty: extreme
+    type: genesis_led
+    leader: genesis_meta
+    team: [builder_agent_enhanced, deploy_agent, qa_agent, billing_agent, marketing_agent, support_agent]
+    task: |
+      Genesis launches public API:
+      - API design
+      - Documentation
+      - Developer portal
+      - Rate limiting
+      - Usage billing
+      - SDK generation
+    success_criteria:
+      - api_designed: true
+      - docs_complete: true
+      - portal_ready: true
+      - rate_limits: true
+      - usage_billing: true
+      - sdk_published: true
+    timeout_seconds: 2400
+    reward_weight: 5.0
+
+  # Genesis Long-term Planning (5 tests)
+  - id: X91
+    name: "Quarterly Roadmap"
+    difficulty: extreme
+    type: genesis_led
+    leader: genesis_meta
+    team: [analyst_agent, marketing_agent, builder_agent_enhanced, support_agent, billing_agent]
+    task: |
+      Genesis creates Q1 roadmap:
+      - Market analysis
+      - Feature prioritization
+      - Resource allocation
+      - Timeline planning
+      - Risk assessment
+    success_criteria:
+      - analysis: true
+      - priorities: true
+      - resources: true
+      - timeline: true
+      - risks: true
+      - dependencies: true
+    timeout_seconds: 1800
+    reward_weight: 5.0
+
+  - id: X92
+    name: "Growth Strategy"
+    difficulty: extreme
+    type: genesis_led
+    leader: genesis_meta
+    team: [analyst_agent, marketing_agent, seo_agent, billing_agent, se_darwin_agent]
+    task: |
+      Genesis develops growth strategy:
+      - TAM/SAM/SOM analysis
+      - Channel strategy
+      - Pricing optimization
+      - Retention improvements
+      - Expansion revenue
+    success_criteria:
+      - market_analysis: true
+      - channels: true
+      - pricing: true
+      - retention: true
+      - expansion: true
+      - metrics_defined: true
+    timeout_seconds: 1800
+    reward_weight: 5.0
+
+  - id: X93
+    name: "Technical Debt Remediation"
+    difficulty: extreme
+    type: genesis_led
+    leader: genesis_meta
+    team: [builder_agent_enhanced, qa_agent, deploy_agent, analyst_agent, emergency_error_specialist_agent]
+    task: |
+      Genesis leads tech debt cleanup:
+      - Debt inventory
+      - Prioritization
+      - Refactoring plan
+      - Testing strategy
+      - Rollout plan
+    success_criteria:
+      - inventory: true
+      - prioritized: true
+      - refactored: true
+      - tests_added: true
+      - performance_improved: true
+      - docs_updated: true
+    timeout_seconds: 2400
+    reward_weight: 5.0
+
+  - id: X94
+    name: "Customer Success Program"
+    difficulty: extreme
+    type: genesis_led
+    leader: genesis_meta
+    team: [onboarding_agent, support_agent, analyst_agent, marketing_agent, billing_agent]
+    task: |
+      Genesis creates CS program:
+      - Health scoring
+      - Intervention triggers
+      - Success playbooks
+      - QBR templates
+      - Renewal process
+    success_criteria:
+      - health_scores: true
+      - triggers: true
+      - playbooks: true
+      - qbr_template: true
+      - renewal_process: true
+      - metrics: true
+    timeout_seconds: 1800
+    reward_weight: 5.0
+
+  - id: X95
+    name: "Security Hardening Initiative"
+    difficulty: extreme
+    type: genesis_led
+    leader: genesis_meta
+    team: [emergency_error_specialist_agent, deploy_agent, qa_agent, builder_agent_enhanced, analyst_agent]
+    task: |
+      Genesis leads security overhaul:
+      - Vulnerability assessment
+      - Penetration testing
+      - Security policies
+      - Training program
+      - Monitoring setup
+    success_criteria:
+      - assessment: true
+      - pentest: true
+      - policies: true
+      - training: true
+      - monitoring: true
+      - certification: true
+    timeout_seconds: 2400
+    reward_weight: 5.0
+
+  # Genesis Ultimate Challenges (5 tests)
+  - id: X96
+    name: "Full Business Website from Scratch"
+    difficulty: extreme
+    type: genesis_led
+    leader: genesis_meta
+    team: [analyst_agent, builder_agent_enhanced, deploy_agent, seo_agent, marketing_agent, qa_agent, billing_agent, support_agent, onboarding_agent]
+    task: |
+      Genesis builds complete business website:
+      - Market research
+      - Design system
+      - 20-page website
+      - E-commerce
+      - Blog
+      - Documentation
+      - Customer portal
+      - Admin dashboard
+    success_criteria:
+      - research: true
+      - design_system: true
+      - pages: 20
+      - ecommerce: true
+      - blog: true
+      - docs: true
+      - portal: true
+      - admin: true
+      - test_coverage: 85
+      - lighthouse: 90
+    timeout_seconds: 3600
+    reward_weight: 10.0
+
+  - id: X97
+    name: "Product Hunt Launch"
+    difficulty: extreme
+    type: genesis_led
+    leader: genesis_meta
+    team: [marketing_agent, builder_agent_enhanced, seo_agent, support_agent, analyst_agent, deploy_agent]
+    task: |
+      Genesis prepares Product Hunt launch:
+      - Landing page optimization
+      - Asset creation
+      - Outreach campaign
+      - Real-time support plan
+      - Analytics tracking
+    success_criteria:
+      - landing_optimized: true
+      - assets: true
+      - outreach: true
+      - support_plan: true
+      - tracking: true
+      - launch_ready: true
+    timeout_seconds: 1800
+    reward_weight: 5.0
+
+  - id: X98
+    name: "Acquisition Integration"
+    difficulty: extreme
+    type: genesis_led
+    leader: genesis_meta
+    team: [builder_agent_enhanced, deploy_agent, billing_agent, support_agent, analyst_agent, onboarding_agent]
+    task: |
+      Genesis integrates acquired company:
+      - Technical assessment
+      - Migration plan
+      - User transition
+      - Feature integration
+      - Brand transition
+    success_criteria:
+      - assessment: true
+      - migration_plan: true
+      - users_transitioned: true
+      - features_integrated: true
+      - brand_updated: true
+      - zero_data_loss: true
+    timeout_seconds: 3600
+    reward_weight: 10.0
+
+  - id: X99
+    name: "Multi-product Platform"
+    difficulty: extreme
+    type: genesis_led
+    leader: genesis_meta
+    team: [builder_agent_enhanced, deploy_agent, billing_agent, qa_agent, marketing_agent, analyst_agent, se_darwin_agent]
+    task: |
+      Genesis creates multi-product platform:
+      - Shared auth
+      - Unified billing
+      - Cross-product navigation
+      - Data sharing
+      - Unified support
+    success_criteria:
+      - shared_auth: true
+      - unified_billing: true
+      - navigation: true
+      - data_sharing: true
+      - unified_support: true
+      - analytics: true
+    timeout_seconds: 3600
+    reward_weight: 10.0
+
+  - id: X100
+    name: "Complete Business Operating System"
+    difficulty: extreme
+    type: genesis_led
+    leader: genesis_meta
+    team: [analyst_agent, builder_agent_enhanced, deploy_agent, billing_agent, emergency_error_specialist_agent, marketing_agent, support_agent, onboarding_agent, qa_agent, se_darwin_agent, seo_agent]
+    task: |
+      Genesis runs complete business for 1 day:
+      - Generate new business idea
+      - Build MVP website
+      - Deploy to production
+      - Set up billing
+      - Create marketing content
+      - Handle support tickets
+      - Monitor performance
+      - Iterate based on feedback
+    success_criteria:
+      - idea_generated: true
+      - mvp_built: true
+      - deployed: true
+      - billing_live: true
+      - marketing_content: true
+      - support_handled: true
+      - monitoring: true
+      - iteration: true
+      - all_agents_participated: true
+      - no_human_intervention: true
+    timeout_seconds: 7200
+    reward_weight: 20.0

@@ -37,8 +37,13 @@ from infrastructure.creative_asset_registry import get_asset_registry
 from infrastructure.mcp_chrome_devtools_client import ChromeDevToolsMCPClient
 
 # Import StandardIntegrationMixin for ALL 283 integrations
-from infrastructure.standard_integration_mixin import StandardIntegrationMixin
+from infrastructure.standard_integration_mixin import StandardIntegrationMixin, darwin_evolved
 from infrastructure.smart_tool_router import SmartToolRouterMixin
+
+# Import MemoryOS for SEO history and keyword memory
+from infrastructure.memory_os_mongodb_adapter import (
+    create_genesis_memory_mongodb
+)
 
 logger = logging.getLogger(__name__)
 
@@ -102,7 +107,25 @@ class SEOAgent(SmartToolRouterMixin, StandardIntegrationMixin):
             )
             self._ap2_thread.start()
 
+        # Initialize MemoryOS for SEO history and keyword memory
+        self.memory = None  # Lazy initialization
+
         logger.info("SEOAgent v4.0 initialized with DAAO + TUMIX for business: %s", business_id)
+
+    async def _init_memory(self):
+        """Initialize MemoryOS MongoDB backend for SEO history and keyword memory."""
+        try:
+            self.memory = create_genesis_memory_mongodb(
+                mongodb_uri=os.getenv("MONGODB_URI", "mongodb://localhost:27017/"),
+                database_name="genesis_memory_seo",
+                short_term_capacity=15,    # Recent keyword research sessions
+                mid_term_capacity=500,     # Historical SEO data
+                long_term_knowledge_capacity=300  # SEO strategies, ranking insights
+            )
+            logger.info("[OK] MemoryOS initialized for SEOAgent")
+        except Exception as e:
+            logger.warning(f"[SEOAgent] Failed to initialize MemoryOS: {e}. Memory features disabled.")
+            self.memory = None
 
     def _get_system_instruction(self) -> str:
         """System instruction for SEO agent"""
@@ -295,15 +318,25 @@ Return JSON with:
             logger.warning(f"LLM asset signature analysis failed: {e}")
 
     async def initialize(self):
-        cred = AzureCliCredential()
-        client = AzureAIAgentClient(async_credential=cred)
-        self.agent = ChatAgent(
-            chat_client=client,
-            instructions=self._get_system_instruction(),
-            name="seo-agent",
-            tools=[self.keyword_research, self.optimize_content, self.analyze_backlinks, self.track_rankings, self.generate_seo_report]
-        )
-        print(f"🔍 SEO Agent initialized for business: {self.business_id}\n")
+        # Azure Agent Framework is optional - use direct LLM if not available
+        try:
+            from azure.identity.aio import AzureCliCredential
+            from agent_framework import ChatAgent
+            from agent_framework.azure import AzureAIAgentClient
+
+            cred = AzureCliCredential()
+            client = AzureAIAgentClient(async_credential=cred)
+            self.agent = ChatAgent(
+                chat_client=client,
+                instructions=self._get_system_instruction(),
+                name="seo-agent",
+                tools=[self.keyword_research, self.optimize_content, self.analyze_backlinks, self.track_rankings, self.generate_seo_report]
+            )
+            logger.info(f"SEO Agent initialized with Azure Agent Framework")
+        except (ImportError, Exception) as e:
+            self.agent = None
+            logger.info(f"SEO Agent initialized (standalone mode) - Azure: {e}")
+        print(f"[SEO] SEO Agent initialized for business: {self.business_id}\n")
 
     async def keyword_research(
         self,
@@ -313,8 +346,33 @@ Return JSON with:
         *,
         ahrefs_cost: float = 99.0,
         semrush_cost: float = 119.0,
+        user_id: str = "default_user",
     ) -> str:
         """Research relevant keywords for a topic"""
+        # Initialize memory if not done
+        if self.memory is None:
+            await self._init_memory()
+
+        # Retrieve historical keyword research from memory
+        historical_context = ""
+        if self.memory:
+            try:
+                memories = self.memory.retrieve(
+                    agent_id="seo",
+                    user_id=user_id,
+                    query=f"keyword research {topic} {target_audience}",
+                    memory_type=None,
+                    top_k=3
+                )
+                if memories:
+                    historical_context = "\n".join([
+                        f"- Previous research: {m.get('content', '')[:200]}"
+                        for m in memories
+                    ])
+                    logger.info(f"[SEOAgent] Retrieved {len(memories)} historical keyword research memories")
+            except Exception as e:
+                logger.warning(f"Memory retrieval failed: {e}")
+
         ap2_receipts = []
         ap2_receipts.append(
             self._ensure_seo_budget(
@@ -385,6 +443,22 @@ Return JSON with: keyword_ideas (array), grouped_by_intent (object), content_opp
             "researched_at": datetime.now().isoformat(),
             "ap2_approvals": ap2_receipts,
         }
+
+        # Store keyword research in memory for future reference
+        if self.memory:
+            try:
+                keywords_summary = ", ".join([k.get("keyword", "") for k in result["keywords"][:5]])
+                self.memory.store(
+                    agent_id="seo",
+                    user_id=user_id,
+                    user_input=f"Keyword research for {topic} targeting {target_audience}, {num_keywords} keywords",
+                    agent_response=f"Research ID: {result['research_id']}. Top keywords: {keywords_summary}",
+                    memory_type="conversation"
+                )
+                logger.info(f"[SEOAgent] Stored keyword research in memory: {result['research_id']}")
+            except Exception as e:
+                logger.warning(f"Memory store failed: {e}")
+
         return json.dumps(result, indent=2)
 
     async def optimize_content(self, content_url: str, target_keywords: List[str], optimization_type: str) -> str:

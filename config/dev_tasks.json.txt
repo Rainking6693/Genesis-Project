@@ -1,0 +1,201 @@
+{
+  "version": 1,
+  "description": "Concrete dev + ops tasks for web-building agents.",
+  "tasks": [
+    {
+      "id": "builder_basic_marketing_site",
+      "role": "builder_agent_enhanced",
+      "difficulty": 2,
+      "category": "site_build",
+      "phase": "build",
+      "instruction": "Create a production-ready marketing site with pages `/`, `/pricing`, and `/docs` using Next.js and Tailwind (or an equivalent stack). Include a responsive navbar, footer, and consistent layout. Add placeholder copy and clearly labeled sections for features and pricing tiers."
+    },
+    {
+      "id": "builder_responsive_pricing_table",
+      "role": "builder_agent_enhanced",
+      "difficulty": 2,
+      "category": "ui_component",
+      "phase": "build",
+      "instruction": "In the existing app, build a responsive pricing table component with 3–4 plans. Highlight the ‘Pro’ plan as recommended, ensure it stacks vertically on mobile, and make it accessible with proper heading structure and semantic markup."
+    },
+    {
+      "id": "builder_blog_system_mdx",
+      "role": "builder_agent_enhanced",
+      "difficulty": 3,
+      "category": "content_system",
+      "phase": "build",
+      "instruction": "Add a `/blog` index page that lists posts loaded from a local `content/posts` folder using Markdown or MDX. Create dynamic routes for each post and show title, date, and body. Include basic pagination or a ‘load more’ pattern."
+    },
+    {
+      "id": "builder_contact_form_validation",
+      "role": "builder_agent_enhanced",
+      "difficulty": 2,
+      "category": "forms",
+      "phase": "build",
+      "instruction": "Create a `/contact` page with fields: name, email, message. Add client-side validation (required fields, valid email). For now, log submissions to the console and show a ‘Message sent’ success state and error states for invalid input."
+    },
+    {
+      "id": "builder_docs_layout_sidebar",
+      "role": "builder_agent_enhanced",
+      "difficulty": 3,
+      "category": "docs",
+      "phase": "build",
+      "instruction": "Implement a documentation layout with a left-hand sidebar navigation and a main content area on `/docs`. Use nested routes for sections, and ensure the layout is responsive and keyboard-accessible (tab order, focus states)."
+    },
+    {
+      "id": "builder_dark_mode_toggle",
+      "role": "builder_agent_enhanced",
+      "difficulty": 3,
+      "category": "theme",
+      "phase": "build",
+      "instruction": "Add dark mode support using a theme toggle in the navbar. Persist the theme choice in `localStorage` and apply it to all pages using Tailwind’s dark mode classes or an equivalent theming approach."
+    },
+    {
+      "id": "builder_dashboard_layout",
+      "role": "builder_agent_enhanced",
+      "difficulty": 3,
+      "category": "app_layout",
+      "phase": "build",
+      "instruction": "Create a `/dashboard` page with a basic SaaS dashboard layout: sidebar, top bar, and main content area. Include placeholder cards for ‘Revenue’, ‘Active Users’, and ‘Recent Activity’. Ensure the layout is responsive on mobile and tablet."
+    },
+
+    {
+      "id": "deploy_basic_ci_pipeline",
+      "role": "deploy_agent",
+      "difficulty": 2,
+      "category": "deployment",
+      "phase": "deploy",
+      "instruction": "Create a CI pipeline configuration that runs tests on every push and deploys the `main` branch to the production environment if tests pass. Use the existing package.json scripts for build and test. Add clear comments for each step."
+    },
+    {
+      "id": "deploy_staging_vs_production",
+      "role": "deploy_agent",
+      "difficulty": 3,
+      "category": "environments",
+      "phase": "deploy",
+      "instruction": "Configure separate staging and production environments. Staging should deploy on the `develop` branch and production on `main`. Document environment URLs and update the README with a ‘Deployments’ section explaining how the flow works."
+    },
+    {
+      "id": "deploy_healthcheck_endpoint",
+      "role": "deploy_agent",
+      "difficulty": 2,
+      "category": "observability",
+      "phase": "deploy",
+      "instruction": "Add a `/api/health` endpoint that returns `{ status: 'ok' }` with an HTTP 200 status. Update the deployment pipeline to hit this endpoint after deploy as a basic smoke test and fail the deploy if it does not return 200."
+    },
+    {
+      "id": "deploy_rollback_strategy",
+      "role": "deploy_agent",
+      "difficulty": 3,
+      "category": "safety",
+      "phase": "deploy",
+      "instruction": "Add a documented and scripted rollback procedure in the repo that allows reverting to the previous successful deployment. Provide a simple command or script and document it in the README under a ‘Rollback’ section."
+    },
+    {
+      "id": "deploy_notifications_basic",
+      "role": "deploy_agent",
+      "difficulty": 3,
+      "category": "notifications",
+      "phase": "deploy",
+      "instruction": "Add a simple deployment notification hook that logs a structured message when a deployment succeeds or fails. Wrap it in a helper function that could later be wired to Slack or email. Document how it works in the README."
+    },
+
+    {
+      "id": "incident_runbook_page",
+      "role": "emergency_error_specialist_agent",
+      "difficulty": 2,
+      "category": "runbooks",
+      "phase": "support",
+      "instruction": "Add a `/runbooks/incidents` page that documents how to respond to common production issues such as site downtime, 500 errors, and slow responses. Include sections: Detection, Diagnosis, Mitigation, and Follow-up."
+    },
+    {
+      "id": "incident_global_error_boundary",
+      "role": "emergency_error_specialist_agent",
+      "difficulty": 3,
+      "category": "error_handling",
+      "phase": "support",
+      "instruction": "Implement a global error boundary for the frontend that catches unhandled errors, shows a user-friendly fallback screen, and logs error details using a centralized logging utility. Ensure it does not break routing."
+    },
+    {
+      "id": "incident_logging_utility",
+      "role": "emergency_error_specialist_agent",
+      "difficulty": 2,
+      "category": "logging",
+      "phase": "support",
+      "instruction": "Introduce a simple logging utility that can be called wherever errors occur. For now, log to the console using a consistent format including timestamp, severity, and message. Wire this into the global error boundary and key API error paths."
+    },
+    {
+      "id": "incident_trigger_error_endpoint",
+      "role": "emergency_error_specialist_agent",
+      "difficulty": 2,
+      "category": "testing",
+      "phase": "support",
+      "instruction": "Add a test endpoint `/api/trigger-error` that deliberately throws an error. Ensure it returns a 500 response with a JSON error body and that the error is logged via the logging utility for debugging."
+    },
+    {
+      "id": "incident_synthetic_uptime_check",
+      "role": "emergency_error_specialist_agent",
+      "difficulty": 3,
+      "category": "observability",
+      "phase": "support",
+      "instruction": "Create a script or small module that periodically hits key endpoints (`/`, `/pricing`, `/api/health`) and logs whether they are up along with response time. For now, write results to stdout or a simple log file in a consistent format."
+    },
+    {
+      "id": "incident_report_template",
+      "role": "emergency_error_specialist_agent",
+      "difficulty": 1,
+      "category": "documentation",
+      "phase": "support",
+      "instruction": "Add a markdown template in `docs/incidents/incident_report_template.md` that includes sections for Summary, Timeline, Impact, Root Cause, Mitigation, and Follow-up Actions. Ensure the template is clearly labeled and easy to fill out."
+    },
+
+    {
+      "id": "search_internal_site_search_basic",
+      "role": "se_darwin_agent",
+      "difficulty": 3,
+      "category": "internal_search",
+      "phase": "analytics",
+      "instruction": "Add an internal search bar to the site that lets users search across blog posts and docs. Index titles, descriptions, and content from `/blog` and `/docs`. Display results on a `/search` page with links, snippets, and result counts."
+    },
+    {
+      "id": "search_ranking_titles_first",
+      "role": "se_darwin_agent",
+      "difficulty": 3,
+      "category": "ranking",
+      "phase": "analytics",
+      "instruction": "Implement a simple relevance scoring function for internal search that prioritizes matches in titles over body content. Apply it to search results and ensure they are sorted by descending relevance score."
+    },
+    {
+      "id": "search_log_queries_and_results",
+      "role": "se_darwin_agent",
+      "difficulty": 2,
+      "category": "analytics",
+      "phase": "analytics",
+      "instruction": "Log each search query and the number of results to a simple JSON file or in-memory store. Include timestamp and whether the query returned zero results. This data will later be used for search analytics."
+    },
+    {
+      "id": "search_no_results_experience",
+      "role": "se_darwin_agent",
+      "difficulty": 2,
+      "category": "ux",
+      "phase": "analytics",
+      "instruction": "When a search returns no results, show a helpful message with suggestions such as checking spelling, browsing docs, or contacting support. Also log these ‘no result’ queries separately for later analysis."
+    },
+    {
+      "id": "search_filters_by_content_type",
+      "role": "se_darwin_agent",
+      "difficulty": 3,
+      "category": "filters",
+      "phase": "analytics",
+      "instruction": "Extend search to support filtering by content type (e.g., blog vs docs) and tag. Add filter controls (checkboxes or dropdowns) on the `/search` page and ensure filters are applied correctly to the result set."
+    },
+    {
+      "id": "search_latency_metrics",
+      "role": "se_darwin_agent",
+      "difficulty": 3,
+      "category": "performance",
+      "phase": "analytics",
+      "instruction": "Measure and log search latency for each query (time from input to results being ready). Surface average search time on a simple `/admin/search-metrics` page, along with total query count and number of ‘no result’ queries."
+    }
+  ]
+}

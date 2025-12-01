@@ -61,7 +61,13 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Import StandardIntegrationMixin
-from infrastructure.standard_integration_mixin import StandardIntegrationMixin
+from infrastructure.standard_integration_mixin import StandardIntegrationMixin, darwin_evolved
+
+# Import MemoryOS for build history and pattern memory
+from infrastructure.memory_os_mongodb_adapter import (
+    create_genesis_memory_mongodb
+)
+import os
 
 
 @dataclass
@@ -146,25 +152,53 @@ class EnhancedBuilderAgent(StandardIntegrationMixin):
         # Track refinement sessions for metrics
         self.refinement_history: List[List[RefinementResult]] = []
 
+        # Initialize MemoryOS for build history
+        self.memory = None  # Lazy initialization
+
         logger.info(f"{{agent_name}} v4.0 initialized with DAAO + TUMIX for business: {{business_id}}")
+
+    async def _init_memory(self):
+        """Initialize MemoryOS MongoDB backend for Build memory."""
+        try:
+            self.memory = create_genesis_memory_mongodb(
+                mongodb_uri=os.getenv("MONGODB_URI", "mongodb://localhost:27017/"),
+                database_name="genesis_memory_builder_enhanced",
+                short_term_capacity=15,   # Recent builds
+                mid_term_capacity=500,    # Historical build data
+                long_term_knowledge_capacity=300  # Build patterns, architecture insights
+            )
+            logger.info("[OK] MemoryOS initialized for EnhancedBuilderAgent")
+        except Exception as e:
+            logger.warning(f"[EnhancedBuilderAgent] Failed to initialize MemoryOS: {e}. Memory features disabled.")
+            self.memory = None
 
     async def initialize(self):
         """Initialize the agent with Azure AI Agent Client"""
-        cred = AzureCliCredential()
-        client = AzureAIAgentClient(async_credential=cred)
+        # Azure Agent Framework is optional - use direct LLM if not available
+        try:
+            from azure.identity.aio import AzureCliCredential
+            from agent_framework import ChatAgent
+            from agent_framework.azure import AzureAIAgentClient
 
-        self.agent = ChatAgent(
-            chat_client=client,
-            instructions=self._get_system_instruction(),
-            name="builder-agent-enhanced",
-            tools=[
-                self.generate_frontend,
-                self.generate_backend,
-                self.generate_database,
-                self.generate_config,
-                self.review_code
-            ]
-        )
+            cred = AzureCliCredential()
+            client = AzureAIAgentClient(async_credential=cred)
+
+            self.agent = ChatAgent(
+                chat_client=client,
+                instructions=self._get_system_instruction(),
+                name="builder-agent-enhanced",
+                tools=[
+                    self.generate_frontend,
+                    self.generate_backend,
+                    self.generate_database,
+                    self.generate_config,
+                    self.review_code
+                ]
+            )
+            logger.info(f"Enhanced Builder Agent initialized with Azure Agent Framework")
+        except (ImportError, Exception) as e:
+            self.agent = None
+            logger.info(f"Enhanced Builder Agent initialized (standalone mode) - Azure: {e}")
 
         logger.info(f"🔨 Enhanced Builder Agent initialized for business: {self.business_id}")
         logger.info("   Model: Claude Sonnet 4 / GPT-4o")

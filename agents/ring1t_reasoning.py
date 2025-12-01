@@ -25,7 +25,13 @@ from opentelemetry.trace import Status, StatusCode
 from infrastructure.observability import ObservabilityManager, SpanType, CorrelationContext
 from infrastructure.llm_client import LLMClient
 # Import StandardIntegrationMixin
-from infrastructure.standard_integration_mixin import StandardIntegrationMixin
+from infrastructure.standard_integration_mixin import StandardIntegrationMixin, darwin_evolved
+
+# Import MemoryOS for reasoning history and solution memory
+from infrastructure.memory_os_mongodb_adapter import (
+    create_genesis_memory_mongodb
+)
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -81,6 +87,24 @@ class Ring1TReasoning(StandardIntegrationMixin):
         self.obs_manager = obs_manager or ObservabilityManager()
         self.max_reasoning_rounds = max_reasoning_rounds
         self.quality_threshold = quality_threshold
+
+        # Initialize MemoryOS for reasoning history
+        self.memory = None  # Lazy initialization
+
+    async def _init_memory(self):
+        """Initialize MemoryOS MongoDB backend for Reasoning memory."""
+        try:
+            self.memory = create_genesis_memory_mongodb(
+                mongodb_uri=os.getenv("MONGODB_URI", "mongodb://localhost:27017/"),
+                database_name="genesis_memory_reasoning",
+                short_term_capacity=15,   # Recent reasoning sessions
+                mid_term_capacity=500,    # Historical reasoning data
+                long_term_knowledge_capacity=300  # Reasoning patterns, solution strategies
+            )
+            logger.info("[OK] MemoryOS initialized for Ring1TReasoning")
+        except Exception as e:
+            logger.warning(f"[Ring1TReasoning] Failed to initialize MemoryOS: {e}. Memory features disabled.")
+            self.memory = None
 
     async def solve(
         self,
@@ -760,3 +784,29 @@ Return JSON with:
             logger.warning(f"LLM sub-problem analysis failed: {e}")
 
         return formatted
+
+
+async def get_ring1t_reasoning_agent(llm_client=None, max_reasoning_rounds: int = 3, quality_threshold: float = 0.85) -> Ring1TReasoning:
+    """
+    Factory function to create Ring-1T reasoning agent
+
+    Args:
+        llm_client: LLM client for reasoning
+        max_reasoning_rounds: Maximum reasoning rounds per sub-problem
+        quality_threshold: Quality threshold for convergence
+
+    Returns:
+        Ring1TReasoning instance
+    """
+    if llm_client is None:
+        # Import default LLM client
+        from infrastructure.llm_client import get_llm_client
+        llm_client = get_llm_client()
+
+    agent = Ring1TReasoning(
+        llm_client=llm_client,
+        max_reasoning_rounds=max_reasoning_rounds,
+        quality_threshold=quality_threshold
+    )
+    await agent.initialize()  # Initialize if needed
+    return agent

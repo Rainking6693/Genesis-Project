@@ -35,6 +35,7 @@ from infrastructure.tumix_termination import (
 # Import AP2 Service for payment integrations
 from infrastructure.ap2_service import AP2Service
 from infrastructure.x402_client import get_x402_client, X402PaymentError
+from infrastructure.x402_vendor_cache import get_x402_vendor_cache
 
 # Import OCR capability
 from infrastructure.ocr.ocr_agent_tool import analyst_agent_chart_data_extractor
@@ -85,7 +86,7 @@ from infrastructure.business_monitor import get_monitor
 from infrastructure.hallucination_control import BinaryRARVerifier
 
 # Import StandardIntegrationMixin for ALL 283 integrations
-from infrastructure.standard_integration_mixin import StandardIntegrationMixin
+from infrastructure.standard_integration_mixin import StandardIntegrationMixin, darwin_evolved
 
 # setup_observability(enable_sensitive_data=True)  # Commented out - missing import
 logger = logging.getLogger(__name__)
@@ -349,8 +350,7 @@ Return JSON with:
         logger.info(f"Analyst audit: {action} {service} ${price} [{status}]")
 
     async def initialize(self):
-        cred = AzureCliCredential()
-        client = AzureAIAgentClient(async_credential=cred)
+        """Initialize agent - Azure framework is optional."""
         tools = [
             self.analyze_metrics,
             self.generate_dashboard,
@@ -366,19 +366,32 @@ Return JSON with:
         if WEBVOYAGER_AVAILABLE and self.webvoyager:
             tools.append(self.web_research)
 
-        self.agent = ChatAgent(
-            chat_client=client,
-            instructions="""You are the world\'s premier Analyst specialist - recognized globally for innovative, cost-effective, and exceptional results. You deliver elegant, efficient, and reliable outcomes every time.""",
-            name="analyst-agent",
-            tools=tools
-        )
-        print(f"📊 Analyst Agent initialized for business: {self.business_id}")
-        print(f"   - Context Profiles: LONGDOC enabled (60% cost reduction for long documents)")
-        print(f"   - MemoryOS MongoDB backend enabled (49% F1 improvement)")
+        # Azure Agent Framework is optional - use direct LLM if not available
+        try:
+            from azure.identity.aio import AzureCliCredential
+            from agent_framework import ChatAgent
+            from agent_framework.azure import AzureAIAgentClient
+
+            cred = AzureCliCredential()
+            client = AzureAIAgentClient(async_credential=cred)
+            self.agent = ChatAgent(
+                chat_client=client,
+                instructions="""You are the world's premier Analyst specialist - recognized globally for innovative, cost-effective, and exceptional results. You deliver elegant, efficient, and reliable outcomes every time.""",
+                name="analyst-agent",
+                tools=tools
+            )
+            logger.info(f"Analyst Agent initialized with Azure Agent Framework for business: {self.business_id}")
+        except (ImportError, Exception) as e:
+            # Azure framework not available or not configured - agent works without it using direct methods
+            self.agent = None
+            logger.info(f"Analyst Agent initialized (standalone mode) for business: {self.business_id} - Azure: {e}")
+
+        logger.info(f"   - Context Profiles: LONGDOC enabled (60% cost reduction for long documents)")
+        logger.info(f"   - MemoryOS MongoDB backend enabled (49% F1 improvement)")
         if WEBVOYAGER_AVAILABLE and self.webvoyager:
-            print(f"   - WebVoyager web navigation enabled (59.1% success rate)\n")
+            logger.info(f"   - WebVoyager web navigation enabled (59.1% success rate)")
         else:
-            print(f"   - WebVoyager: NOT AVAILABLE (install dependencies)\n")
+            logger.info(f"   - WebVoyager: NOT AVAILABLE (install dependencies)")
 
     async def _init_memory(self):
         """Initialize MemoryOS MongoDB backend for Analyst research/insights memory with LLM analysis."""
@@ -485,6 +498,108 @@ Return JSON with:
             expectations=expectations,
             context={"agent": "AnalystAgent", "business_id": self.business_id}
         )
+
+    async def analyze_market(
+        self,
+        market_segment: str,
+        time_period: str = "1Y",
+        include_competitors: bool = True
+    ) -> str:
+        """
+        Analyze market trends and opportunities for a specific segment.
+
+        Args:
+            market_segment: Market segment to analyze (e.g., "AI agents", "cloud computing")
+            time_period: Analysis time period (e.g., "1Y", "6M", "2Y")
+            include_competitors: Whether to include competitor analysis
+
+        Returns:
+            JSON string with market analysis results
+        """
+        x402_receipt = await self._charge_x402(
+            vendor="analyst-market-research",
+            amount=max(0.04, len(market_segment.split()) * 0.005),
+            metadata={"market_segment": market_segment, "time_period": time_period},
+        )
+
+        # Generate market analysis using LLM
+        prompt = f"""{EXCELLENCE_PROMPT}
+
+Task: Perform comprehensive market analysis
+
+Market Segment: {market_segment}
+Time Period: {time_period}
+Include Competitors: {include_competitors}
+
+Generate a detailed market analysis including:
+1. Market size and growth projections
+2. Key trends and drivers
+3. Competitive landscape
+4. Customer segments and needs
+5. Technology adoption patterns
+6. Regulatory considerations
+7. Investment opportunities
+8. Risk assessment
+
+Return a JSON object with:
+- market_overview: object with size, growth_rate, key_players
+- trends_analysis: array of major trends with impact assessment
+- competitive_analysis: competitor mapping with strengths/weaknesses
+- customer_insights: target segments and pain points
+- opportunities: investment and growth opportunities
+- risks: market risks and mitigation strategies
+"""
+
+        try:
+            llm_response = await self.local_llm_client.complete(prompt, max_tokens=1200)
+            analysis_data = json.loads(llm_response) if llm_response.startswith('{') else {}
+        except Exception as e:
+            logger.error(f"LLM market analysis failed: {e}")
+            # Fallback to basic analysis
+            analysis_data = {
+                "market_overview": {
+                    "size": "TBD",
+                    "growth_rate": "TBD",
+                    "key_players": ["Major players TBD"]
+                },
+                "trends_analysis": [{"trend": "Market growth", "impact": "High"}],
+                "competitive_analysis": {"competitors": ["Competitor analysis pending"]},
+                "customer_insights": ["Customer insights pending"],
+                "opportunities": ["Market opportunities TBD"],
+                "risks": ["Risk assessment pending"]
+            }
+
+        result = {
+            "analysis_id": f"MARKET-{datetime.now().strftime('%Y%m%d%H%M%S')}",
+            "market_segment": market_segment,
+            "time_period": time_period,
+            "include_competitors": include_competitors,
+            "market_overview": analysis_data.get("market_overview", {}),
+            "trends_analysis": analysis_data.get("trends_analysis", []),
+            "competitive_analysis": analysis_data.get("competitive_analysis", {}),
+            "customer_insights": analysis_data.get("customer_insights", []),
+            "opportunities": analysis_data.get("opportunities", []),
+            "risks": analysis_data.get("risks", []),
+            "analyzed_at": datetime.now().isoformat(),
+            "x402_payment": x402_receipt,
+        }
+
+        # Store market analysis in memory
+        if self.memory:
+            try:
+                insights_summary = f"Market analysis complete for {market_segment}"
+                self.memory.store(
+                    agent_id="analyst",
+                    user_id=f"analyst_{self.business_id}",
+                    user_input=f"Analyze market: {market_segment} over {time_period}",
+                    agent_response=insights_summary,
+                    memory_type="conversation"
+                )
+                logger.info(f"[AnalystAgent] Stored market analysis in memory")
+            except Exception as e:
+                logger.warning(f"[AnalystAgent] Memory storage failed: {e}")
+
+        return json.dumps(result, indent=2)
 
     async def analyze_metrics(self, metric_names: List[str], time_period: str, granularity: str) -> str:
         """

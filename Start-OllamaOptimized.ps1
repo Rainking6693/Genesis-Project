@@ -67,7 +67,7 @@ Write-Host "  Layer Offloading:   ENABLED (no unload delays)" -ForegroundColor W
 Write-Host "  Fail Router:        ENABLED (scores <70% escalated)" -ForegroundColor White
 Write-Host ""
 Write-Host "  Main Model:   qwen2.5:14b-instruct-q4_K_M" -ForegroundColor Magenta
-Write-Host "  Judge Model:  gemma2:9b-instruct-q6_K" -ForegroundColor Magenta
+Write-Host "  Judge Model:  mistral-nemo:12b-instruct-2407-q4_K_M" -ForegroundColor Magenta
 Write-Host ""
 Write-Host "============================================================================" -ForegroundColor Cyan
 Write-Host ""

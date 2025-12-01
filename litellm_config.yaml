@@ -13,9 +13,9 @@ model_list:
       # Max retries on failure
       max_retries: 3
 
-  - model_name: gemma
+  - model_name: mistral
     litellm_params:
-      model: ollama/gemma2:9b-instruct-q6_K
+      model: ollama/mistral-nemo:12b-instruct-2407-q4_K_M
       api_base: http://localhost:11434
       # Batch mode for parallel agent calls (+200% throughput)
       batch_size: 20

@@ -1,6 +1,6 @@
 # Genesis Hybrid Leaderboard 2025
 
-**Platform:** Windows | **Main LLM:** qwen2.5:14b | **Judge:** gemma2:9b
+**Platform:** Windows | **Main LLM:** qwen2.5:14b | **Judge:** mistral-nemo:12b
 
 **Date:** 2025-12-01 01:51:03
 

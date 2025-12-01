@@ -146,8 +146,8 @@ class HybridTournamentRunner:
         }
 
     async def judge_results(self, genesis_result: Dict, competing_result: Dict, task: Dict) -> Dict[str, float]:
-        """Use gemma2:9b to judge which implementation is better"""
-        # This would call Ollama gemma2:9b via LiteLLM to judge
+        """Use mistral-nemo:12b to judge which implementation is better"""
+        # This would call Ollama mistral-nemo:12b via LiteLLM to judge
         # Simplified for now - returns mock scores
         import random
         random.seed(hash(str(genesis_result) + str(competing_result)))
@@ -181,7 +181,7 @@ class HybridTournamentRunner:
             return None
 
         print(f"\n[TOURNAMENT] Running: {agent_name} (Genesis vs {framework.upper()})")
-        print(f"   Runs: {num_runs} | Judge: gemma2:9b")
+        print(f"   Runs: {num_runs} | Judge: mistral-nemo:12b")
 
         genesis_scores = []
         competing_scores = []
@@ -244,7 +244,7 @@ class HybridTournamentRunner:
         print("GENESIS HYBRID TOURNAMENT 2025 - Windows/Ollama Edition")
         print("=" * 80)
         print(f"Main LLM: qwen2.5:14b-instruct-q4_K_M")
-        print(f"Judge LLM: gemma2:9b-instruct-q6_K")
+        print(f"Judge LLM: mistral-nemo:12b-instruct-2407-q4_K_M")
         print(f"Runs per agent: {runs_per_agent}")
         print(f"Total agents: {len([a for a in AGENT_MAPPINGS.values() if a != 'KEEP'])}")
         print("=" * 80)
@@ -262,7 +262,7 @@ class HybridTournamentRunner:
     def generate_leaderboard(self, results: List[Dict]) -> str:
         """Generate markdown leaderboard"""
         md = ["# Genesis Hybrid Leaderboard 2025\n"]
-        md.append("**Platform:** Windows | **Main LLM:** qwen2.5:14b | **Judge:** gemma2:9b\n")
+        md.append("**Platform:** Windows | **Main LLM:** qwen2.5:14b | **Judge:** mistral-nemo:12b\n")
         md.append(f"**Date:** {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
         md.append("\n## Tournament Results\n")
         md.append("| Agent | Genesis Score | Competing Score | Framework | Winner | Decision | Δ% |")

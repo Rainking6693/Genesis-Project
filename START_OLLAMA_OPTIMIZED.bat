@@ -72,7 +72,7 @@ echo   Layer Offloading:   ENABLED (no unload delays)
 echo   Fail Router:        ENABLED (scores ^<70%% escalated)
 echo.
 echo   Main Model:   qwen2.5:14b-instruct-q4_K_M
-echo   Judge Model:  gemma2:9b-instruct-q6_K
+echo   Judge Model:  mistral-nemo:12b-instruct-2407-q4_K_M
 echo.
 echo ============================================================================
 echo.

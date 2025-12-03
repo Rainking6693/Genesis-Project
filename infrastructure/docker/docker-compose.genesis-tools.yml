@@ -1,0 +1,300 @@
+# Genesis Project - Website Generation Docker Stack
+# This compose file contains all Docker-based tools for autonomous website generation
+# Usage: docker-compose -f docker-compose.genesis-tools.yml up -d [service_name]
+
+networks:
+  genesis-network:
+    driver: bridge
+
+volumes:
+  gitea-data:
+  gitea-config:
+  lago-data:
+  postgres-data:
+  postal-data:
+  n8n-data:
+  plausible-data:
+  plausible-clickhouse:
+  searxng-data:
+  matomo-data:
+  matomo-db:
+
+services:
+  # =============================================================================
+  # GITEA - Code Storage & Free Website Hosting
+  # Target Agent: HybridBuilderAgent
+  # Purpose: Git repository hosting, free static site hosting via Gitea Pages
+  # =============================================================================
+  gitea:
+    image: gitea/gitea:latest
+    container_name: genesis-gitea
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+      - GITEA__database__DB_TYPE=sqlite3
+      - GITEA__server__ROOT_URL=http://localhost:3000
+      - GITEA__server__HTTP_PORT=3000
+      - GITEA__server__DOMAIN=localhost
+      - GITEA__service__DISABLE_REGISTRATION=false
+      - GITEA__service__REQUIRE_SIGNIN_VIEW=false
+    restart: unless-stopped
+    networks:
+      - genesis-network
+    volumes:
+      - gitea-data:/data
+      - gitea-config:/etc/gitea
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "3000:3000"
+      - "2222:22"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # =============================================================================
+  # LAGO - Open-Source Billing (Stripe Alternative)
+  # Target Agent: HybridBillingAgent
+  # Purpose: Usage-based billing, invoicing, payment processing
+  # =============================================================================
+  lago-api:
+    image: getlago/lago-api:latest
+    container_name: genesis-lago-api
+    environment:
+      - DATABASE_URL=postgresql://lago:lago@lago-postgres:5432/lago
+      - REDIS_URL=redis://lago-redis:6379
+      - SECRET_KEY_BASE=${LAGO_SECRET_KEY_BASE:-genesis-lago-secret-key-base-change-in-production}
+      - LAGO_API_URL=http://localhost:3002
+      - LAGO_FRONT_URL=http://localhost:8080
+      - LAGO_PDF_URL=http://lago-pdf:3003
+      - ENCRYPTION_PRIMARY_KEY=${LAGO_ENCRYPTION_KEY:-genesis-lago-encryption-key-32chars}
+      - ENCRYPTION_DETERMINISTIC_KEY=${LAGO_DETERMINISTIC_KEY:-genesis-lago-deterministic-32ch}
+      - ENCRYPTION_KEY_DERIVATION_SALT=${LAGO_SALT:-genesis-lago-salt-for-key-derivation}
+    restart: unless-stopped
+    networks:
+      - genesis-network
+    ports:
+      - "3002:3000"
+    depends_on:
+      - lago-postgres
+      - lago-redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  lago-postgres:
+    image: postgres:15-alpine
+    container_name: genesis-lago-postgres
+    environment:
+      - POSTGRES_USER=lago
+      - POSTGRES_PASSWORD=lago
+      - POSTGRES_DB=lago
+    restart: unless-stopped
+    networks:
+      - genesis-network
+    volumes:
+      - lago-data:/var/lib/postgresql/data
+
+  lago-redis:
+    image: redis:7-alpine
+    container_name: genesis-lago-redis
+    restart: unless-stopped
+    networks:
+      - genesis-network
+
+  # =============================================================================
+  # SUPABASE POSTGRES - Free Database
+  # Target Agents: HybridBuilderAgent, HybridBillingAgent
+  # Purpose: PostgreSQL database with pgvector, realtime, and REST API
+  # =============================================================================
+  supabase-postgres:
+    image: supabase/postgres:latest
+    container_name: genesis-supabase-postgres
+    environment:
+      - POSTGRES_PASSWORD=${SUPABASE_POSTGRES_PASSWORD:-genesis-postgres-password}
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=postgres
+    restart: unless-stopped
+    networks:
+      - genesis-network
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # =============================================================================
+  # POSTAL - Email Sending Server
+  # Target Agent: HybridMarketingAgent
+  # Purpose: Transactional and marketing email delivery
+  # =============================================================================
+  postal:
+    image: postalserver/postal:latest
+    container_name: genesis-postal
+    environment:
+      - POSTAL_WEB_HOST=localhost
+      - POSTAL_WEB_PROTOCOL=http
+      - POSTAL_SMTP_HOSTNAME=localhost
+    restart: unless-stopped
+    networks:
+      - genesis-network
+    volumes:
+      - postal-data:/opt/postal/data
+    ports:
+      - "25:25"
+      - "5000:5000"
+    # Note: Postal requires additional setup for DNS/MX records
+
+  # =============================================================================
+  # N8N - Workflow Automation
+  # Target Agents: HybridMarketingAgent, HybridSEOAgent
+  # Purpose: No-code automation, API integrations, scheduled workflows
+  # =============================================================================
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: genesis-n8n
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=${N8N_USER:-genesis}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_PASSWORD:-genesis-n8n-password}
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=http://localhost:5678/
+      - GENERIC_TIMEZONE=UTC
+    restart: unless-stopped
+    networks:
+      - genesis-network
+    volumes:
+      - n8n-data:/home/node/.n8n
+    ports:
+      - "5678:5678"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:5678/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # =============================================================================
+  # PLAUSIBLE ANALYTICS - Privacy-First Analytics
+  # Target Agent: HybridSEOAgent
+  # Purpose: Website analytics without cookies, GDPR compliant
+  # =============================================================================
+  plausible:
+    image: plausible/analytics:latest
+    container_name: genesis-plausible
+    environment:
+      - BASE_URL=http://localhost:8001
+      - SECRET_KEY_BASE=${PLAUSIBLE_SECRET_KEY:-genesis-plausible-secret-key-64-chars-minimum-for-security}
+      - DATABASE_URL=postgresql://plausible:plausible@plausible-postgres:5432/plausible
+      - CLICKHOUSE_DATABASE_URL=http://plausible-clickhouse:8123/plausible
+      - DISABLE_REGISTRATION=false
+    restart: unless-stopped
+    networks:
+      - genesis-network
+    ports:
+      - "8001:8000"
+    depends_on:
+      - plausible-postgres
+      - plausible-clickhouse
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  plausible-postgres:
+    image: postgres:15-alpine
+    container_name: genesis-plausible-postgres
+    environment:
+      - POSTGRES_USER=plausible
+      - POSTGRES_PASSWORD=plausible
+      - POSTGRES_DB=plausible
+    restart: unless-stopped
+    networks:
+      - genesis-network
+    volumes:
+      - plausible-data:/var/lib/postgresql/data
+
+  plausible-clickhouse:
+    image: clickhouse/clickhouse-server:23.3-alpine
+    container_name: genesis-plausible-clickhouse
+    restart: unless-stopped
+    networks:
+      - genesis-network
+    volumes:
+      - plausible-clickhouse:/var/lib/clickhouse
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+
+  # =============================================================================
+  # SEARXNG - Meta Search Engine
+  # Target Agent: SEOAgent
+  # Purpose: Privacy-respecting meta-search for keyword research
+  # =============================================================================
+  searxng:
+    image: searxng/searxng:latest
+    container_name: genesis-searxng
+    environment:
+      - SEARXNG_BASE_URL=http://localhost:8888
+      - SEARXNG_SECRET=${SEARXNG_SECRET:-genesis-searxng-secret-key}
+    restart: unless-stopped
+    networks:
+      - genesis-network
+    volumes:
+      - searxng-data:/etc/searxng
+    ports:
+      - "8888:8080"
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+
+  # =============================================================================
+  # MATOMO - Analytics & SEO Toolkit
+  # Target Agent: SEOAgent
+  # Purpose: Full-featured analytics, heatmaps, conversion tracking
+  # =============================================================================
+  matomo:
+    image: matomo:latest
+    container_name: genesis-matomo
+    environment:
+      - MATOMO_DATABASE_HOST=matomo-mariadb
+      - MATOMO_DATABASE_USERNAME=matomo
+      - MATOMO_DATABASE_PASSWORD=matomo
+      - MATOMO_DATABASE_DBNAME=matomo
+    restart: unless-stopped
+    networks:
+      - genesis-network
+    volumes:
+      - matomo-data:/var/www/html
+    ports:
+      - "8082:80"
+    depends_on:
+      - matomo-mariadb
+
+  matomo-mariadb:
+    image: mariadb:10.11
+    container_name: genesis-matomo-mariadb
+    environment:
+      - MYSQL_ROOT_PASSWORD=matomo-root
+      - MYSQL_DATABASE=matomo
+      - MYSQL_USER=matomo
+      - MYSQL_PASSWORD=matomo
+    restart: unless-stopped
+    networks:
+      - genesis-network
+    volumes:
+      - matomo-db:/var/lib/mysql

@@ -37,6 +37,11 @@ class PolicyAwareHALORouter:
         self.use_vertex_ai = getattr(self.halo_router, 'use_vertex_ai', False)
         self.vertex_router = getattr(self.halo_router, 'vertex_router', None)
 
+    @property
+    def agent_registry(self) -> Dict[str, Any]:
+        """Expose agent registry from underlying HALO router"""
+        return getattr(self.halo_router, "agent_registry", {})
+
     def route_task_with_policy_check(
         self, task: Any, excluded_agents: Optional[List[str]] = None
     ) -> Tuple[Optional[str], str, Dict[str, Any]]:

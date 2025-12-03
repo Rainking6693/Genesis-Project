@@ -3,9 +3,14 @@ Intelligent Business Idea Generator
 
 Autonomously generates creative, profitable business ideas using:
 - Market trend analysis
-- LLM creativity (GPT-4o/Claude)
+- LLM creativity (Qwen primary, Mistral fallback via Ollama)
 - Revenue potential scoring
 - Memory-backed learning from past successes
+
+LLM Priority Order:
+1. Qwen 2.5 14B (primary) - via Ollama
+2. Mistral Nemo 12B (fallback) - via Ollama
+3. Template generation (last resort)
 
 This enables Genesis to create 100s of businesses without human input.
 """
@@ -16,7 +21,7 @@ import logging
 import asyncio
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, asdict
-from datetime import datetime
+from datetime import datetime, timezone
 import random
 
 logger = logging.getLogger(__name__)
@@ -38,7 +43,7 @@ class BusinessIdea:
     differentiation_score: float  # 0-100, uniqueness
     overall_score: float  # Weighted average
     generated_at: str
-    
+
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
 
@@ -46,7 +51,7 @@ class BusinessIdea:
 class MarketTrendAnalyzer:
     """
     Analyzes market trends to guide business idea generation.
-    
+
     Uses:
     - Product Hunt trending products
     - Google Trends data
@@ -54,7 +59,7 @@ class MarketTrendAnalyzer:
     - Reddit trending topics
     - Twitter/X trending hashtags
     """
-    
+
     async def get_trending_categories(self) -> List[str]:
         """Get trending business categories."""
         # For now, return curated list based on 2025 trends
@@ -76,15 +81,15 @@ class MarketTrendAnalyzer:
             "Automation tools",
             "Personal finance apps"
         ]
-        
+
         # Return 5 random trending categories
         return random.sample(trends, min(5, len(trends)))
-    
+
     async def get_market_gaps(self, category: str) -> List[str]:
         """Identify gaps in the market for a category."""
         # Simulated market gap analysis
         # In production, this would use web scraping + LLM analysis
-        
+
         gaps_by_category = {
             "AI productivity tools": [
                 "AI-powered meeting note taker with action items",
@@ -106,18 +111,18 @@ class MarketTrendAnalyzer:
             ],
             # Add more as needed
         }
-        
+
         return gaps_by_category.get(category, [
             f"Innovative {category} solution",
             f"B2B {category} platform",
             f"{category} marketplace"
         ])
-    
+
     async def analyze_competition(self, idea_description: str) -> Dict[str, Any]:
         """Analyze competition for a business idea."""
         # Simulated competition analysis
         # In production, this would search Product Hunt, Google, etc.
-        
+
         return {
             "competition_level": random.choice(["low", "medium", "high"]),
             "market_saturation": random.uniform(0.2, 0.8),
@@ -129,7 +134,7 @@ class MarketTrendAnalyzer:
 class RevenuePotentialScorer:
     """
     Scores business ideas based on revenue potential.
-    
+
     Factors:
     - Market size (TAM)
     - Monetization model viability
@@ -137,46 +142,46 @@ class RevenuePotentialScorer:
     - Pricing potential
     - Scalability
     """
-    
+
     def score_idea(self, idea: Dict[str, Any], market_data: Dict[str, Any]) -> float:
         """
         Score an idea's revenue potential (0-100).
-        
+
         Args:
             idea: Business idea dict
             market_data: Market analysis data
-        
+
         Returns:
             Score from 0-100 (higher = more profitable)
         """
         scores = []
-        
+
         # 1. Market size score
         market_size_score = self._score_market_size(idea["business_type"])
         scores.append(market_size_score * 0.3)  # 30% weight
-        
+
         # 2. Monetization model score
         monetization_score = self._score_monetization(idea.get("monetization_model", ""))
         scores.append(monetization_score * 0.25)  # 25% weight
-        
+
         # 3. Competition score (inverse - less competition = higher score)
         competition_level = market_data.get("competition_level", "medium")
         competition_score = {"low": 90, "medium": 60, "high": 30}.get(competition_level, 50)
         scores.append(competition_score * 0.2)  # 20% weight
-        
+
         # 4. Feature viability score
         feature_score = self._score_features(idea.get("mvp_features", []))
         scores.append(feature_score * 0.15)  # 15% weight
-        
+
         # 5. Tech stack score (how easy to build)
         tech_score = self._score_tech_stack(idea.get("tech_stack", []))
         scores.append(tech_score * 0.10)  # 10% weight
-        
+
         overall_score = sum(scores)
         logger.debug(f"Scored '{idea.get('name', 'unknown')}': {overall_score:.1f}/100")
-        
+
         return overall_score
-    
+
     def _score_market_size(self, business_type: str) -> float:
         """Score based on market size."""
         market_sizes = {
@@ -187,14 +192,14 @@ class RevenuePotentialScorer:
             "subscription": 85,  # Recurring revenue
         }
         return market_sizes.get(business_type, 65)
-    
+
     def _score_monetization(self, model: str) -> float:
         """Score monetization model viability."""
         if not model:
             return 50
-        
+
         model_lower = model.lower()
-        
+
         if "subscription" in model_lower or "recurring" in model_lower:
             return 95  # Best: recurring revenue
         elif "saas" in model_lower or "monthly" in model_lower:
@@ -209,26 +214,26 @@ class RevenuePotentialScorer:
             return 75
         else:
             return 65
-    
+
     def _score_features(self, features: List[str]) -> float:
         """Score based on feature complexity and value."""
         if not features:
             return 50
-        
+
         # More features = more value (up to a point)
         feature_count_score = min(len(features) * 15, 80)
-        
+
         # Bonus for high-value features
         high_value_keywords = ["ai", "automation", "analytics", "payment", "api", "integration"]
         value_bonus = sum(5 for f in features if any(kw in f.lower() for kw in high_value_keywords))
-        
+
         return min(feature_count_score + value_bonus, 100)
-    
+
     def _score_tech_stack(self, tech_stack: List[str]) -> float:
         """Score based on how easy/fast to build."""
         if not tech_stack:
             return 50
-        
+
         # Prefer modern, agent-friendly stacks
         preferred_tech = {
             "next.js": 95,
@@ -240,7 +245,7 @@ class RevenuePotentialScorer:
             "supabase": 85,
             "postgresql": 80
         }
-        
+
         scores = [preferred_tech.get(tech.lower(), 60) for tech in tech_stack]
         return sum(scores) / len(scores) if scores else 60
 
@@ -248,25 +253,34 @@ class RevenuePotentialScorer:
 class BusinessIdeaGenerator:
     """
     Generates creative, profitable business ideas autonomously.
-    
+
     Uses:
     - Market trend analysis
-    - LLM creativity (GPT-4o or Claude)
+    - LLM creativity (Qwen primary, Mistral fallback via Ollama)
     - Revenue potential scoring
     - Memory of past successful businesses
+
+    LLM Priority:
+    1. Qwen 2.5 14B (primary)
+    2. Mistral Nemo 12B (fallback)
+    3. Template generation (last resort)
     """
-    
+
+    # Timeout for Ollama API calls (300s = 5 minutes for cold starts)
+    OLLAMA_TIMEOUT = 300.0
+
     def __init__(self):
         """Initialize idea generator."""
         self.trend_analyzer = MarketTrendAnalyzer()
         self.revenue_scorer = RevenuePotentialScorer()
-        
-        # LLM for creative idea generation
-        self.use_openai = os.getenv('OPENAI_API_KEY', '') != ''
-        self.use_anthropic = os.getenv('ANTHROPIC_API_KEY', '') != ''
-        
-        logger.info(f"BusinessIdeaGenerator initialized (OpenAI={self.use_openai}, Anthropic={self.use_anthropic})")
-    
+
+        # Local LLM configuration via Ollama
+        self.ollama_base_url = os.getenv('OLLAMA_BASE_URL', 'http://localhost:11434')
+        self.qwen_model = os.getenv('QWEN_MODEL', 'qwen2.5:14b-instruct-q4_K_M')
+        self.mistral_model = os.getenv('MISTRAL_MODEL', 'mistral-nemo:12b-instruct-2407-q4_K_M')
+
+        logger.info(f"BusinessIdeaGenerator initialized (Qwen={self.qwen_model}, Mistral={self.mistral_model}, timeout={self.OLLAMA_TIMEOUT}s)")
+
     async def generate_idea(
         self,
         business_type: Optional[str] = None,
@@ -275,12 +289,12 @@ class BusinessIdeaGenerator:
     ) -> BusinessIdea:
         """
         Generate a single high-quality business idea.
-        
+
         Args:
             business_type: Optional type constraint (ecommerce, saas, content)
             min_revenue_score: Minimum revenue potential score (0-100)
             max_attempts: Maximum attempts to find good idea
-        
+
         Returns:
             BusinessIdea with high revenue potential
         """
@@ -324,23 +338,23 @@ class BusinessIdeaGenerator:
                 market_trend_score=trend_score,
                 differentiation_score=diff_score,
                 overall_score=overall_score,
-                generated_at=datetime.utcnow().isoformat()
+                generated_at=datetime.now(timezone.utc).isoformat()
             )
             last_idea = idea
 
             if overall_score >= min_revenue_score:
                 # Found a good idea!
-                logger.info(f"✅ Generated high-quality idea: '{idea.name}' (score={overall_score:.1f})")
+                logger.info(f"[OK] Generated high-quality idea: '{idea.name}' (score={overall_score:.1f})")
                 return idea
 
         # All attempts exhausted - DISCARD idea if below threshold
         # User requirement: "discard any business ideas below a 70 score"
         last_score = last_idea.overall_score if last_idea else 0
-        logger.warning(f"❌ No ideas scored above {min_revenue_score} in {max_attempts} attempts")
+        logger.warning(f"[FAIL] No ideas scored above {min_revenue_score} in {max_attempts} attempts")
         logger.warning(f"   Best attempt: '{last_idea.name if last_idea else 'None'}' scored {last_score:.1f}/100")
         logger.warning(f"   DISCARDING - ideas below {min_revenue_score} are not likely to make money")
         raise ValueError(f"No viable business ideas found after {max_attempts} attempts (min_score={min_revenue_score})")
-    
+
     async def generate_batch(
         self,
         count: int,
@@ -349,44 +363,44 @@ class BusinessIdeaGenerator:
     ) -> List[BusinessIdea]:
         """
         Generate multiple business ideas in parallel.
-        
+
         Args:
             count: Number of ideas to generate
             business_types: Optional list of types to generate
             min_revenue_score: Minimum score threshold
-        
+
         Returns:
             List of BusinessIdea objects
         """
         logger.info(f"Generating batch of {count} business ideas...")
-        
+
         if business_types is None:
             # Mix of types
             types = ["ecommerce", "saas", "content"] * (count // 3 + 1)
             business_types = types[:count]
-        
+
         # Generate in parallel
         tasks = [
             self.generate_idea(business_type=bt, min_revenue_score=min_revenue_score)
             for bt in business_types
         ]
-        
+
         ideas = await asyncio.gather(*tasks)
-        
+
         # Sort by score (highest first)
         ideas_sorted = sorted(ideas, key=lambda x: x.overall_score, reverse=True)
-        
+
         logger.info(f"Generated {len(ideas_sorted)} ideas, scores: {[f'{i.overall_score:.1f}' for i in ideas_sorted[:5]]}")
         return ideas_sorted
-    
+
     async def _generate_creative_idea(self, business_type: str, trends: List[str]) -> Dict[str, Any]:
         """
         Use LLM to generate a creative business idea.
-        
+
         Args:
             business_type: Type of business (ecommerce, saas, content)
             trends: List of trending categories
-        
+
         Returns:
             Dict with name, description, features, etc.
         """
@@ -440,96 +454,111 @@ OUTPUT FORMAT (JSON):
 }}
 
 Generate a creative, profitable business idea now:"""
-        
+
         try:
-            if self.use_anthropic:
-                # Use Claude for creative idea generation
-                response = await self._call_anthropic(prompt)
-            elif self.use_openai:
-                # Use GPT-4o for creative idea generation
-                response = await self._call_openai(prompt)
-            else:
-                # Fallback to local LLM (less creative but free)
-                response = await self._call_local_llm(prompt)
-            
+            # Priority: Qwen (primary) -> Mistral (fallback) -> Template
+            response = None
+
+            # Try Qwen first (primary local LLM)
+            try:
+                logger.info("Calling Qwen (primary LLM)...")
+                response = await self._call_qwen(prompt)
+                if not response or not response.strip():
+                    raise ValueError("Empty response from Qwen")
+            except Exception as qwen_err:
+                logger.warning(f"Qwen failed: {qwen_err}")
+
+                # Try Mistral as fallback
+                try:
+                    logger.info("Calling Mistral (fallback LLM)...")
+                    response = await self._call_mistral(prompt)
+                    if not response or not response.strip():
+                        raise ValueError("Empty response from Mistral")
+                except Exception as mistral_err:
+                    logger.warning(f"Mistral failed: {mistral_err}")
+                    raise Exception("All LLM backends failed")
+
             # Parse JSON response
             idea_data = json.loads(response)
-            
+
             # Ensure business_type is set FIRST (before validation)
             idea_data["business_type"] = business_type
-            
+
             # Validate required fields
             required_fields = ["name", "description", "target_audience", "monetization_model", "mvp_features", "tech_stack"]
             for field in required_fields:
                 if field not in idea_data:
                     raise ValueError(f"Missing required field: {field}")
-            
+
             return idea_data
-            
+
         except Exception as e:
             logger.error(f"Failed to generate idea with LLM: {e}")
             # Fallback to template-based idea
             return self._generate_template_idea(business_type, trends)
-    
-    async def _call_anthropic(self, prompt: str) -> str:
-        """Call Claude for idea generation."""
-        import anthropic
-        
-        client = anthropic.Anthropic(api_key=os.getenv('ANTHROPIC_API_KEY'))
-        
-        message = client.messages.create(
-            model="claude-sonnet-4-20250514",  # Claude Sonnet 4 (May 2025 - latest)
-            max_tokens=2048,
-            temperature=0.9,  # High creativity
-            messages=[{"role": "user", "content": prompt}]
-        )
-        
-        response = message.content[0].text
-        
+
+    async def _call_qwen(self, prompt: str) -> str:
+        """Call Qwen via Ollama (primary LLM)."""
+        import httpx
+
+        url = f"{self.ollama_base_url}/api/generate"
+        payload = {
+            "model": self.qwen_model,
+            "prompt": prompt,
+            "stream": False,
+            "options": {
+                "temperature": 0.9,  # High creativity
+                "num_predict": 2048,
+            }
+        }
+
+        # 300s timeout for model cold start
+        async with httpx.AsyncClient(timeout=self.OLLAMA_TIMEOUT) as client:
+            response = await client.post(url, json=payload)
+            response.raise_for_status()
+            result = response.json()
+
+        content = result.get("response", "")
+
         # Extract JSON if wrapped in markdown
-        if "```json" in response:
-            response = response.split("```json")[1].split("```")[0].strip()
-        elif "```" in response:
-            response = response.split("```")[1].split("```")[0].strip()
-        
-        return response
-    
-    async def _call_openai(self, prompt: str) -> str:
-        """Call GPT-4o for idea generation."""
-        from openai import AsyncOpenAI
-        
-        client = AsyncOpenAI(api_key=os.getenv('OPENAI_API_KEY'))
-        
-        response = await client.chat.completions.create(
-            model="gpt-4o",
-            messages=[
-                {"role": "system", "content": "You are a creative business strategist. Always respond with valid JSON."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.9,
-            max_tokens=2048
-        )
-        
-        content = response.choices[0].message.content
-        
-        # Extract JSON if wrapped
         if "```json" in content:
             content = content.split("```json")[1].split("```")[0].strip()
         elif "```" in content:
             content = content.split("```")[1].split("```")[0].strip()
-        
+
         return content
-    
-    async def _call_local_llm(self, prompt: str) -> str:
-        """Fallback to local LLM (less creative)."""
-        from infrastructure.local_llm_client import get_local_llm_client
-        
-        client = get_local_llm_client()
-        # Local LLM may not be as creative, but it's free
-        
-        # Return a template for now (local LLM JSON generation is unreliable)
-        return json.dumps(self._generate_template_idea("ecommerce", []))
-    
+
+    async def _call_mistral(self, prompt: str) -> str:
+        """Call Mistral via Ollama (fallback LLM)."""
+        import httpx
+
+        url = f"{self.ollama_base_url}/api/generate"
+        payload = {
+            "model": self.mistral_model,
+            "prompt": prompt,
+            "stream": False,
+            "options": {
+                "temperature": 0.9,  # High creativity
+                "num_predict": 2048,
+            }
+        }
+
+        # 300s timeout for model cold start
+        async with httpx.AsyncClient(timeout=self.OLLAMA_TIMEOUT) as client:
+            response = await client.post(url, json=payload)
+            response.raise_for_status()
+            result = response.json()
+
+        content = result.get("response", "")
+
+        # Extract JSON if wrapped in markdown
+        if "```json" in content:
+            content = content.split("```json")[1].split("```")[0].strip()
+        elif "```" in content:
+            content = content.split("```")[1].split("```")[0].strip()
+
+        return content
+
     def _generate_template_idea(self, business_type: str, trends: List[str]) -> Dict[str, Any]:
         """Fallback template-based idea generation."""
         templates = {
@@ -594,25 +623,25 @@ Generate a creative, profitable business idea now:"""
                 }
             }
         }
-        
+
         return templates.get(business_type, templates["saas"])
-    
+
     def _score_trend_alignment(self, idea: Dict[str, Any], trends: List[str]) -> float:
         """Score how well idea aligns with current trends."""
         idea_text = f"{idea.get('name', '')} {idea.get('description', '')} {' '.join(idea.get('mvp_features', []))}".lower()
-        
+
         trend_matches = sum(1 for trend in trends if any(word in idea_text for word in trend.lower().split()))
-        
+
         return min(trend_matches * 25, 100)  # Up to 100 if matches 4+ trends
-    
+
     def _score_differentiation(self, idea: Dict[str, Any], market_data: Dict[str, Any]) -> float:
         """Score how differentiated the idea is."""
         # Higher differentiation opportunity = higher score
         diff_opportunity = market_data.get("differentiation_opportunity", 0.5)
-        
+
         # Lower market saturation = higher score
         saturation = market_data.get("market_saturation", 0.5)
-        
+
         return (diff_opportunity * 50) + ((1 - saturation) * 50)
 
 
@@ -631,19 +660,19 @@ def get_idea_generator() -> BusinessIdeaGenerator:
 if __name__ == "__main__":
     # Test the generator
     import asyncio
-    
+
     async def test():
         generator = BusinessIdeaGenerator()
-        
+
         print("\n" + "="*80)
         print(" "*25 + "Testing Business Idea Generator" + " "*24)
         print("="*80 + "\n")
-        
+
         # Generate one idea
         print("Generating a single business idea...")
         idea = await generator.generate_idea(min_revenue_score=60)
-        
-        print(f"\n✅ Generated Idea:")
+
+        print(f"\n[OK] Generated Idea:")
         print(f"  Name: {idea.name}")
         print(f"  Type: {idea.business_type}")
         print(f"  Description: {idea.description}")
@@ -657,16 +686,15 @@ if __name__ == "__main__":
         print(f"    Market Trends: {idea.market_trend_score:.1f}/100")
         print(f"    Differentiation: {idea.differentiation_score:.1f}/100")
         print(f"    OVERALL: {idea.overall_score:.1f}/100")
-        
+
         # Generate batch
         print(f"\n" + "="*80)
         print("Generating batch of 3 ideas...")
         ideas = await generator.generate_batch(count=3, min_revenue_score=60)
-        
-        print(f"\n✅ Generated {len(ideas)} ideas:")
+
+        print(f"\n[OK] Generated {len(ideas)} ideas:")
         for i, idea in enumerate(ideas, 1):
             print(f"\n  {i}. {idea.name} ({idea.business_type}) - Score: {idea.overall_score:.1f}/100")
             print(f"     {idea.description[:100]}...")
-    
-    asyncio.run(test())
 
+    asyncio.run(test())

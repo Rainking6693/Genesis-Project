@@ -38,9 +38,11 @@ opentelemetry-api>=1.20.0
 opentelemetry-sdk>=1.20.0
 opentelemetry-exporter-otlp>=1.20.0
 
-# Testing (optional but recommended)
+# Testing & Automation (optional but recommended)
 pytest>=7.4.0
 pytest-asyncio>=0.21.0
+playwright>=1.56.0  # Browser automation for HybridQAAgent, HybridSupportAgent
+crewai>=1.6.1  # Multi-agent orchestration (Tournament Winner: 87.85% vs 81.16%)
 
 # LangGraph integration
 langgraph>=0.2.0

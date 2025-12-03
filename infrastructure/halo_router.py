@@ -285,6 +285,23 @@ class HALORouter:
             except Exception as e:
                 logger.warning(f"MCP client initialization failed: {e}")
 
+        # LatentMAS Integration (#80): Latent-space multi-agent collaboration
+        # 70-80% token reduction, 3-7x speedup for local model collaboration
+        self.latentmas_bridge = None
+        self.enable_latentmas = os.getenv('ENABLE_LATENTMAS', 'false').lower() == 'true'
+        if self.enable_latentmas:
+            try:
+                from infrastructure.latentmas_integration import LatentMASBridge, LatentMASConfig
+                latent_config = LatentMASConfig(
+                    latent_steps=int(os.getenv('LATENTMAS_STEPS', '20')),
+                    enable_latent_realignment=os.getenv('LATENTMAS_REALIGN', 'true').lower() == 'true'
+                )
+                self.latentmas_bridge = LatentMASBridge(latent_config)
+                logger.info("LatentMAS integration enabled (70-80% token reduction for local models)")
+            except Exception as e:
+                logger.warning(f"LatentMAS initialization failed: {e}")
+                self.enable_latentmas = False
+
         # OPTIMIZATION 1: Cache sorted rules (avoid re-sorting on every task)
         self._sorted_rules_cache = sorted(self.routing_rules, key=lambda r: r.priority, reverse=True)
 
@@ -1496,6 +1513,93 @@ class HALORouter:
             Dict mapping agent_name to current task count
         """
         return dict(self.agent_workload)
+
+    async def latent_collaborate(
+        self,
+        task_description: str,
+        agents: Optional[List[str]] = None,
+        mode: str = "sequential"
+    ) -> Dict[str, Any]:
+        """
+        Execute multi-agent collaboration in latent space (Integration #80).
+
+        Uses LatentMAS to enable agents to share hidden state embeddings
+        instead of text tokens, achieving 70-80% token reduction and 3-7x speedup.
+
+        This method is ideal for local model (Qwen/Mistral) collaboration tasks
+        where API-based models are not required.
+
+        Args:
+            task_description: Description of the task to complete
+            agents: List of agent names to involve (auto-selected if None)
+            mode: Collaboration mode - "sequential", "hierarchical", or "parallel"
+
+        Returns:
+            Dict containing:
+            - output: Final collaborative output
+            - agents_used: List of agents that participated
+            - token_savings: Percentage of tokens saved vs text-based
+            - speedup_factor: Speedup multiplier vs text-based
+            - error: Error message if failed (None on success)
+
+        Example:
+            result = await router.latent_collaborate(
+                task_description="Build a landing page with hero section",
+                agents=["spec_writer", "builder", "qa"],
+                mode="sequential"
+            )
+            print(f"Saved {result['token_savings']:.0%} tokens")
+        """
+        if not self.enable_latentmas or self.latentmas_bridge is None:
+            # Fallback: Return error if LatentMAS not enabled
+            return {
+                "output": "",
+                "agents_used": [],
+                "token_savings": 0.0,
+                "speedup_factor": 1.0,
+                "error": "LatentMAS not enabled. Set ENABLE_LATENTMAS=true"
+            }
+
+        try:
+            from infrastructure.latentmas_integration import CollaborationMode
+
+            # Map string mode to enum
+            mode_map = {
+                "sequential": CollaborationMode.SEQUENTIAL,
+                "hierarchical": CollaborationMode.HIERARCHICAL,
+                "parallel": CollaborationMode.PARALLEL
+            }
+            collab_mode = mode_map.get(mode.lower(), CollaborationMode.SEQUENTIAL)
+
+            # Auto-select agents if not provided
+            if agents is None:
+                agents = ["spec_writer", "builder", "qa", "judger"]
+
+            # Execute latent collaboration
+            result = await self.latentmas_bridge.collaborate(
+                agents=agents,
+                task={"description": task_description},
+                mode=collab_mode
+            )
+
+            return {
+                "output": result.output,
+                "agents_used": result.agents_used,
+                "token_savings": result.token_savings,
+                "speedup_factor": result.speedup_factor,
+                "error": result.error,
+                "metadata": result.metadata
+            }
+
+        except Exception as e:
+            self.logger.error(f"Latent collaboration failed: {e}")
+            return {
+                "output": "",
+                "agents_used": agents or [],
+                "token_savings": 0.0,
+                "speedup_factor": 1.0,
+                "error": str(e)
+            }
 
     def update_agent_capability(
         self,

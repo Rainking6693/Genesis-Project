@@ -38,6 +38,9 @@ opentelemetry-api>=1.20.0
 opentelemetry-sdk>=1.20.0
 opentelemetry-exporter-otlp>=1.20.0
 
+# LLM Observability & Evaluation
+opik>=1.9.0  # Comet LLM evaluation platform (tracing, LLM-as-Judge, experiments)
+
 # Testing & Automation (optional but recommended)
 pytest>=7.4.0
 pytest-asyncio>=0.21.0

@@ -1736,20 +1736,58 @@ class HALORouter:
         Returns:
             Generated response string or None if failed
         """
-        # RAILWAY: FORCE DISABLE local LLM completely (no CPU inference on Railway)
-        # CRITICAL: Local LLM (Qwen 7B) requires GPU and fails on Railway CPU-only instances
-        # All routing goes directly to cloud APIs (Vertex AI → Claude/GPT)
-        if prefer_local:
-            logger.debug(f"Local LLM disabled for Railway deployment - forcing cloud APIs for {agent_name}")
+        # Option 1: Try local Ollama first (Qwen 2.5 primary, Mistral fallback)
+        # This is preferred for local development to save API costs
+        ollama_url = os.getenv('OLLAMA_BASE_URL', 'http://localhost:11434')
+        if prefer_local or os.getenv('PREFER_LOCAL_LLM', 'true').lower() == 'true':
+            try:
+                import httpx
+                # Try Qwen 2.5 first
+                qwen_model = os.getenv('QWEN_MODEL', 'qwen2.5:14b-instruct-q4_K_M')
+                logger.info(f"🟢 Routing {agent_name} to Local Ollama (Qwen 2.5, cost: $0)")
 
-        # Skip local LLM entirely - Railway doesn't have GPU support for Qwen
-        # The code below is commented out to prevent ANY attempts to load local models
-        # if prefer_local:
-        #     try:
-        #         logger.info(f"🟢 Routing {agent_name} to Local LLM (Qwen 7B, cost: $0)")
-        #         ...local LLM code removed for Railway...
-        #     except Exception as e:
-        #         logger.warning(f"Local LLM failed for {agent_name}: {e}")
+                with httpx.Client(timeout=600.0) as client:
+                    response = client.post(
+                        f"{ollama_url}/api/generate",
+                        json={
+                            "model": qwen_model,
+                            "prompt": prompt,
+                            "stream": False,
+                            "options": {
+                                "temperature": kwargs.get('temperature', 0.7),
+                                "num_predict": kwargs.get('max_tokens', 2048),
+                            }
+                        }
+                    )
+                    if response.status_code == 200:
+                        result = response.json()
+                        if result.get('response'):
+                            logger.info(f"✅ Local Ollama (Qwen) success for {agent_name}")
+                            return result['response']
+
+                # Fallback to Mistral-Nemo if Qwen fails
+                mistral_model = os.getenv('MISTRAL_LOCAL_MODEL', 'mistral-nemo:12b-instruct-2407-q4_K_M')
+                logger.info(f"🟡 Qwen failed, trying Mistral-Nemo locally for {agent_name}")
+                with httpx.Client(timeout=600.0) as client:
+                    response = client.post(
+                        f"{ollama_url}/api/generate",
+                        json={
+                            "model": mistral_model,
+                            "prompt": prompt,
+                            "stream": False,
+                            "options": {
+                                "temperature": kwargs.get('temperature', 0.7),
+                                "num_predict": kwargs.get('max_tokens', 2048),
+                            }
+                        }
+                    )
+                    if response.status_code == 200:
+                        result = response.json()
+                        if result.get('response'):
+                            logger.info(f"✅ Local Ollama (Mistral) success for {agent_name}")
+                            return result['response']
+            except Exception as e:
+                logger.warning(f"Local Ollama failed for {agent_name}: {e}")
 
         # Fallback 1: Try Vertex AI (fine-tuned models or base Gemini) - TEMPORARILY DISABLED due to permission issues
         if False and fallback_to_cloud and self.use_vertex_ai and self.vertex_router:
@@ -1805,62 +1843,62 @@ class HALORouter:
         if fallback_to_cloud:
             # Try Gemini Primary first (GEMINI_API_KEY)
             gemini_api_key = os.getenv("GEMINI_API_KEY")
-        if gemini_api_key:
-            try:
-                if self._gemini_client is None:
-                    import google.generativeai as genai  # type: ignore
-
-                    genai.configure(api_key=gemini_api_key)
-                    self._gemini_client = genai
-                    self._gemini_generate_config_cls = None  # Not used with this API
-                    logger.info(
-                        "✅ Gemini fallback enabled (model=%s)",
-                        self._gemini_model,
-                    )
-
-                logger.info(f"🔷 Routing {agent_name} to Gemini (model={self._gemini_model})")
-                model = self._gemini_client.GenerativeModel(self._gemini_model)
-                gemini_response = model.generate_content(
-                    prompt,
-                    generation_config={
-                        'temperature': kwargs.get('temperature', 0.7),
-                        'max_output_tokens': kwargs.get('max_tokens', 2048),
-                    }
-                )
-
-                text = gemini_response.text if hasattr(gemini_response, 'text') else None
-
-                if text:
-                    logger.info(f"✅ Gemini Primary success for {agent_name}")
-                    return text
-                raise ValueError("Gemini returned empty response")
-            except Exception as e:
-                logger.warning(f"Gemini Primary fallback failed for {agent_name}: {e}")
-
-            # Try Gemini Secondary (GOOGLE_API_KEY)
-            gemini_api_key_2 = os.getenv("GOOGLE_API_KEY")
-            if gemini_api_key_2 and gemini_api_key_2 != gemini_api_key:
+            if gemini_api_key:
                 try:
-                    import google.generativeai as genai2
+                    if self._gemini_client is None:
+                        import google.generativeai as genai  # type: ignore
 
-                    genai2.configure(api_key=gemini_api_key_2)
-                    logger.info(f"🔷 Routing {agent_name} to Gemini Secondary (GOOGLE_API_KEY)")
-                    model2 = genai2.GenerativeModel(self._gemini_model)
-                    response2 = model2.generate_content(
+                        genai.configure(api_key=gemini_api_key)
+                        self._gemini_client = genai
+                        self._gemini_generate_config_cls = None  # Not used with this API
+                        logger.info(
+                            "✅ Gemini fallback enabled (model=%s)",
+                            self._gemini_model,
+                        )
+
+                    logger.info(f"🔷 Routing {agent_name} to Gemini (model={self._gemini_model})")
+                    model = self._gemini_client.GenerativeModel(self._gemini_model)
+                    gemini_response = model.generate_content(
                         prompt,
                         generation_config={
                             'temperature': kwargs.get('temperature', 0.7),
                             'max_output_tokens': kwargs.get('max_tokens', 2048),
                         }
                     )
-                    text2 = response2.text if hasattr(response2, 'text') else None
-                    if text2:
-                        logger.info(f"✅ Gemini Secondary success for {agent_name}")
-                        return text2
-                except Exception as e:
-                    logger.warning(f"Gemini Secondary fallback failed for {agent_name}: {e}")
 
-            # Try Mistral as final fallback
+                    text = gemini_response.text if hasattr(gemini_response, 'text') else None
+
+                    if text:
+                        logger.info(f"✅ Gemini Primary success for {agent_name}")
+                        return text
+                    raise ValueError("Gemini returned empty response")
+                except Exception as e:
+                    logger.warning(f"Gemini Primary fallback failed for {agent_name}: {e}")
+
+                # Try Gemini Secondary (GOOGLE_API_KEY)
+                gemini_api_key_2 = os.getenv("GOOGLE_API_KEY")
+                if gemini_api_key_2 and gemini_api_key_2 != gemini_api_key:
+                    try:
+                        import google.generativeai as genai2
+
+                        genai2.configure(api_key=gemini_api_key_2)
+                        logger.info(f"🔷 Routing {agent_name} to Gemini Secondary (GOOGLE_API_KEY)")
+                        model2 = genai2.GenerativeModel(self._gemini_model)
+                        response2 = model2.generate_content(
+                            prompt,
+                            generation_config={
+                                'temperature': kwargs.get('temperature', 0.7),
+                                'max_output_tokens': kwargs.get('max_tokens', 2048),
+                            }
+                        )
+                        text2 = response2.text if hasattr(response2, 'text') else None
+                        if text2:
+                            logger.info(f"✅ Gemini Secondary success for {agent_name}")
+                            return text2
+                    except Exception as e:
+                        logger.warning(f"Gemini Secondary fallback failed for {agent_name}: {e}")
+
+            # Try Mistral as final fallback (outside Gemini block)
             if os.getenv('MISTRAL_API_KEY'):
                 try:
                     logger.info(f"🟡 Routing {agent_name} to Mistral (final fallback)")

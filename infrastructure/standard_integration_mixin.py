@@ -269,8 +269,8 @@ class StandardIntegrationMixin:
         """Integration #3: Policy governance"""
         if 'policy_cards' not in self._integrations:
             try:
-                from infrastructure.policy_cards import PolicyCardRegistry
-                self._integrations['policy_cards'] = PolicyCardRegistry()
+                from infrastructure.policy_cards import PolicyCardLoader
+                self._integrations['policy_cards'] = PolicyCardLoader()
             except Exception as e:
                 logger.warning(f"policy_cards unavailable: {e}")
                 self._integration_failed['policy_cards'] = str(e)
@@ -436,7 +436,8 @@ class StandardIntegrationMixin:
         if 'memento_agent' not in self._integrations:
             try:
                 from infrastructure.memento_agent import MementoAgent
-                self._integrations['memento_agent'] = MementoAgent()
+                agent_name = getattr(self, 'agent_name', None) or getattr(self, 'name', 'genesis_meta_agent')
+                self._integrations['memento_agent'] = MementoAgent(agent_name=agent_name)
             except Exception as e:
                 logger.warning(f"memento_agent unavailable: {e}")
                 self._integration_failed['memento_agent'] = str(e)
@@ -646,8 +647,8 @@ class StandardIntegrationMixin:
         """Integration #55: Quality judging"""
         if 'hgm_oracle' not in self._integrations:
             try:
-                from infrastructure.oracle_hgm import HGMOracle
-                self._integrations['hgm_oracle'] = HGMOracle()
+                from infrastructure.oracle_hgm import OracleHGM
+                self._integrations['hgm_oracle'] = OracleHGM()
             except Exception as e:
                 logger.warning(f"hgm_oracle unavailable: {e}")
                 self._integration_failed['hgm_oracle'] = str(e)
@@ -6751,3 +6752,46 @@ class StandardIntegrationMixin:
             estimated_cost=0.001,
             reasoning=f"Default routing for {agent_name}: no DAAO router available"
         )
+
+    # ============================================================
+    # NEW INTEGRATIONS (#81+) - Added Dec 2025
+    # ============================================================
+
+    @property
+    def opik_integration(self):
+        """Integration #81: Opik LLM Observability and Evaluation"""
+        if 'opik_integration' not in self._integrations:
+            try:
+                from infrastructure.opik_integration import get_opik_integration
+                self._integrations['opik_integration'] = get_opik_integration()
+            except Exception as e:
+                logger.warning(f"opik_integration unavailable: {e}")
+                self._integration_failed['opik_integration'] = str(e)
+                self._integrations['opik_integration'] = None
+        return self._integrations['opik_integration']
+
+    @property
+    def latentmas_bridge(self):
+        """Integration #80: LatentMAS multi-agent latent space collaboration"""
+        if 'latentmas_bridge' not in self._integrations:
+            try:
+                from infrastructure.latentmas_integration import get_latentmas_bridge
+                self._integrations['latentmas_bridge'] = get_latentmas_bridge()
+            except Exception as e:
+                logger.warning(f"latentmas_bridge unavailable: {e}")
+                self._integration_failed['latentmas_bridge'] = str(e)
+                self._integrations['latentmas_bridge'] = None
+        return self._integrations['latentmas_bridge']
+
+    @property
+    def genesis_latentmas(self):
+        """Integration #80b: Genesis-specific LatentMAS wrapper"""
+        if 'genesis_latentmas' not in self._integrations:
+            try:
+                from infrastructure.latentmas_integration import GenesisLatentMAS
+                self._integrations['genesis_latentmas'] = GenesisLatentMAS()
+            except Exception as e:
+                logger.warning(f"genesis_latentmas unavailable: {e}")
+                self._integration_failed['genesis_latentmas'] = str(e)
+                self._integrations['genesis_latentmas'] = None
+        return self._integrations['genesis_latentmas']

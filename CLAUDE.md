@@ -291,6 +291,18 @@ Priority: HIGH, Annual savings: $30-35K
 - HALO router: `router.latent_collaborate(task, agents, mode)`
 - Env: `ENABLE_LATENTMAS=true`, `LATENTMAS_STEPS=20`
 
+### #81: Opik LLM Observability (NEW)
+Priority: HIGH, Annual savings: $25-40K
+- LLM tracing across all 26 agents (40M+ traces/day capacity)
+- LLM-as-Judge evaluation for generated business quality
+- ES training fitness tracking and visualization
+- A2A protocol communication tracing
+- Experiment tracking for prompt optimization
+- `infrastructure/opik_integration.py` (450 lines)
+- Decorators: `@track_agent("agent_name")` for automatic tracing
+- Env: `OPIK_API_KEY`, `OPIK_WORKSPACE`, `OPIK_ENABLED=true`
+- Best uses: Business quality evaluation, agent debugging, prompt optimization
+
 ## Future Roadmap
 
 ### Integration #69: DreamGym (Priority: CRITICAL)
@@ -307,9 +319,9 @@ Priority: HIGH, Annual savings: $30-35K
 
 ## Version Info
 
-- **Last Update:** Dec 02, 2025 (LatentMAS Integration #80)
+- **Last Update:** Dec 03, 2025 (Opik Integration #81)
 - **Python:** 3.12.4
-- **Total Systems:** 80 integrations (6 layers)
+- **Total Systems:** 81 integrations (6 layers)
 - **Total Agents:** 26 with StandardIntegrationMixin (459 integrations each)
 - **Deployment:** GitHub Pages, Railway, Render, Fly.io
 - **Git Branch:** main

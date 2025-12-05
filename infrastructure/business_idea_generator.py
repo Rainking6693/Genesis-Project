@@ -266,8 +266,8 @@ class BusinessIdeaGenerator:
     3. Template generation (last resort)
     """
 
-    # Timeout for Ollama API calls (300s = 5 minutes for cold starts)
-    OLLAMA_TIMEOUT = 300.0
+    # Timeout for Ollama API calls (600s = 10 minutes for CPU-only inference)
+    OLLAMA_TIMEOUT = 600.0
 
     def __init__(self):
         """Initialize idea generator."""

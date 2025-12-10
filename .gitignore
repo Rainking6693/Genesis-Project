@@ -26,6 +26,9 @@ infra
  production.env
  production.env.example
 .env.acontext
+.env.example
+.env.ollama
+nul
 
 # Config directory environment files (CRITICAL)
 config/production.env

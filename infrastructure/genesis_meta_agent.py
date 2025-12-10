@@ -212,6 +212,16 @@ class BusinessSpec:
     components: List[str]
     output_dir: Path
     metadata: Dict[str, Any] = field(default_factory=dict)
+    # Rich business data for unique landing pages
+    target_audience: str = ""
+    monetization_model: str = ""
+    mvp_features: List[str] = field(default_factory=list)
+    tech_stack: List[str] = field(default_factory=list)
+    pricing_tiers: List[Dict[str, Any]] = field(default_factory=list)
+    color_theme: str = ""  # e.g., "green", "blue", "purple"
+    industry_category: str = ""
+    tagline: str = ""
+    unique_value_prop: str = ""
 
 @dataclass
 class BusinessGenerationResult:
@@ -1948,7 +1958,7 @@ vercel deploy --prod
                 logger.error("LLM budget exhausted after generation: %s", exc)
             self.business_costs[spec.name] = actual_cost
 
-            # Create manifest
+            # Create manifest with full business data for unique landing pages
             manifest = {
                 "name": spec.name,
                 "type": spec.business_type,
@@ -1966,6 +1976,16 @@ vercel deploy --prod
                     "database": database_approval,
                     "storage": storage_approval,
                 },
+                # Rich business data for unique landing pages
+                "target_audience": spec.target_audience,
+                "monetization_model": spec.monetization_model,
+                "mvp_features": spec.mvp_features,
+                "tech_stack": spec.tech_stack,
+                "pricing_tiers": spec.pricing_tiers,
+                "color_theme": spec.color_theme,
+                "industry_category": spec.industry_category,
+                "tagline": spec.tagline,
+                "unique_value_prop": spec.unique_value_prop,
             }
             with open(spec.output_dir / "business_manifest.json", "w", encoding="utf-8") as f:
                 json.dump(manifest, f, indent=2)

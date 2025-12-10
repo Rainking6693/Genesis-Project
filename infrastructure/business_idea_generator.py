@@ -193,10 +193,17 @@ class RevenuePotentialScorer:
         }
         return market_sizes.get(business_type, 65)
 
-    def _score_monetization(self, model: str) -> float:
+    def _score_monetization(self, model) -> float:
         """Score monetization model viability."""
         if not model:
             return 50
+
+        # Handle case where model is a dict (malformed LLM response)
+        if isinstance(model, dict):
+            model = model.get("type", model.get("name", str(model)))
+
+        if not isinstance(model, str):
+            model = str(model)
 
         model_lower = model.lower()
 
@@ -215,10 +222,19 @@ class RevenuePotentialScorer:
         else:
             return 65
 
-    def _score_features(self, features: List[str]) -> float:
+    def _score_features(self, features) -> float:
         """Score based on feature complexity and value."""
         if not features:
             return 50
+
+        # Ensure features is a list of strings
+        if isinstance(features, dict):
+            features = list(features.values()) if features else []
+        if not isinstance(features, list):
+            features = [str(features)]
+
+        # Convert all items to strings
+        features = [str(f) if not isinstance(f, str) else f for f in features]
 
         # More features = more value (up to a point)
         feature_count_score = min(len(features) * 15, 80)
@@ -229,10 +245,19 @@ class RevenuePotentialScorer:
 
         return min(feature_count_score + value_bonus, 100)
 
-    def _score_tech_stack(self, tech_stack: List[str]) -> float:
+    def _score_tech_stack(self, tech_stack) -> float:
         """Score based on how easy/fast to build."""
         if not tech_stack:
             return 50
+
+        # Ensure tech_stack is a list of strings
+        if isinstance(tech_stack, dict):
+            tech_stack = list(tech_stack.values()) if tech_stack else []
+        if not isinstance(tech_stack, list):
+            tech_stack = [str(tech_stack)]
+
+        # Convert all items to strings
+        tech_stack = [str(t) if not isinstance(t, str) else t for t in tech_stack]
 
         # Prefer modern, agent-friendly stacks
         preferred_tech = {

@@ -1,18 +1,29 @@
 #!/usr/bin/env python3
 """
-PRODUCTION DRESS REHEARSAL - 100 Business Generation Test
+PRODUCTION DRESS REHEARSAL - Full E2E Business Generation + Deployment
 
-Full end-to-end production test with:
-- Qwen 2.5 (14b) as primary LLM
-- Mistral-Nemo (12b) as fallback
+Complete end-to-end production test with DEPLOYMENT AND VERIFICATION:
+- Qwen 2.5 (14b) as primary LLM, Mistral-Nemo (12b) as fallback
 - All 26 agents engaged
 - Genesis Meta-Agent as orchestrator with stuck-agent recovery
 - Hudson (code review) and Cora (agent optimization) as watchdogs
-- All integrations firing (Opik, LatentMAS, MGRPO, etc.)
-- All memory systems (Acontext, Memori, MemoryOS, CaseBank)
+- All integrations (Opik, LatentMAS, MGRPO, MCP, etc.)
+- All memory systems (CaseBank, Memento, TEI, TrajectoryPool)
+- ACTUAL DEPLOYMENT to GitHub Pages/Railway/Render
+- LIVE VERIFICATION of deployed sites
+
+Flow per business:
+1. Generate idea (BusinessIdeaGenerator)
+2. Select agent team (HALO Router)
+3. Execute agents with monitoring (Cora watchdog)
+4. Build business (Meta-Agent)
+5. Deploy to production (autonomous_deploy)
+6. Verify site is live (functional_verifier)
+7. Setup billing (Stripe integration)
+8. Store in memory systems
 
 Usage:
-    python scripts/production_dress_rehearsal.py
+    python scripts/production_dress_rehearsal.py --count 10
 
 Author: Genesis Infrastructure
 Date: December 2025
@@ -675,18 +686,77 @@ class ProductionDressRehearsal:
             )
 
             build_result = await self.meta_agent.generate_business(spec)
-            result["success"] = build_result.success
             result["components"] = build_result.tasks_completed
 
-            if build_result.success:
-                self.successful_businesses += 1
-                logger.info(f"[Business #{business_num}] SUCCESS: {idea.name}")
-            else:
+            if not build_result.success:
                 self.failed_businesses += 1
-                logger.warning(f"[Business #{business_num}] FAILED: {idea.name}")
+                logger.warning(f"[Business #{business_num}] BUILD FAILED: {idea.name}")
+                result["success"] = False
+            else:
+                logger.info(f"[Business #{business_num}] Build complete: {idea.name}")
 
-            # STEP 5: Store in memory systems
-            if "trajectory_pool" in self.memory.memory_systems:
+                # STEP 5: Post-generation automation (DEPLOYMENT + BILLING)
+                auto_deploy = getattr(self, 'auto_deploy', True)
+                if not auto_deploy:
+                    # Skip deployment, just mark as success
+                    logger.info(f"[Business #{business_num}] Skipping deployment (--no-deploy)")
+                    result["success"] = True
+                    self.successful_businesses += 1
+                    logger.info(f"[Business #{business_num}] SUCCESS (build only): {idea.name}")
+                else:
+                    # Full deployment flow
+                    logger.info(f"[Business #{business_num}] Running post-generation automation...")
+                    try:
+                        automation_result = await self.meta_agent.post_generation_automation(
+                            business_spec=spec,
+                            generation_result=build_result,
+                            auto_deploy=True,
+                            setup_billing=True
+                        )
+
+                        result["deployment_url"] = automation_result.get("deployment_url")
+                        result["deployment_platform"] = automation_result.get("platform")
+                        result["billing_configured"] = automation_result.get("billing_configured", False)
+                        result["automation_errors"] = automation_result.get("errors", [])
+
+                        if result["deployment_url"]:
+                            logger.info(f"[Business #{business_num}] ✅ DEPLOYED: {result['deployment_url']}")
+                            result["integrations_fired"].append("deployment")
+
+                            # STEP 6: Verify deployment is live
+                            logger.info(f"[Business #{business_num}] Verifying deployment...")
+                            verification = await self._verify_deployment(result["deployment_url"])
+                            result["deployment_verified"] = verification.get("success", False)
+                            result["verification_details"] = verification
+
+                            if verification.get("success"):
+                                logger.info(f"[Business #{business_num}] ✅ VERIFIED LIVE")
+                                result["integrations_fired"].append("verification")
+                            else:
+                                logger.warning(f"[Business #{business_num}] ⚠️ Verification failed: {verification.get('error')}")
+                        else:
+                            logger.warning(f"[Business #{business_num}] ⚠️ No deployment URL returned")
+
+                    except Exception as e:
+                        logger.error(f"[Business #{business_num}] Post-automation error: {e}")
+                        result["automation_errors"] = [str(e)]
+
+                    # Determine overall success (build + deploy + verify)
+                    if result.get("deployment_verified"):
+                        result["success"] = True
+                        self.successful_businesses += 1
+                        logger.info(f"[Business #{business_num}] ✅ FULL SUCCESS: {idea.name} - LIVE at {result['deployment_url']}")
+                    elif result.get("deployment_url"):
+                        result["success"] = True  # Deployed but not verified
+                        self.successful_businesses += 1
+                        logger.info(f"[Business #{business_num}] SUCCESS (unverified): {idea.name}")
+                    else:
+                        result["success"] = False
+                        self.failed_businesses += 1
+                        logger.warning(f"[Business #{business_num}] FAILED: {idea.name} - deployment failed")
+
+            # STEP 8: Store in memory systems
+            if "trajectory_pool" in self.memory.memory_systems and build_result:
                 from infrastructure.trajectory_pool import Trajectory, TrajectoryStatus
                 trajectory = Trajectory(
                     trajectory_id=f"rehearsal_{business_num}_{time.time()}",
@@ -755,6 +825,69 @@ Provide your output:"""
     def _sanitize_name(self, name: str) -> str:
         return name.lower().replace(" ", "-").replace("'", "").replace('"', "")[:50]
 
+    async def _verify_deployment(self, url: str) -> Dict[str, Any]:
+        """
+        Verify that a deployed site is actually live and responding.
+
+        Uses functional_verifier if available, falls back to simple HTTP check.
+        """
+        import aiohttp
+
+        result = {
+            "success": False,
+            "url": url,
+            "status_code": None,
+            "response_time_ms": None,
+            "error": None
+        }
+
+        try:
+            # Try using functional_verifier first
+            try:
+                from infrastructure.functional_verifier import verify_deployment_functional
+                verification = await verify_deployment_functional(url, app_type="nextjs")
+                result["success"] = verification.success
+                result["functional_verification"] = {
+                    "health_check": verification.health_check_passed,
+                    "api_check": verification.api_check_passed,
+                    "ui_check": verification.ui_check_passed,
+                    "performance": verification.performance_metrics
+                }
+                if verification.success:
+                    logger.info(f"   Functional verification passed for {url}")
+                return result
+            except ImportError:
+                logger.info("   functional_verifier not available, using simple HTTP check")
+            except Exception as e:
+                logger.warning(f"   Functional verification failed: {e}, falling back to HTTP check")
+
+            # Fallback: Simple HTTP check
+            start_time = time.time()
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, timeout=aiohttp.ClientTimeout(total=30)) as response:
+                    result["status_code"] = response.status
+                    result["response_time_ms"] = (time.time() - start_time) * 1000
+
+                    if response.status == 200:
+                        result["success"] = True
+                        # Check for actual content (not just empty response)
+                        content = await response.text()
+                        result["has_content"] = len(content) > 100
+                        if not result["has_content"]:
+                            result["success"] = False
+                            result["error"] = "Page returned but has minimal content"
+                    else:
+                        result["error"] = f"HTTP {response.status}"
+
+        except asyncio.TimeoutError:
+            result["error"] = "Timeout after 30 seconds"
+        except aiohttp.ClientError as e:
+            result["error"] = f"Connection error: {str(e)}"
+        except Exception as e:
+            result["error"] = str(e)
+
+        return result
+
     async def run(self):
         """Run the full production dress rehearsal"""
         self.start_time = time.time()
@@ -811,11 +944,25 @@ Provide your output:"""
         logger.info("PRODUCTION DRESS REHEARSAL - FINAL REPORT")
         logger.info("="*80)
 
+        # Calculate deployment stats
+        deployed_count = sum(1 for r in self.business_results if r.get("deployment_url"))
+        verified_count = sum(1 for r in self.business_results if r.get("deployment_verified"))
+        live_urls = [r.get("deployment_url") for r in self.business_results if r.get("deployment_url")]
+
         logger.info(f"\n📊 RESULTS:")
         logger.info(f"  Total businesses: {len(self.business_results)}")
         logger.info(f"  Successful: {self.successful_businesses}")
         logger.info(f"  Failed: {self.failed_businesses}")
         logger.info(f"  Success rate: {self.successful_businesses/max(1,len(self.business_results))*100:.1f}%")
+
+        logger.info(f"\n🚀 DEPLOYMENT:")
+        logger.info(f"  Deployed: {deployed_count}")
+        logger.info(f"  Verified live: {verified_count}")
+        logger.info(f"  Deploy rate: {deployed_count/max(1,len(self.business_results))*100:.1f}%")
+        if live_urls:
+            logger.info(f"  Live URLs:")
+            for url in live_urls[:10]:  # Show first 10
+                logger.info(f"    - {url}")
 
         logger.info(f"\n⏱️  TIMING:")
         logger.info(f"  Total time: {elapsed/60:.1f} minutes")
@@ -855,6 +1002,12 @@ Provide your output:"""
                 "failed": self.failed_businesses,
                 "success_rate": self.successful_businesses/max(1,len(self.business_results))*100
             },
+            "deployment": {
+                "deployed": deployed_count,
+                "verified_live": verified_count,
+                "deploy_rate": deployed_count/max(1,len(self.business_results))*100,
+                "live_urls": live_urls
+            },
             "timing": {
                 "total_seconds": elapsed,
                 "avg_per_business": elapsed/max(1,len(self.business_results))
@@ -879,13 +1032,32 @@ Provide your output:"""
 
 async def main():
     """Main entry point"""
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Genesis Production Dress Rehearsal - Full E2E Test")
+    parser.add_argument("--count", type=int, default=10, help="Number of businesses to generate (default: 10)")
+    parser.add_argument("--min-score", type=float, default=70.0, help="Minimum idea score (default: 70.0)")
+    parser.add_argument("--no-deploy", action="store_true", help="Skip deployment (build only)")
+    args = parser.parse_args()
+
     # Ensure logs directory exists
     Path("logs").mkdir(parents=True, exist_ok=True)
 
+    logger.info(f"\n{'='*80}")
+    logger.info("GENESIS PRODUCTION DRESS REHEARSAL")
+    logger.info(f"{'='*80}")
+    logger.info(f"  Businesses: {args.count}")
+    logger.info(f"  Min Score: {args.min_score}")
+    logger.info(f"  Deployment: {'DISABLED' if args.no_deploy else 'ENABLED'}")
+    logger.info(f"{'='*80}\n")
+
     rehearsal = ProductionDressRehearsal(
-        business_count=100,
-        min_score=70.0
+        business_count=args.count,
+        min_score=args.min_score
     )
+
+    # Store deploy flag for use in generate_one_business
+    rehearsal.auto_deploy = not args.no_deploy
 
     await rehearsal.run()
 

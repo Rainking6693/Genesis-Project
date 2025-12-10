@@ -25,13 +25,25 @@ import random
 from datetime import datetime
 import json
 
-from infrastructure.namecom_client import (
-    get_namecom_client,
-    NameComClient,
-    DomainAvailability,
-    DomainRegistration,
-    DNSRecord
-)
+# Try Porkbun first (user's preferred registrar), fallback to Name.com
+try:
+    from infrastructure.porkbun_client import (
+        get_porkbun_client as get_domain_registrar_client,
+        PorkbunClient as DomainRegistrarClient,
+        DomainAvailability,
+        DomainRegistration,
+        DNSRecord
+    )
+    DOMAIN_REGISTRAR = "porkbun"
+except ImportError:
+    from infrastructure.namecom_client import (
+        get_namecom_client as get_domain_registrar_client,
+        NameComClient as DomainRegistrarClient,
+        DomainAvailability,
+        DomainRegistration,
+        DNSRecord
+    )
+    DOMAIN_REGISTRAR = "namecom"
 from infrastructure.load_env import load_genesis_env
 from infrastructure.ap2_connector import (
     AP2Connector,
@@ -102,7 +114,7 @@ class DomainNameAgent(StandardIntegrationMixin):
 
     def __init__(
         self,
-        namecom_client: Optional[NameComClient] = None,
+        domain_client: Optional[DomainRegistrarClient] = None,
         cost_alert_threshold: float = 100.0,
         preferred_tlds: Optional[List[str]] = None,
         ap2_connector: Optional[AP2Connector] = None,
@@ -112,14 +124,15 @@ class DomainNameAgent(StandardIntegrationMixin):
         Initialize Domain Name Agent
 
         Args:
-            namecom_client: Name.com API client (auto-created if None)
+            domain_client: Domain registrar API client (Porkbun preferred, auto-created if None)
             cost_alert_threshold: Alert if monthly domain costs exceed this amount
             preferred_tlds: Preferred TLDs in order of preference
             ap2_connector: AP2 payment connector (auto-created if None)
             enable_ap2_consent: Require AP2 payment consent for domain purchases
         """
         super().__init__()
-        self.client = namecom_client or get_namecom_client()
+        self.client = domain_client or get_domain_registrar_client()
+        self.registrar = DOMAIN_REGISTRAR
         self.cost_alert_threshold = cost_alert_threshold
         self.preferred_tlds = preferred_tlds or [".com", ".ai", ".io", ".app", ".co"]
 
@@ -136,7 +149,7 @@ class DomainNameAgent(StandardIntegrationMixin):
         self.memory = None  # Lazy initialization
 
         logger.info(
-            f"DomainNameAgent initialized (threshold=${cost_alert_threshold}, "
+            f"DomainNameAgent initialized (registrar={self.registrar}, threshold=${cost_alert_threshold}, "
             f"preferred_tlds={self.preferred_tlds}, ap2_consent={'enabled' if enable_ap2_consent else 'disabled'})"
         )
 

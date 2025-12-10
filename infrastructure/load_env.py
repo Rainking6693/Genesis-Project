@@ -42,6 +42,7 @@ def load_genesis_env(env_file: str = ".env", override: bool = False):
             project_root / ".env",
             project_root / ".env.local",
             project_root / ".env.genesis.secrets",
+            project_root / ".env.ollama",  # Ollama CPU optimizations
         ]
 
     visited: Set[Path] = set()

@@ -182,6 +182,16 @@ class GitHubPagesDeployer:
         logger.info(f"📤 Pushing code to GitHub: {repo_name}")
 
         try:
+            # CRITICAL: Remove .nojekyll if it exists
+            # .nojekyll disables Jekyll processing, but these Next.js apps
+            # don't have pre-built index.html. We NEED Jekyll to auto-generate
+            # HTML from README.md for GitHub Pages to work.
+            nojekyll_path = app_path / ".nojekyll"
+            if nojekyll_path.exists():
+                logger.info("🔧 Removing .nojekyll to enable Jekyll processing")
+                nojekyll_path.unlink()
+                logger.info("✅ .nojekyll removed - Jekyll will generate HTML from README.md")
+
             # Check if git is initialized, if not initialize it
             git_dir = app_path / ".git"
             if not git_dir.exists():

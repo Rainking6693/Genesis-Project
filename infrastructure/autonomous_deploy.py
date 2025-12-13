@@ -104,50 +104,49 @@ class AutonomousDeployer:
             if not app_path_obj.exists():
                 raise ValueError(f"App path does not exist: {app_path}")
 
-            # CRITICAL FIX: Use new GitHub Pages deployer with verification
-            if platform == "github-pages":
-                logger.info("📦 Using automated GitHub Pages deployer with verification...")
+            # Use Piku deployer (ONLY deployment platform)
+            if platform == "piku":  # Piku is the ONLY deployment platform
+                logger.info("📦 Using Piku deployer (git-push PaaS)...")
 
-                from infrastructure.github_pages_deployer import deploy_to_github_pages
+                from infrastructure.piku_deployer import PikuDeployer
 
-                gh_result = await deploy_to_github_pages(
+                piku = PikuDeployer()
+                piku_result = await piku.deploy(
                     str(app_path_obj),
-                    business_name,
-                    verify=True  # Verify site is live
+                    business_name
                 )
 
-                if not gh_result["success"]:
-                    raise Exception(gh_result.get("error", "GitHub Pages deployment failed"))
+                if not piku_result.get("success"):
+                    raise Exception(piku_result.get("error", "Piku deployment failed"))
 
-                deployment_url = gh_result["deployment_url"]
-                deployment_id = f"{platform}_{business_name}_{int(time.time())}"
+                deployment_url = piku_result.get("url", "")
+                deployment_id = f"piku_{business_name}_{int(time.time())}"
                 duration = time.time() - start_time
 
-                logger.info(f"✅ GitHub Pages deployment verified: {deployment_url}")
+                logger.info(f"✅ Piku deployment verified: {deployment_url}")
 
                 result = DeploymentResult(
                     success=True,
                     app_name=business_name,
-                    platform=platform,
+                    platform="piku",
                     deployment_url=deployment_url,
                     deployment_id=deployment_id,
                     duration_seconds=duration,
-                    cost_estimate=0.0,  # GitHub Pages is free
+                    cost_estimate=0.0,  # Piku is self-hosted
                     metadata={
                         "deployed_at": datetime.utcnow().isoformat(),
                         "app_path": str(app_path_obj),
                         "autonomous": True,
-                        "verified": gh_result.get("verified", False),
-                        "repo_url": gh_result.get("repo_url"),
-                        "repo_name": gh_result.get("repo_name")
+                        "verified": piku_result.get("verified", False),
+                        "app_name": piku_result.get("app_name")
                     }
                 )
 
-                # NEW: Run functional verification
+                # Run functional verification
                 verification = await self._verify_functional(
                     deployment_url,
                     app_type="nextjs",
-                    expected_platform="github-pages"
+                    expected_platform="piku"
                 )
                 result.functional_verification = verification
 
@@ -282,17 +281,16 @@ class AutonomousDeployer:
             username = os.getenv("PYTHONANYWHERE_USERNAME", "genesis")
             return f"https://{username}.pythonanywhere.com"
 
-        # GitHub Pages: Generate URL
-        elif platform == "github-pages":
-            github_username = os.getenv("GITHUB_USERNAME", "genesis-ai")
-            # CRITICAL FIX: Slugify business name (remove spaces, lowercase, hyphens)
+        # Piku: Generate URL
+        elif platform == "piku":
+            piku_server = os.getenv("PIKU_SERVER", "piku@genesis-deploy.local")
+            # Extract hostname from PIKU_SERVER (e.g., piku@server.com -> server.com)
+            server = piku_server.split("@")[-1] if "@" in piku_server else piku_server
             slug = business_name.lower().replace(' ', '-').replace('_', '-')
-            # Remove any non-alphanumeric characters except hyphens
             import re
             slug = re.sub(r'[^a-z0-9-]', '', slug)
-            # Remove consecutive hyphens
             slug = re.sub(r'-+', '-', slug)
-            return f"https://{github_username}.github.io/{slug}"
+            return f"https://{slug}.{server}"
 
         else:
             # Generic URL
@@ -310,7 +308,7 @@ class AutonomousDeployer:
         Args:
             deployment_url: URL to verify
             app_type: Type of app (nextjs, react, static)
-            expected_platform: Expected platform (railway, github-pages, etc.)
+            expected_platform: Expected platform (piku, railway, etc.)
 
         Returns:
             Dict with verification results
@@ -369,10 +367,10 @@ class AutonomousDeployer:
             Estimated monthly cost in USD
         """
         cost_estimates = {
+            "piku": 0.00,     # Self-hosted (server cost separate)
             "railway": 2.50,  # Average $2.50/month per app
             "render": 0.00,   # Free tier
             "pythonanywhere": 0.00,  # Free tier
-            "github-pages": 0.00   # Always free
         }
 
         return cost_estimates.get(platform, 5.00)  # Default $5/month

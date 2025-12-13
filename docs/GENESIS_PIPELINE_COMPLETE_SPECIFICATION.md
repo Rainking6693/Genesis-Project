@@ -112,7 +112,7 @@ The Genesis Pipeline is a **fully autonomous business generation system** that:
 
 | Key | Service | Open Source Alternative |
 |-----|---------|------------------------|
-| `OPENAI_API_KEY` | GPT backup | Ollama (local LLM) |
+| `OPENAI_API_KEY` | GPT backup 
 | `GEMINI_API_KEY` | QA via Roundtable | Local testing |
 
 ### Environment File Template
@@ -132,12 +132,8 @@ STRIPE_PUBLISHABLE_KEY=pk_live_...
 # CONFIGURATION
 GENESIS_ENV=production
 DEFAULT_DEPLOY_PLATFORM=github-pages
-LARGE_BILL_THRESHOLD=100.0
+LARGE_BILL_THRESHOLD=50
 
-# LOCAL LLM (FREE - optional)
-OLLAMA_HOST=http://localhost:11434
-DEFAULT_LOCAL_MODEL=qwen2.5:7b
-```
 
 ---
 

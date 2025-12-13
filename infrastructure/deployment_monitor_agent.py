@@ -193,26 +193,26 @@ class DeploymentMonitorAgent:
         health.last_recovery_attempt = datetime.now(timezone.utc)
 
         # Re-deploy based on platform
-        if deployment.platform == "github-pages":
-            await self._redeploy_github_pages(deployment)
+        if deployment.platform == "piku":
+            await self._redeploy_piku(deployment)
         else:
             logger.warning(f"⚠️ Auto-recovery not implemented for platform: {deployment.platform}")
             await self._alert_genesis(deployment, f"Platform {deployment.platform} recovery not implemented")
 
-    async def _redeploy_github_pages(self, deployment: MonitoredDeployment):
-        """Re-deploy a GitHub Pages site"""
+    async def _redeploy_piku(self, deployment: MonitoredDeployment):
+        """Re-deploy a Piku site"""
         try:
-            from infrastructure.github_pages_deployer import deploy_to_github_pages
+            from infrastructure.piku_deployer import PikuDeployer
 
-            logger.info(f"📦 Re-deploying {deployment.business_name} to GitHub Pages...")
+            logger.info(f"📦 Re-deploying {deployment.business_name} to Piku...")
 
-            result = await deploy_to_github_pages(
+            piku = PikuDeployer()
+            result = await piku.deploy(
                 deployment.app_path,
-                deployment.business_name,
-                verify=True
+                deployment.business_name
             )
 
-            if result["success"]:
+            if result.get("success"):
                 logger.info(f"✅ Re-deployment successful: {deployment.business_name}")
                 deployment.health.is_healthy = True
                 deployment.health.consecutive_failures = 0

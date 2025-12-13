@@ -6,6 +6,7 @@ Autonomously generates creative, profitable business ideas using:
 - LLM creativity (Qwen primary, Mistral fallback via Ollama)
 - Revenue potential scoring
 - Memory-backed learning from past successes
+- Externalized prompts (Best Practice #4 from arXiv:2512.08769)
 
 LLM Priority Order:
 1. Qwen 2.5 14B (primary) - via Ollama
@@ -23,6 +24,9 @@ from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, asdict
 from datetime import datetime, timezone
 import random
+
+# Import externalized prompt loader (Best Practice #4)
+from infrastructure.prompt_loader import load_prompt, get_prompt_loader
 
 logger = logging.getLogger(__name__)
 
@@ -309,7 +313,7 @@ class BusinessIdeaGenerator:
     async def generate_idea(
         self,
         business_type: Optional[str] = None,
-        min_revenue_score: float = 70.0,
+        min_revenue_score: float = 85.0,  # Raised from 70 to 85: only best ideas
         max_attempts: int = 5
     ) -> BusinessIdea:
         """
@@ -384,7 +388,7 @@ class BusinessIdeaGenerator:
         self,
         count: int,
         business_types: Optional[List[str]] = None,
-        min_revenue_score: float = 70.0
+        min_revenue_score: float = 85.0  # Raised from 70 to 85: only best ideas
     ) -> List[BusinessIdea]:
         """
         Generate multiple business ideas in parallel.
@@ -422,6 +426,9 @@ class BusinessIdeaGenerator:
         """
         Use LLM to generate a creative business idea.
 
+        Uses externalized prompts (Best Practice #4 from arXiv:2512.08769)
+        for version control, A/B testing, and governance.
+
         Args:
             business_type: Type of business (ecommerce, saas, content)
             trends: List of trending categories
@@ -429,56 +436,17 @@ class BusinessIdeaGenerator:
         Returns:
             Dict with name, description, features, etc.
         """
-        prompt = f"""You are a creative business strategist and market analyst.
-
-TASK: Generate a unique, profitable {business_type} business idea.
-
-MARKET CONTEXT:
-Current trending categories: {', '.join(trends)}
-
-REQUIREMENTS:
-- Must be monetizable within 30 days
-- Must be buildable by AI agents (Next.js + TypeScript)
-- Must solve a real problem for the target audience
-- Must differentiate from existing competitors
-- Must have clear revenue model
-- Must be scalable (SaaS/automation preferred)
-
-TARGET MARKET:
-- B2B SaaS: Small businesses (10-100 employees)
-- E-commerce: Online shoppers aged 25-45
-- Content: Professionals seeking niche expertise
-
-CREATIVITY RULES:
-- Combine trending categories in novel ways
-- Focus on underserved niches
-- Leverage AI/automation for competitive advantage
-- Consider viral/network effects
-- Prioritize recurring revenue models
-
-OUTPUT FORMAT (JSON):
-{{
-    "name": "Short, catchy business name (2-3 words)",
-    "business_type": "{business_type}",
-    "description": "2-sentence elevator pitch explaining value proposition",
-    "target_audience": "Specific audience segment with clear pain point",
-    "monetization_model": "Detailed revenue model (pricing, tiers, upsells)",
-    "mvp_features": [
-        "Feature 1: Must-have core functionality",
-        "Feature 2: Key differentiator",
-        "Feature 3: Monetization enabler",
-        "Feature 4: Viral/growth feature",
-        "Feature 5: Retention feature"
-    ],
-    "tech_stack": ["Next.js 14", "TypeScript", "Vercel", "Stripe", "others..."],
-    "success_metrics": {{
-        "target_revenue_month_1": "$X",
-        "target_users_month_1": "Y users",
-        "target_conversion_rate": "Z%"
-    }}
-}}
-
-Generate a creative, profitable business idea now:"""
+        # Load externalized prompt (Best Practice #4)
+        # Falls back to embedded prompt if external file not found
+        prompt = load_prompt(
+            "business_idea_generation",
+            variables={
+                "business_type": business_type,
+                "trends": ", ".join(trends),
+                "market_hints": "B2B SaaS, small businesses, professionals"
+            },
+            fallback=self._get_fallback_prompt(business_type, trends)
+        )
 
         try:
             # Priority: Qwen (primary) -> Mistral (fallback) -> Template
@@ -583,6 +551,65 @@ Generate a creative, profitable business idea now:"""
             content = content.split("```")[1].split("```")[0].strip()
 
         return content
+
+    def _get_fallback_prompt(self, business_type: str, trends: List[str]) -> str:
+        """
+        Get embedded fallback prompt when external prompt file not found.
+
+        This is the legacy embedded prompt, kept for backwards compatibility.
+        Best Practice #4 recommends externalizing prompts, so this should
+        only be used if prompts/business_idea_generation.md is missing.
+        """
+        return f"""You are a creative business strategist and market analyst.
+
+TASK: Generate a unique, profitable {business_type} business idea.
+
+MARKET CONTEXT:
+Current trending categories: {', '.join(trends)}
+
+REQUIREMENTS:
+- Must be monetizable within 30 days
+- Must be buildable by AI agents (Next.js + TypeScript)
+- Must solve a real problem for the target audience
+- Must differentiate from existing competitors
+- Must have clear revenue model
+- Must be scalable (SaaS/automation preferred)
+
+TARGET MARKET:
+- B2B SaaS: Small businesses (10-100 employees)
+- E-commerce: Online shoppers aged 25-45
+- Content: Professionals seeking niche expertise
+
+CREATIVITY RULES:
+- Combine trending categories in novel ways
+- Focus on underserved niches
+- Leverage AI/automation for competitive advantage
+- Consider viral/network effects
+- Prioritize recurring revenue models
+
+OUTPUT FORMAT (JSON):
+{{
+    "name": "Short, catchy business name (2-3 words)",
+    "business_type": "{business_type}",
+    "description": "2-sentence elevator pitch explaining value proposition",
+    "target_audience": "Specific audience segment with clear pain point",
+    "monetization_model": "Detailed revenue model (pricing, tiers, upsells)",
+    "mvp_features": [
+        "Feature 1: Must-have core functionality",
+        "Feature 2: Key differentiator",
+        "Feature 3: Monetization enabler",
+        "Feature 4: Viral/growth feature",
+        "Feature 5: Retention feature"
+    ],
+    "tech_stack": ["Next.js 14", "TypeScript", "Vercel", "Stripe", "others..."],
+    "success_metrics": {{
+        "target_revenue_month_1": "$X",
+        "target_users_month_1": "Y users",
+        "target_conversion_rate": "Z%"
+    }}
+}}
+
+Generate a creative, profitable business idea now:"""
 
     def _generate_template_idea(self, business_type: str, trends: List[str]) -> Dict[str, Any]:
         """Fallback template-based idea generation."""

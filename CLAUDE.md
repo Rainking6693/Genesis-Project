@@ -33,7 +33,7 @@ Genesis autonomous business operating system guidance for Claude Code.
 
 **Genesis** is a fully autonomous business operating system using 79 integrated AI systems. Generates, builds, deploys, monitors, and manages businesses end-to-end with NO HUMAN INTERACTION except bills >$100.
 
-**Lifecycle:** Generate → Build (21 agents) → Deploy (Railway/GitHub Pages) → Track (Stripe/analytics) → Evaluate (30-day cycle) → Shutdown if score <50
+**Lifecycle:** Generate → Build (21 agents) → Deploy (Piku) → Track (Stripe/analytics) → Evaluate (30-day cycle) → Shutdown if score <50
 
 **Key Tech:** 79 systems across 6 layers, A2A protocol, Evolution Strategies training, 26 specialized agents
 
@@ -84,10 +84,10 @@ cd genesis-dashboard && npm run dev  # Terminal 2
 
 ### Deployment
 ```bash
-# Deploy (Railway default, no Vercel)
+# Deploy (Piku ONLY - lightweight git-push PaaS)
+# https://github.com/piku/piku
 python scripts/simple_deploy.py --path businesses/fully_integrated/saas/my-app
-python scripts/simple_deploy.py --path [path] --platform github-pages
-python scripts/simple_deploy.py --path [path] --platform render
+# Piku is the ONLY deployment platform - no fallbacks
 
 # Env vars required
 GENESIS_ENV=production
@@ -95,7 +95,7 @@ A2A_API_KEY=<token>
 OPENAI_API_KEY=sk-...
 ANTHROPIC_API_KEY=sk-ant-...
 GEMINI_API_KEY=AIza...
-DEFAULT_DEPLOY_PLATFORM=railway
+PIKU_SERVER=piku@your-server.com
 ```
 
 ### Logs & Monitoring
@@ -243,7 +243,7 @@ response = await client.complete(prompt, max_tokens=1000)
 Status: Production-ready (82/100 audit score)
 - Auto domain generation with 5-factor scoring
 - Name.com API integration
-- GitHub Pages DNS auto-config
+- Piku DNS auto-config
 - $50 monthly threshold
 Files: `agents/domain_name_agent.py`, `infrastructure/namecom_client.py`
 
@@ -323,7 +323,7 @@ Priority: HIGH, Annual savings: $25-40K
 - **Python:** 3.12.4
 - **Total Systems:** 81 integrations (6 layers)
 - **Total Agents:** 26 with StandardIntegrationMixin (459 integrations each)
-- **Deployment:** GitHub Pages, Railway, Render, Fly.io
+- **Deployment:** Piku (ONLY deployment platform - lightweight git-push PaaS)
 - **Git Branch:** main
 - always use Context7 MCP
 - always use catalog-search MCP

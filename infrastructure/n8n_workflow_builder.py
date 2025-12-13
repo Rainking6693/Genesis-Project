@@ -403,7 +403,7 @@ return [{
                     "name": "Is Down?",
                     "parameters": {
                         "conditions": {
-                            "boolean": [{"value1": "={{$json.healthy}}", "value2": false}]
+                            "boolean": [{"value1": "={{$json.healthy}}", "value2": False}]
                         }
                     },
                     "position": [600, 0]

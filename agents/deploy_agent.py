@@ -688,7 +688,7 @@ class DeploymentConfig:
     """Configuration for deployment operations"""
     repo_name: str
     github_url: Optional[str] = None
-    platform: str = "vercel"  # vercel, netlify, cloudflare, railway, render, github_pages
+    platform: str = "piku"  # piku - lightweight git-push PaaS (https://github.com/piku/piku)
     framework: str = "nextjs"  # nextjs, react, vue, static
     environment: str = "production"  # production, staging, preview
     auto_approve: bool = False
@@ -931,7 +931,7 @@ class DeployAgent(SmartToolRouterMixin, StandardIntegrationMixin):
             'id': f'deploy-{datetime.now().strftime("%Y%m%d%H%M%S")}',
             'description': task_description,
             'priority': priority,
-            'required_tools': ['deploy_to_vercel', 'deploy_to_netlify', 'github_pages']
+            'required_tools': ['deploy_to_piku']
         }
 
         # Use DAAO router if available
@@ -1488,162 +1488,79 @@ Return JSON with:
                 "error": safe_error
             })
 
-    async def deploy_to_github_pages(
+    async def deploy_to_piku(
         self,
         deploy_dir: str,
-        repo_name: str,
-        branch: str = "main",
-        build_dir: str = "dist",
-        custom_domain: Optional[str] = None
+        app_name: str,
+        environment: Optional[Dict[str, str]] = None
     ) -> str:
         """
-        Deploy static site to GitHub Pages (Phase 7) with LLM analysis
-        
+        Deploy to Piku - lightweight git-push PaaS (https://github.com/piku/piku)
+
+        Piku is the ONLY deployment platform for Genesis businesses.
+
         Args:
             deploy_dir: Directory containing code to deploy
-            repo_name: Name of GitHub repository
-            branch: Branch to deploy from (default: main)
-            build_dir: Build output directory (default: dist)
-            custom_domain: Optional custom domain for GitHub Pages
-            
+            app_name: Name of the application
+            environment: Optional environment variables
+
         Returns:
             JSON string with deployment result
         """
-        logger.info(f"🚀 Deploying to GitHub Pages: {repo_name}")
-        
+        logger.info(f"🚀 Deploying to Piku: {app_name}")
+
         try:
-            # Step 1: Push to GitHub (if not already done)
-            github_result = json.loads(await self.push_to_github(deploy_dir, repo_name, branch))
-            
-            if not github_result.get('success'):
+            from infrastructure.piku_deployer import PikuDeployer
+
+            piku = PikuDeployer()
+
+            if not piku.is_configured():
                 return json.dumps({
                     "success": False,
-                    "error": f"GitHub push failed: {github_result.get('error')}",
-                    "platform": "github_pages"
+                    "error": "Piku not configured. Set PIKU_SERVER environment variable (e.g., piku@your-server.com)",
+                    "platform": "piku"
                 })
-            
-            github_url = github_result.get('github_url', '')
-            github_org = os.getenv('GITHUB_ORG', '')
-            
-            if not github_org:
-                return json.dumps({
-                    "success": False,
-                    "error": "GITHUB_ORG environment variable not set",
-                    "platform": "github_pages"
-                })
-            
-            # Step 2: Configure GitHub Pages via GitHub API
-            import requests
-            
-            headers = {
-                "Authorization": f"token {self.github_token}",
-                "Accept": "application/vnd.github.v3+json"
-            }
-            
-            # Enable GitHub Pages
-            pages_url = f"https://api.github.com/repos/{github_org}/{repo_name}/pages"
-            pages_config = {
-                "source": {
-                    "branch": branch,
-                    "path": "/" if build_dir == "." else f"/{build_dir}"
+
+            # Deploy via Piku
+            result = await piku.deploy(
+                app_path=deploy_dir,
+                app_name=app_name,
+                environment=environment or {}
+            )
+
+            if result.get("success"):
+                piku_url = result.get("url", "")
+
+                deploy_result = {
+                    "success": True,
+                    "platform": "piku",
+                    "url": piku_url,
+                    "app_name": result.get("app_name", app_name),
+                    "verified": result.get("verified", False),
+                    "deployed_at": datetime.now().isoformat()
                 }
-            }
-            
-            response = requests.post(pages_url, json=pages_config, headers=headers)
-            
-            if response.status_code not in [200, 201, 204]:
-                # Pages might already be enabled, try PUT to update
-                response = requests.put(pages_url, json=pages_config, headers=headers)
-            
-            if response.status_code not in [200, 201, 204]:
-                logger.warning(f"GitHub Pages configuration returned {response.status_code}: {response.text}")
-            
-            # Step 3: Configure custom domain (if provided)
-            if custom_domain:
-                cname_file = Path(deploy_dir) / "CNAME"
-                with open(cname_file, 'w') as f:
-                    f.write(custom_domain)
-                
-                # Commit CNAME file
-                original_dir = os.getcwd()
-                os.chdir(deploy_dir)
-                try:
-                    subprocess.run(['git', 'add', 'CNAME'], check=True, capture_output=True)
-                    subprocess.run(
-                        ['git', 'commit', '-m', f'Add custom domain: {custom_domain}'],
-                        check=True,
-                        capture_output=True
-                    )
-                    subprocess.run(
-                        ['git', 'push', 'origin', branch],
-                        check=True,
-                        capture_output=True
-                    )
-                finally:
-                    os.chdir(original_dir)
-            
-            # GitHub Pages URL
-            pages_url_final = f"https://{github_org.lower()}.github.io/{repo_name}"
-            if custom_domain:
-                pages_url_final = f"https://{custom_domain}"
-            
-            result = {
-                "success": True,
-                "platform": "github_pages",
-                "github_url": github_url,
-                "pages_url": pages_url_final,
-                "branch": branch,
-                "build_dir": build_dir,
-                "custom_domain": custom_domain,
-                "deployed_at": datetime.now().isoformat()
-            }
-            
-            logger.info(f"✅ Deployed to GitHub Pages: {pages_url_final}")
-            
-            # LLM analysis of GitHub Pages deployment
-            prompt = f"""{EXCELLENCE_PROMPT}
 
-Task: Analyze GitHub Pages deployment and provide insights.
+                logger.info(f"✅ Deployed to Piku: {piku_url}")
+                return json.dumps(deploy_result, indent=2)
+            else:
+                return json.dumps({
+                    "success": False,
+                    "error": result.get("error", "Piku deployment failed"),
+                    "platform": "piku"
+                })
 
-Deployment Details:
-- Repository: {repo_name}
-- Branch: {branch}
-- Build Dir: {build_dir}
-- Custom Domain: {custom_domain or 'None'}
-- Pages URL: {pages_url_final}
-
-Requirements:
-- Assess deployment effectiveness
-- Identify optimization opportunities
-- Provide recommendations for deployment strategy
-- Suggest improvements to deployment process
-
-Return JSON with:
-{{
-  "deployment_assessment": str,
-  "optimization_opportunities": [str],
-  "strategy_recommendations": [str],
-  "process_improvements": [str]
-}}
-"""
-            try:
-                if hasattr(self, 'local_llm_client') and self.local_llm_client:
-                    llm_response = await self.local_llm_client.complete(prompt, max_tokens=300)
-                    llm_data = json.loads(llm_response) if llm_response.strip().startswith('{') else {}
-                    if llm_data:
-                        result['llm_insights'] = llm_data
-                        logger.debug(f"GitHub Pages deployment analysis: {llm_data.get('deployment_assessment', 'N/A')[:100]}")
-            except Exception as e:
-                logger.warning(f"LLM GitHub Pages deployment analysis failed: {e}")
-            
-            return json.dumps(result, indent=2)
-            
+        except ImportError:
+            return json.dumps({
+                "success": False,
+                "error": "PikuDeployer not available - check infrastructure/piku_deployer.py",
+                "platform": "piku"
+            })
         except Exception as e:
-            logger.error(f"GitHub Pages deployment failed: {e}")
+            logger.error(f"Piku deployment failed: {e}")
             return json.dumps({
                 "success": False,
                 "error": str(e),
-                "platform": "github_pages"
+                "platform": "piku"
             })
 
     async def deploy_to_vercel(

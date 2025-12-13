@@ -1,23 +1,19 @@
 #!/usr/bin/env python3
 """
-Simple Deployment Script - Railway/Render Focus
+Simple Deployment Script - Piku Focus
 
-Simplified deployment for Genesis businesses without Vercel.
-Uses Railway (preferred) or Render for straightforward deployments.
+Simplified deployment for Genesis businesses using Piku.
+Piku is a lightweight git-push PaaS (https://github.com/piku/piku).
 
 Author: Genesis Deploy Agent
-Date: November 12, 2025
+Date: November 12, 2025 (Updated December 2025)
 Status: Production Ready
 
 Usage:
     python simple_deploy.py --path businesses/fully_integrated/saas/my-app
-    python simple_deploy.py --path businesses/fully_integrated/saas/my-app --platform render
 
-Supported Platforms:
-    - Railway (default, recommended)
-    - Render
-    - PythonAnywhere (for Python apps)
-    - GitHub Pages (for static sites)
+Supported Platform:
+    - Piku (ONLY deployment platform - lightweight git-push PaaS)
 """
 
 import argparse
@@ -40,16 +36,16 @@ logger = logging.getLogger(__name__)
 class SimpleDeployer:
     """Simple deployment without complex integrations"""
 
-    def __init__(self, app_path: Path, platform: str = "railway"):
+    def __init__(self, app_path: Path, platform: str = "piku"):
         """
         Initialize deployer
 
         Args:
             app_path: Path to application directory
-            platform: Deployment platform (railway, render, pythonanywhere, github-pages)
+            platform: Deployment platform (piku ONLY - lightweight git-push PaaS)
         """
         self.app_path = app_path.resolve()
-        self.platform = platform.lower()
+        self.platform = "piku"  # Force Piku - it's the ONLY deployment platform
         self.app_name = self.app_path.name
 
         if not self.app_path.exists():
@@ -381,99 +377,82 @@ build/
 
         return True
 
-    def deploy_github_pages(self) -> bool:
-        """Deploy to GitHub Pages with full automation"""
-        logger.info("Deploying to GitHub Pages...")
-
-        app_type = self.detect_app_type()
-        if app_type not in ["static", "nodejs"]:
-            logger.warning(f"⚠️  App type '{app_type}' may not work on GitHub Pages")
-            logger.info("GitHub Pages works best with static HTML/CSS/JS")
+    def deploy_piku(self) -> bool:
+        """Deploy to Piku (lightweight git-push PaaS)"""
+        logger.info("Deploying to Piku...")
 
         # Ensure git is initialized
         if not self.init_git_if_needed():
             return False
 
-        # Use automated GitHub Pages deployer
+        # Use Piku deployer
         try:
             import asyncio
-            from infrastructure.github_pages_deployer import deploy_to_github_pages
+            from infrastructure.piku_deployer import PikuDeployer
+
+            piku = PikuDeployer()
+
+            if not piku.is_configured():
+                logger.error("❌ Piku not configured. Set PIKU_SERVER environment variable.")
+                logger.error("   Example: PIKU_SERVER=piku@your-server.com")
+                return False
 
             # Run async deployment
             loop = asyncio.get_event_loop()
             result = loop.run_until_complete(
-                deploy_to_github_pages(
+                piku.deploy(
                     str(self.app_path),
-                    self.app_name,
-                    verify=True  # Verify site is live
+                    self.app_name
                 )
             )
 
-            if result["success"]:
+            if result.get("success"):
                 logger.info("=" * 60)
-                logger.info("✅ GITHUB PAGES DEPLOYMENT SUCCESSFUL!")
+                logger.info("✅ PIKU DEPLOYMENT SUCCESSFUL!")
                 logger.info("=" * 60)
-                logger.info(f"Deployment URL: {result['deployment_url']}")
-                logger.info(f"Repository: {result['repo_url']}")
-                logger.info(f"Duration: {result['duration_seconds']:.1f}s")
+                logger.info(f"Deployment URL: {result.get('url', 'N/A')}")
+                logger.info(f"App Name: {result.get('app_name', 'N/A')}")
                 logger.info(f"Verified: {result.get('verified', False)}")
                 logger.info("=" * 60)
                 return True
             else:
                 logger.error("=" * 60)
-                logger.error("❌ GITHUB PAGES DEPLOYMENT FAILED")
+                logger.error("❌ PIKU DEPLOYMENT FAILED")
                 logger.error("=" * 60)
                 logger.error(f"Error: {result.get('error', 'Unknown error')}")
-                if result.get("deployment_url"):
-                    logger.error(f"URL: {result['deployment_url']}")
-                if result.get("repo_url"):
-                    logger.error(f"Repository: {result['repo_url']}")
                 logger.error("=" * 60)
                 return False
 
         except Exception as e:
-            logger.error(f"❌ GitHub Pages deployment exception: {e}")
+            logger.error(f"❌ Piku deployment exception: {e}")
             logger.error("")
-            logger.error("Falling back to manual instructions:")
-            logger.error("1. Push this app to GitHub:")
+            logger.error("Manual deployment steps:")
+            logger.error("1. Add Piku remote:")
             logger.error(f"   cd {self.app_path}")
-            logger.error("   git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPO")
-            logger.error("   git push -u origin main")
-            logger.error("")
-            logger.error("2. Go to your GitHub repository settings")
-            logger.error("3. Navigate to 'Pages' section")
-            logger.error("4. Select 'Deploy from branch' -> 'main' -> '/' (root)")
+            logger.error("   git remote add piku piku@your-server.com:app-name")
+            logger.error("2. Push to Piku:")
+            logger.error("   git push piku master")
             logger.error("")
             return False
 
     def deploy(self) -> bool:
-        """Run deployment for selected platform"""
+        """Run deployment for selected platform (Piku ONLY)"""
         logger.info("=" * 60)
-        logger.info(f"Deploying {self.app_name} to {self.platform}")
+        logger.info(f"Deploying {self.app_name} to Piku")
         logger.info("=" * 60)
         logger.info(f"App path: {self.app_path}")
         logger.info(f"App type: {self.detect_app_type()}")
         logger.info("=" * 60)
         logger.info("")
 
-        if self.platform == "railway":
-            return self.deploy_railway()
-        elif self.platform == "render":
-            return self.deploy_render()
-        elif self.platform == "pythonanywhere":
-            return self.deploy_pythonanywhere()
-        elif self.platform == "github-pages":
-            return self.deploy_github_pages()
-        else:
-            logger.error(f"❌ Unsupported platform: {self.platform}")
-            logger.info("Supported platforms: railway, render, pythonanywhere, github-pages")
-            return False
+        # Piku is the ONLY deployment platform
+        return self.deploy_piku()
 
 
 def main():
     """Main entry point"""
     parser = argparse.ArgumentParser(
-        description="Simple deployment for Genesis businesses (no Vercel)"
+        description="Simple deployment for Genesis businesses using Piku"
     )
     parser.add_argument(
         "--path",
@@ -482,9 +461,9 @@ def main():
     )
     parser.add_argument(
         "--platform",
-        default="railway",
-        choices=["railway", "render", "pythonanywhere", "github-pages"],
-        help="Deployment platform (default: railway)"
+        default="piku",
+        choices=["piku"],
+        help="Deployment platform (piku ONLY)"
     )
 
     args = parser.parse_args()

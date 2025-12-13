@@ -410,6 +410,35 @@ class SEDarwinEngine:
         genome.strategy = random.choice(strategies)
         return genome
 
+    def add_trajectory(self, trajectory: Trajectory) -> None:
+        """
+        Add a trajectory to the pool for learning.
+
+        Args:
+            trajectory: Trajectory to add to the pool
+        """
+        self.trajectory_pool.append(trajectory)
+        logger.debug(f"Added trajectory {trajectory.trajectory_id} (fitness: {trajectory.fitness_score:.4f})")
+
+    def add_trajectory_from_dict(self, trajectory_data: Dict[str, Any]) -> None:
+        """
+        Add a trajectory from a dictionary representation.
+
+        Args:
+            trajectory_data: Dictionary with trajectory fields
+        """
+        trajectory = Trajectory(
+            trajectory_id=trajectory_data.get("trajectory_id", f"traj_{len(self.trajectory_pool)}"),
+            agent_name=trajectory_data.get("agent_name", "unknown"),
+            task_description=trajectory_data.get("task_description", ""),
+            input_data=trajectory_data.get("input_data", {}),
+            output_data=trajectory_data.get("output_data", {}),
+            fitness_score=trajectory_data.get("fitness_score", 0.0),
+            execution_time=trajectory_data.get("execution_time", 0.0),
+            metadata=trajectory_data.get("metadata", {})
+        )
+        self.add_trajectory(trajectory)
+
     def get_best_genome(self) -> Optional[EvolutionGenome]:
         """Get best genome from current population"""
         if not self.population:

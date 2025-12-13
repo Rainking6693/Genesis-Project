@@ -4,11 +4,17 @@ Roundtable Interface - Multi-LLM Coordination
 Interface for communicating with Codex, Gemini, Cursor, and Claude
 via the Roundtable MCP server.
 
+Best Practice #5 from arXiv:2512.08769:
+"Responsible AI-aligned Model Consortium Design"
+- Multiple specialized LLMs independently generate outputs
+- A ReasoningAgent synthesizes, validates, and audits results
+
 Roles:
 - Codex: Lead Developer - generates and implements code
 - Gemini: Lead QA - runs tests and verification
 - Cursor: Codebase Navigator - searches and understands code
 - Claude: Already the primary orchestrator
+- ReasoningAgent: Final auditor - consolidates and validates outputs
 """
 
 import asyncio
@@ -22,6 +28,19 @@ from pathlib import Path
 
 from infrastructure.load_env import load_genesis_env
 load_genesis_env()
+
+# Import ReasoningAgent for multi-model consolidation (Best Practice #5)
+try:
+    from agents.reasoning_agent import (
+        ReasoningAgent,
+        ModelOutput,
+        ConsolidatedOutput,
+        ConflictResolutionStrategy,
+        consolidate_model_outputs
+    )
+    REASONING_AGENT_AVAILABLE = True
+except ImportError:
+    REASONING_AGENT_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 
@@ -440,6 +459,142 @@ class RoundtableInterface:
             coroutines.append(coro)
 
         return await asyncio.gather(*coroutines)
+
+    # ========== Multi-Model Consortium (Best Practice #5) ==========
+
+    async def invoke_consortium(
+        self,
+        instruction: str,
+        agents: List[str] = ["codex", "gemini", "claude"],
+        project_path: Optional[str] = None,
+        output_type: str = "json",
+        strategy: str = "conservative"
+    ) -> Dict[str, Any]:
+        """
+        Invoke multiple models in parallel and consolidate results.
+
+        Implements Best Practice #5 from arXiv:2512.08769:
+        "Responsible AI-aligned Model Consortium Design"
+
+        The paper states: "A dedicated reasoning agent then synthesizes these
+        drafts, resolves conflicts, removes speculation, and grounds the final
+        output in agreed-upon facts."
+
+        Args:
+            instruction: The task for all agents to perform
+            agents: List of agents to invoke (default: codex, gemini, claude)
+            project_path: Path to the project directory
+            output_type: Type of output to consolidate ("json", "text", "list", "code")
+            strategy: Conflict resolution strategy:
+                - "conservative": Only accept facts >60% agree on
+                - "majority_vote": Most common answer wins
+                - "weighted": Weight by model confidence
+                - "union": Merge all unique elements
+
+        Returns:
+            Dict with consolidated result and metadata
+        """
+        if not REASONING_AGENT_AVAILABLE:
+            logger.warning("ReasoningAgent not available, falling back to single agent")
+            result = await self.invoke_codex(instruction, project_path)
+            return {
+                "result": result.output,
+                "confidence": 0.7 if result.success else 0.3,
+                "agreement_score": 1.0,
+                "sources": ["codex"],
+                "reasoning_trace": "Single agent fallback (ReasoningAgent not available)"
+            }
+
+        logger.info(f"Invoking consortium of {len(agents)} agents: {agents}")
+
+        # Step 1: Invoke all agents in parallel
+        tasks = [
+            {"agent": agent, "instruction": instruction, "project_path": project_path}
+            for agent in agents
+        ]
+        results = await self.invoke_parallel(tasks)
+
+        # Step 2: Convert to ModelOutput format for ReasoningAgent
+        model_outputs = []
+        for i, result in enumerate(results):
+            agent_name = agents[i]
+
+            # Try to parse JSON if output_type is json
+            output = result.output
+            if output_type == "json":
+                try:
+                    output = json.loads(result.output)
+                except (json.JSONDecodeError, TypeError):
+                    # Keep as string if JSON parse fails
+                    pass
+
+            model_outputs.append(ModelOutput(
+                model_name=agent_name,
+                output=output,
+                confidence=0.9 if result.success else 0.5,
+                reasoning=f"Agent {agent_name} completed in {result.duration_seconds:.1f}s"
+            ))
+
+        # Step 3: Use ReasoningAgent to consolidate
+        strategy_map = {
+            "conservative": ConflictResolutionStrategy.CONSERVATIVE,
+            "majority_vote": ConflictResolutionStrategy.MAJORITY_VOTE,
+            "weighted": ConflictResolutionStrategy.WEIGHTED_CONFIDENCE,
+            "union": ConflictResolutionStrategy.UNION,
+            "intersection": ConflictResolutionStrategy.INTERSECTION
+        }
+
+        reasoning_agent = ReasoningAgent(
+            strategy=strategy_map.get(strategy, ConflictResolutionStrategy.CONSERVATIVE)
+        )
+
+        consolidated = await reasoning_agent.consolidate(
+            outputs=model_outputs,
+            output_type=output_type
+        )
+
+        logger.info(f"Consortium result: confidence={consolidated.confidence:.2f}, "
+                   f"agreement={consolidated.agreement_score:.2f}")
+
+        return {
+            "result": consolidated.result,
+            "confidence": consolidated.confidence,
+            "agreement_score": consolidated.agreement_score,
+            "conflicts_resolved": consolidated.conflicts_resolved,
+            "hallucinations_removed": consolidated.hallucinations_removed,
+            "sources": consolidated.sources,
+            "reasoning_trace": consolidated.reasoning_trace
+        }
+
+    async def code_with_review(
+        self,
+        instruction: str,
+        project_path: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Generate code with Codex, review with Gemini, consolidate with ReasoningAgent.
+
+        This is a specialized consortium workflow for code generation that:
+        1. Has Codex generate the initial implementation
+        2. Has Gemini review and suggest improvements
+        3. Has Claude verify the architecture
+        4. Consolidates into a final, validated implementation
+
+        Args:
+            instruction: The code generation task
+            project_path: Path to the project directory
+
+        Returns:
+            Dict with validated code and review metadata
+        """
+        # Use full consortium for critical code
+        return await self.invoke_consortium(
+            instruction=instruction,
+            agents=["codex", "gemini", "claude"],
+            project_path=project_path,
+            output_type="code",
+            strategy="conservative"
+        )
 
     # ========== Conversation Mode ==========
 

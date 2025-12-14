@@ -203,3 +203,4 @@ Desktop.ini
 
 # Businesses directory (exclude from git and builds)
 businesses/
+tools/ag-ui

@@ -94,6 +94,34 @@ class BusinessSpec:
     metadata: Dict[str, Any] = field(default_factory=dict)
 
 
+SKYVERN_SUBMISSION_TASKS = {
+    "submit_betalist.yaml": {
+        "display_name": "BetaList",
+        "url": "https://betalist.com/submit"
+    },
+    "submit_product_hunt.yaml": {
+        "display_name": "Product Hunt",
+        "url": "https://www.producthunt.com/posts/new"
+    },
+    "submit_hackernews.yaml": {
+        "display_name": "Hacker News",
+        "url": "https://news.ycombinator.com/submit"
+    },
+    "submit_indiehackers.yaml": {
+        "display_name": "IndieHackers",
+        "url": "https://www.indiehackers.com/post/new"
+    },
+    "submit_microlaunch.yaml": {
+        "display_name": "MicroLaunch",
+        "url": "https://microlaunch.net/submit"
+    },
+    "submit_saashub.yaml": {
+        "display_name": "SaaSHub",
+        "url": "https://www.saashub.com/submit-software"
+    },
+}
+
+
 @dataclass
 class PipelineRun:
     """Represents a single pipeline execution"""
@@ -279,6 +307,215 @@ class GenesisPipeline:
             except Exception as e:
                 logger.warning(f"Marketing agent unavailable: {e}")
         return self._marketing_agent
+
+    @property
+    def skyvern_client(self):
+        """Lazy load Skyvern browser automation client"""
+        if not hasattr(self, '_skyvern_client'):
+            self._skyvern_client = None
+        if self._skyvern_client is None:
+            try:
+                from infrastructure.browser_automation.skyvern_client import SkyvernClient
+                self._skyvern_client = SkyvernClient()
+                logger.debug("SkyvernClient loaded")
+            except Exception as e:
+                logger.warning(f"SkyvernClient unavailable: {e}")
+                self._skyvern_client = None
+        return self._skyvern_client
+
+    @property
+    def chrome_devtools_client(self):
+        """Lazy load Chrome DevTools MCP client for fallback submissions"""
+        if not hasattr(self, '_chrome_devtools_client'):
+            self._chrome_devtools_client = None
+        if self._chrome_devtools_client is None:
+            try:
+                from infrastructure.mcp_chrome_devtools_client import ChromeDevToolsMCPClient
+                self._chrome_devtools_client = ChromeDevToolsMCPClient(agent_name="genesis_pipeline")
+                logger.debug("Chrome DevTools MCP client instantiated")
+            except Exception as e:
+                logger.warning(f"Chrome DevTools MCP unavailable: {e}")
+                self._chrome_devtools_client = None
+        return self._chrome_devtools_client
+
+    async def _ensure_chrome_devtools_ready(self) -> bool:
+        client = self.chrome_devtools_client
+        if not client:
+            return False
+        if getattr(client, "_initialized", False):
+            return True
+        return await client.initialize()
+
+    @staticmethod
+    def _stringify_value(value: Any, delimiter: str = ", ") -> str:
+        if value is None:
+            return ""
+        if isinstance(value, str):
+            return value
+        if isinstance(value, (list, tuple)):
+            return delimiter.join(str(v) for v in value if v)
+        return str(value)
+
+    def _build_submission_params(self, run: PipelineRun, task_name: str) -> Dict[str, str]:
+        spec = run.business_spec
+        metadata = spec.metadata or {}
+        safe_description = spec.description or spec.name
+        tagline = (
+            self._stringify_value(metadata.get("tagline")) or
+            self._stringify_value(metadata.get("value_proposition")) or
+            safe_description[:140]
+        )
+        features_csv = self._stringify_value(spec.features or [])
+        category = self._stringify_value(metadata.get("category")) or spec.business_type
+
+        def meta(key: str, fallback: str = "") -> str:
+            value = metadata.get(key)
+            if value is None:
+                return fallback
+            stringified = self._stringify_value(value)
+            return stringified or fallback
+
+        if task_name == "submit_betalist.yaml":
+            return {
+                "startup_name": spec.name,
+                "website": run.live_url,
+                "short_description": tagline,
+                "long_description": safe_description,
+                "category": category,
+                "tags": meta("directory_tags") or meta("tags") or features_csv,
+                "logo_url": meta("logo_url") or meta("media_logo"),
+                "screenshot_urls": meta("screenshot_urls") or meta("media_screenshots")
+            }
+        if task_name == "submit_hackernews.yaml":
+            return {
+                "project_name": spec.name,
+                "project_url": run.live_url,
+                "description": safe_description
+            }
+        if task_name == "submit_indiehackers.yaml":
+            return {
+                "title": meta("indie_title") or f"{spec.name} Milestone",
+                "milestone_type": meta("milestone_type") or "Launch",
+                "description": meta("indie_description") or safe_description,
+                "metrics": meta("milestone_metrics") or features_csv or "Early traction",
+                "link": run.live_url
+            }
+        if task_name == "submit_microlaunch.yaml":
+            return {
+                "product_name": spec.name,
+                "tagline": tagline,
+                "description": safe_description,
+                "website": run.live_url,
+                "category": category,
+                "maker_twitter": meta("maker_twitter")
+            }
+        if task_name == "submit_product_hunt.yaml":
+            return {
+                "product_name": spec.name,
+                "tagline": tagline,
+                "description": safe_description,
+                "website": run.live_url,
+                "category": category,
+                "topics": meta("topics") or features_csv or category
+            }
+        if task_name == "submit_saashub.yaml":
+            return {
+                "product_name": spec.name,
+                "website": run.live_url,
+                "description": safe_description,
+                "category": category,
+                "pricing_model": meta("pricing_model") or "Subscription",
+                "features": meta("directory_features") or features_csv
+            }
+        return {}
+
+    async def _run_directory_submissions(self, run: PipelineRun) -> List[Dict[str, Any]]:
+        tasks_dir = Path("skyvern_tasks")
+        if not tasks_dir.exists():
+            logger.warning("Skyvern tasks directory is missing; skipping directory submissions")
+            return []
+
+        available_tasks = [
+            name for name in SKYVERN_SUBMISSION_TASKS.keys()
+            if (tasks_dir / name).is_file()
+        ]
+        if not available_tasks:
+            logger.info("No Skyvern submission task files found")
+            return []
+
+        skyvern = self.skyvern_client
+        chrome_ready = False
+        if self.chrome_devtools_client:
+            chrome_ready = await self._ensure_chrome_devtools_ready()
+
+        submission_results: List[Dict[str, Any]] = []
+
+        for task_name in available_tasks:
+            params = self._build_submission_params(run, task_name)
+            entry: Dict[str, Any] = {
+                "task": task_name,
+                "mode": None,
+                "success": False,
+                "status": None,
+                "error": None,
+                "details": {}
+            }
+
+            if not params:
+                entry["error"] = "Submission parameters unavailable"
+                submission_results.append(entry)
+                continue
+
+            task_info = SKYVERN_SUBMISSION_TASKS.get(task_name, {})
+            if skyvern:
+                try:
+                    task_result = await skyvern.run_task(task_name, params)
+                    status_value = getattr(task_result.status, "value", str(task_result.status)).lower()
+                    success = status_value == "completed"
+                    entry.update({
+                        "mode": "skyvern",
+                        "success": success,
+                        "status": status_value,
+                        "details": {
+                            "task_id": task_result.task_id,
+                            "execution_time_ms": task_result.execution_time_ms,
+                            "error_message": task_result.error_message
+                        }
+                    })
+                    if success:
+                        submission_results.append(entry)
+                        continue
+                    entry["error"] = task_result.error_message or "Skyvern task did not complete"
+                except Exception as exc:
+                    entry.update({
+                        "mode": entry.get("mode") or "skyvern",
+                        "error": str(exc)
+                    })
+
+            if chrome_ready and task_info.get("url"):
+                try:
+                    fallback = await self.chrome_devtools_client.navigate(task_info["url"])
+                    entry["details"].update({
+                        "fallback_latency_ms": fallback.latency_ms,
+                        "fallback_error": fallback.error
+                    })
+                    entry["mode"] = entry["mode"] or "chrome_devtools"
+                    if fallback.success:
+                        entry["success"] = True
+                        entry["status"] = entry["status"] or "chrome-navigation"
+                    else:
+                        entry["error"] = entry["error"] or fallback.error
+                except Exception as exc:
+                    entry["error"] = entry["error"] or str(exc)
+
+            if not entry["mode"]:
+                entry["mode"] = "unavailable"
+
+            submission_results.append(entry)
+
+        success_count = sum(1 for result in submission_results if result.get("success"))
+        logger.info(f"[{run.run_id}] Directory submissions: {success_count}/{len(submission_results)} succeeded")
+        return submission_results
 
     @property
     def thanatos(self):
@@ -2215,6 +2452,7 @@ Return ONLY a JSON object:
         try:
             workflows_created = []
             marketing_campaign = None
+            submission_results: List[Dict[str, Any]] = []
 
             # ========== Part 1: n8n Workflows ==========
             if self.n8n:
@@ -2279,9 +2517,12 @@ Return ONLY a JSON object:
                 # Set dry_run=False to actually post via MCP servers
                 execution_result = await self.marketing_agent.execute_campaign(
                     marketing_campaign,
-                    dry_run=True  # Change to False when MCP servers are configured
+                    dry_run=False
                 )
                 logger.info(f"[{run.run_id}] Marketing execution: {execution_result['executed']}/{execution_result['total_content']} content pieces")
+                submission_results = await self._run_directory_submissions(run)
+                submission_success = sum(1 for result in submission_results if result.get("success"))
+                logger.info(f"[{run.run_id}] Directory submissions succeeded: {submission_success}/{len(submission_results)}")
 
             # Calculate success
             success = len(workflows_created) >= 2  # At least 2 workflows (lowered since marketing is valuable)
@@ -2297,12 +2538,18 @@ Return ONLY a JSON object:
                         "content_pieces": len(marketing_campaign.content_calendar) if marketing_campaign else 0,
                         "tactics": [t.value for t in marketing_campaign.tactics_enabled] if marketing_campaign else [],
                         "platforms": list(set(c.platform.value for c in marketing_campaign.content_calendar)) if marketing_campaign else []
-                    } if marketing_campaign else None
+                    } if marketing_campaign else None,
+                    "directory_submissions": {
+                        "total": len(submission_results),
+                        "success_count": sum(1 for result in submission_results if result.get("success")) if submission_results else 0,
+                        "details": submission_results
+                    }
                 },
                 score=score,
                 agent_logs=[
                     f"Created {len(workflows_created)} automation workflows",
-                    f"Marketing campaign: {len(marketing_campaign.content_calendar) if marketing_campaign else 0} content pieces ready"
+                    f"Marketing campaign: {len(marketing_campaign.content_calendar) if marketing_campaign else 0} content pieces ready",
+                    f"Directory submissions: {sum(1 for result in submission_results if result.get('success'))}/{len(submission_results)} tasks succeeded"
                 ]
             )
 
